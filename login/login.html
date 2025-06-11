@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NexStaff - Login</title>
+    <link rel="stylesheet" href="./admin/css/login.css">
+    <link rel="icon" href="./admin/img/logo.png" type="image/png">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <script src="./admin/js/auth.js" defer></script>
+</head>
+<body>
+    <div class="login-container">
+        <div class="login-left">
+            <a href="../index.html" class="logo-link">
+                <img src="./admin/img/logo.png" alt="NexStaff Logo" class="logo">
+            </a>
+            <div class="login-welcome">
+                <h1 class="login-title">Welcome Back</h1>
+                <p class="login-subtitle">Sign in to access your NexStaff dashboard</p>
+            </div>
+            <form id="loginForm" class="login-form">
+                <div class="input-group">
+                    <i class="material-icons input-icon">email</i>
+                    <input type="email" id="email" placeholder="Email" required>
+                </div>
+                <div class="input-group">
+                    <i class="material-icons input-icon">lock</i>
+                    <input type="password" id="password" placeholder="Password" required>
+                    <button type="button" class="password-toggle" aria-label="Toggle password visibility">
+                        <i class="material-icons">visibility_off</i>
+                    </button>
+                </div>
+                <div class="login-options">
+                    <label class="remember-me">
+                        <input type="checkbox" id="rememberMe">
+                        <span class="checkbox-label">Remember me</span>
+                    </label>
+                    <a href="#" class="forgot-password">Forgot Password?</a>
+                </div>
+                <div id="loginError" class="error-message"></div>
+                <button type="submit" class="login-btn">
+                    <span class="btn-text">Sign In</span>
+                    <div class="spinner" style="display: none;"></div>
+                </button>
+            </form>
+            <div class="login-footer">
+                <p>Don't have an account? <a href="#" class="signup-link">Contact HR</a></p>
+            </div>
+        </div>
+        <div class="login-right">
+            <div class="feature-highlight">
+                <h2>Employee Management System</h2>
+                <div class="feature-list">
+                    <div class="feature-item">
+                        <i class="material-icons">person</i>
+                        <div class="feature-text">
+                            <h3>Employee Information</h3>
+                            <p>Manage employee details and documents</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <i class="material-icons">analytics</i>
+                        <div class="feature-text">
+                            <h3>Performance Tracking</h3>
+                            <p>Monitor and analyze employee performance</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <i class="material-icons">calendar_today</i>
+                        <div class="feature-text">
+                            <h3>Attendance Management</h3>
+                            <p>Track attendance and leave management</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Password visibility toggle
+            const passwordToggle = document.querySelector('.password-toggle');
+            const passwordInput = document.getElementById('password');
+            let passwordVisible = false;
+
+            passwordToggle.addEventListener('click', () => {
+                passwordVisible = !passwordVisible;
+                passwordInput.type = passwordVisible ? 'text' : 'password';
+                passwordToggle.querySelector('i').textContent = 
+                    passwordVisible ? 'visibility' : 'visibility_off';
+            });
+
+            // Login form submission
+            const loginForm = document.getElementById('loginForm');
+            const loginBtn = loginForm.querySelector('.login-btn');
+            const btnText = loginBtn.querySelector('.btn-text');
+            const spinner = loginBtn.querySelector('.spinner');
+            const loginError = document.getElementById('loginError');
+
+            loginForm.addEventListener('submit', async function(e) {
+                e.preventDefault();
+                
+                // Show loading state
+                btnText.style.opacity = '0';
+                spinner.style.display = 'block';
+                loginBtn.disabled = true;
+                loginError.textContent = '';
+
+                const email = document.getElementById('email').value;
+                const password = document.getElementById('password').value;
+
+                try {
+                    const result = await AuthAPI.login(email, password);
+                    
+                    if (result.success) {
+                        // Store remember me preference
+                        if (document.getElementById('rememberMe').checked) {
+                            localStorage.setItem('nexstaff_remember', 'true');
+                        }
+                        
+                        window.location.href = 'dashboard.html';
+                    } else {
+                        throw new Error(result.error || 'Invalid credentials');
+                    }
+                } catch (error) {
+                    loginError.textContent = error.message;
+                    loginError.style.display = 'block';
+                    
+                    // Reset button state
+                    btnText.style.opacity = '1';
+                    spinner.style.display = 'none';
+                    loginBtn.disabled = false;
+                }
+            });
+
+            // Check for remembered login
+            if (localStorage.getItem('nexstaff_remember') === 'true') {
+                document.getElementById('rememberMe').checked = true;
+                const session = AuthAPI.init();
+                if (session.isAuthenticated) {
+                    window.location.href = 'dashboard.html';
+                }
+            }
+        });
+    </script>
+</body>
+</html>
