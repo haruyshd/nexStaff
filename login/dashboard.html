@@ -26,8 +26,17 @@
             if (![AuthAPI.ROLES.ADMIN, AuthAPI.ROLES.HR].includes(session.user.role)) {
                 alert('Access denied. Only admin or HR can access this dashboard.');
                 AuthAPI.logout();
+                window.location.href = 'login.html';
                 return;
             }
+
+            // Handle logout
+            document.getElementById('logoutLink').addEventListener('click', function(e) {
+                e.preventDefault();
+                AuthAPI.logout();
+                window.location.href = 'login.html';
+            });
+
             // Initialize employee management data
             EmployeeManagementAPI.init();
         });
@@ -42,11 +51,10 @@
                 <div class="logo">NexStaff</div>
             </div>
             <ul class="nav-links" id="navLinks">
-                <li><a href="#" class="active" data-tab="dashboard"><i class="material-icons">dashboard</i> Dashboard</a></li>
-                <li><a href="#" data-tab="employees"><i class="material-icons">people</i> Employees</a></li>
+                <li><a href="#" class="active" data-tab="dashboard"><i class="material-icons">dashboard</i> Dashboard</a></li>                <li><a href="#" data-tab="employees"><i class="material-icons">people</i> Employees</a></li>
                 <li><a href="#" data-tab="jobs"><i class="material-icons">work</i> Jobs</a></li>
                 <li><a href="#" data-tab="settings"><i class="material-icons">settings</i> Settings</a></li>
-                <li><a href="login.html"><i class="material-icons">logout</i> Logout</a></li>
+                <li><a href="#" id="logoutLink"><i class="material-icons">logout</i> Logout</a></li>
             </ul>
         </nav>
         <main>

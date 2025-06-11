@@ -76,73 +76,86 @@
                 </div>
             </div>
         </div>
-    </div>
-
-    <script>
+    </div>    <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // Password visibility toggle
-            const passwordToggle = document.querySelector('.password-toggle');
-            const passwordInput = document.getElementById('password');
-            let passwordVisible = false;
-
-            passwordToggle.addEventListener('click', () => {
-                passwordVisible = !passwordVisible;
-                passwordInput.type = passwordVisible ? 'text' : 'password';
-                passwordToggle.querySelector('i').textContent = 
-                    passwordVisible ? 'visibility' : 'visibility_off';
-            });
-
-            // Login form submission
+            // Elements
             const loginForm = document.getElementById('loginForm');
-            const loginBtn = loginForm.querySelector('.login-btn');
+            const emailInput = document.getElementById('email');
+            const passwordInput = document.getElementById('password');
+            const loginBtn = document.querySelector('.login-btn');
             const btnText = loginBtn.querySelector('.btn-text');
             const spinner = loginBtn.querySelector('.spinner');
             const loginError = document.getElementById('loginError');
+            const rememberMe = document.getElementById('rememberMe');
+            const passwordToggle = document.querySelector('.password-toggle');
+            let passwordVisible = false;
 
+            // --- Remember Me: persist checkbox and auto-login ---
+            if (localStorage.getItem('nexstaff_remember') === 'true') {
+                rememberMe.checked = true;
+                const session = AuthAPI.init();
+                if (session.isAuthenticated) {
+                    window.location.replace('dashboard.html');
+                    return;
+                }
+            }
+
+            // --- Show/Hide Password ---
+            passwordToggle.addEventListener('click', function() {
+                passwordVisible = !passwordVisible;
+                passwordInput.type = passwordVisible ? 'text' : 'password';
+                passwordToggle.querySelector('i').textContent = passwordVisible ? 'visibility' : 'visibility_off';
+            });
+
+            // --- Validation ---
+            function isValidEmail(email) {
+                return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+            }
+            function validateForm() {
+                const valid = isValidEmail(emailInput.value) && passwordInput.value.length >= 6;
+                loginBtn.disabled = !valid;
+                return valid;
+            }
+            emailInput.addEventListener('input', validateForm);
+            passwordInput.addEventListener('input', validateForm);
+            validateForm();
+
+            // --- Login Form Submission ---
             loginForm.addEventListener('submit', async function(e) {
                 e.preventDefault();
-                
-                // Show loading state
+                if (!validateForm()) return;
                 btnText.style.opacity = '0';
                 spinner.style.display = 'block';
                 loginBtn.disabled = true;
                 loginError.textContent = '';
-
-                const email = document.getElementById('email').value;
-                const password = document.getElementById('password').value;
-
+                loginError.style.display = 'none';
                 try {
-                    const result = await AuthAPI.login(email, password);
-                    
+                    const result = await AuthAPI.login(emailInput.value, passwordInput.value);
                     if (result.success) {
-                        // Store remember me preference
-                        if (document.getElementById('rememberMe').checked) {
+                        if (rememberMe.checked) {
                             localStorage.setItem('nexstaff_remember', 'true');
+                        } else {
+                            localStorage.removeItem('nexstaff_remember');
                         }
-                        
-                        window.location.href = 'dashboard.html';
+                        // Check role before redirecting
+                        const session = AuthAPI.init();
+                        if (session.user && [AuthAPI.ROLES.ADMIN, AuthAPI.ROLES.HR].includes(session.user.role)) {
+                            window.location.replace('dashboard.html');
+                        } else {
+                            AuthAPI.logout();
+                            throw new Error('Access denied. Only admin or HR can access the dashboard.');
+                        }
                     } else {
                         throw new Error(result.error || 'Invalid credentials');
                     }
                 } catch (error) {
                     loginError.textContent = error.message;
                     loginError.style.display = 'block';
-                    
-                    // Reset button state
                     btnText.style.opacity = '1';
                     spinner.style.display = 'none';
                     loginBtn.disabled = false;
                 }
             });
-
-            // Check for remembered login
-            if (localStorage.getItem('nexstaff_remember') === 'true') {
-                document.getElementById('rememberMe').checked = true;
-                const session = AuthAPI.init();
-                if (session.isAuthenticated) {
-                    window.location.href = 'dashboard.html';
-                }
-            }
         });
     </script>
 </body>
