@@ -995,6 +995,7 @@ main {
     background: var(--primary-color);
     color: white;
     transform: translateY(-3px);
+    box-shadow: 0 5px 15px rgba(146, 128, 253, 0.2);
 }
 
 .footer-section h4 {
@@ -1030,6 +1031,15 @@ main {
 }
 
 .footer-bottom {
+    margin-top: 2rem;
+    text-align: center;
+    padding-top: 2rem;
+    border-top: 1px solid rgba(146, 128, 253, 0.1);
+}
+
+.footer-bottom p {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
     width: 100%;
     text-align: center;
     padding-top: 3rem;
