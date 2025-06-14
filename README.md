@@ -1,5 +1,7 @@
 # NexStaff - Advanced Employee Management System
 
+# Access Here: [https://haruyshd.github.io/nexStaff/](https://haruyshd.github.io/nexStaff/)
+
 ## Overview
 NexStaff is a comprehensive employee management system designed to streamline HR operations and employee data management. Built with modern web technologies, it offers a complete suite of tools for managing employee information, performance, attendance, and more.
 
@@ -63,7 +65,7 @@ NexStaff is a comprehensive employee management system designed to streamline HR
 
 1. Clone the repository
 ```powershell
-git clone https://github.com/yourusername/nexstaff.git
+git clone https://haruyshd.github.io/nexStaff/
 ```
 
 2. Open the project folder
