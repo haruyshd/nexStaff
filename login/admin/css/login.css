@@ -8,21 +8,24 @@
 
 body {
     min-height: 100vh;
-    background: #f0f2f5;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     display: flex;
-    justify-content: center;
     align-items: center;
+    justify-content: center;
+    margin: 0;
+    padding: 0;
 }
 
 .login-container {
     display: flex;
     background: white;
     border-radius: 20px;
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
     width: 90%;
-    max-width: 1200px;
+    max-width: 1000px;
     min-height: 600px;
     overflow: hidden;
+    position: relative;
 }
 
 .login-left {
@@ -32,13 +35,25 @@ body {
     flex-direction: column;
 }
 
+.logo {
+    width: 60px;
+    height: 60px;
+    object-fit: contain;
+}
+
 .logo-link {
+    display: flex;
+    align-items: center;
+    text-decoration: none;
     margin-bottom: 2rem;
 }
 
-.logo {
-    width: 120px;
-    height: auto;
+.logo-link:after {
+    content: "NexStaff";
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #9280fd;
+    margin-left: 0.8rem;
 }
 
 .login-welcome {

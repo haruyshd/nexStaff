@@ -8,12 +8,13 @@
     <link href="https://unpkg.com/ionicons@5.5.2/dist/css/ionicons.min.css" rel="stylesheet">    <style>
         .candidates-section {
             max-width: 1200px;
-            margin: 6rem auto 2rem;
+            margin: 2rem auto 2rem;
             padding: 2rem;
             display: flex;
             flex-direction: column;
             align-items: center;
             text-align: center;
+            border-radius: 50px;
         }        .hero-section {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -422,7 +423,7 @@
                     </div>
                 </div>
                 <div class="hero-illustration">
-                    <img src="client/img/forCandidates.png" alt="Candidate Opportunities" class="hero-image">
+                    <img src="../client/img/forEmployers.png" alt="Candidate Opportunities" class="hero-image">
                 </div>
             </div>
 
@@ -506,18 +507,15 @@
                 <div class="form-actions">
                     <button type="submit" class="cta-btn primary-btn">Create Profile</button>
                 </div>
-            </form>
-        </div>
+            </form>        </div>
     </div>
+    
+    <!-- Dynamic Footer -->
+    <div id="footer-container"></div>
 
-    <footer>
-        <div class="footer-content">
-            <p>&copy; 2025 NexStaff. All rights reserved.</p>
-        </div>
-    </footer>
-
-    <script type="module" src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js"></script>
-    <script nomodule src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js"></script>
+    <script type="module" src="https://unpkg.com/ionicons@7.2.1/dist/ionicons/ionicons.esm.js"></script>
+    <script nomodule src="https://unpkg.com/ionicons@7.2.1/dist/ionicons/ionicons.js"></script>
+    <script src="../client/js/footer-loader.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const profileModal = document.getElementById('profileModal');

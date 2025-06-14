@@ -6,50 +6,157 @@
     <title>About NexStaff - Employee Management System</title>    <link rel="stylesheet" href="../client/css/landing.css">
     <link rel="icon" href="../client/img/logo.png" type="image/png">
     <link href="https://unpkg.com/ionicons@5.5.2/dist/css/ionicons.min.css" rel="stylesheet">
-    <style>
-        .about-section {
+    <style>        .about-section {
             max-width: 1200px;
             margin: 2rem auto;
-            padding: 2rem;
-            background: var(--gradient-soft);
+            padding: 0;
+            background: transparent;
+            border-radius: 0;
+        }
+
+        .about-hero {
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
             border-radius: 24px;
-        }        .about-content {
-            color: var(--text-color);
-            line-height: 1.6;
+            padding: 4rem 2rem;
+            text-align: center;
+            color: white;
+            margin-bottom: 3rem;
+            position: relative;
+            overflow: hidden;
         }
 
-        .key-features {
+        .about-hero::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -20%;
+            width: 200px;
+            height: 200px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            animation: float 6s ease-in-out infinite;
+        }
+
+        .about-hero::after {
+            content: '';
+            position: absolute;
+            bottom: -30%;
+            left: -10%;
+            width: 150px;
+            height: 150px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 50%;
+            animation: float 8s ease-in-out infinite reverse;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+        }
+
+        .about-hero h1 {
+            font-size: 3.5rem;
+            margin-bottom: 1rem;
+            position: relative;
+            z-index: 2;
+        }
+
+        .about-hero p {
+            font-size: 1.3rem;
+            opacity: 0.9;
+            max-width: 800px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 2;
+        }
+
+        .about-stats {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 1.5rem;
-            margin-top: 2rem;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 2rem;
+            margin: 3rem 0;
         }
 
-        .feature-item {
-            background: rgba(255, 255, 255, 0.9);
-            padding: 1.5rem;
-            border-radius: 12px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            transition: transform 0.3s;
+        .stat-card {
+            background: white;
+            padding: 2rem;
+            border-radius: 20px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            position: relative;
+            overflow: hidden;
         }
 
-        .feature-item:hover {
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--primary-gradient);
+        }
+
+        .stat-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: var(--primary-color);
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            color: var(--text-color);
+            font-size: 1.1rem;
+            font-weight: 500;
+        }
+
+        .content-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4rem;
+            margin: 4rem 0;
+            align-items: start;
+        }
+
+        .content-card {
+            background: white;
+            padding: 3rem;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .content-card:hover {
             transform: translateY(-5px);
         }
 
-        .benefits-list {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 1rem;
-            margin-top: 1.5rem;
+        .content-card h2 {
+            color: var(--primary-color);
+            font-size: 2rem;
+            margin-bottom: 1.5rem;
+            position: relative;
+            padding-bottom: 1rem;
         }
 
-        .benefit-item {
-            background: white;
-            padding: 1rem;
-            border-radius: 12px;
-            text-align: center;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        .content-card h2::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 60px;
+            height: 3px;
+            background: var(--primary-gradient);
+            border-radius: 2px;
+        }        .content-card p {
+            line-height: 1.8;
+            color: var(--text-color);
+            font-size: 1.1rem;
         }
 
         .our-team {
@@ -93,78 +200,343 @@
             margin-bottom: 0.5rem;
             justify-content: center;
             color: var(--text-color);
-        }
-
-        .key-features {
+        }        .key-features {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 1.5rem;
-            margin-top: 2rem;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2rem;
+            margin: 4rem 0;
         }
 
         .feature-item {
-            background: rgba(255, 255, 255, 0.9);
-            padding: 1.5rem;
-            border-radius: 16px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            background: white;
+            padding: 2.5rem;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
         }
 
-        .our-team {
+        .feature-item::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--primary-gradient);
+            transform: scaleX(0);
+            transition: transform 0.3s ease;
+        }
+
+        .feature-item:hover::before {
+            transform: scaleX(1);
+        }
+
+        .feature-item:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+        }
+
+        .feature-item h3 {
+            color: var(--primary-color);
+            font-size: 1.4rem;
+            margin-bottom: 1rem;
+            font-weight: 600;
+        }
+
+        .feature-item p {
+            color: var(--text-color);
+            line-height: 1.6;
+            font-size: 1rem;
+        }
+
+        .feature-icon {
+            width: 60px;
+            height: 60px;
+            background: var(--primary-gradient);
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1.5rem;
+            color: white;
+            font-size: 1.5rem;
+        }        .our-team {
             max-width: 1200px;
             margin: 4rem auto;
             padding: 2rem;
             text-align: center;
         }
 
+        .our-team h2 {
+            font-size: 2.5rem;
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+            position: relative;
+            display: inline-block;
+        }
+
+        .our-team h2::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 4px;
+            background: var(--primary-gradient);
+            border-radius: 2px;
+        }
+
         .team-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 2rem;
-            margin-top: 2rem;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2.5rem;
+            margin-top: 3rem;
         }
 
         .team-member {
             background: white;
-            border-radius: 16px;
-            padding: 1.5rem;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            transition: transform 0.3s ease;
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .team-member::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--primary-gradient);
         }
 
         .team-member:hover {
-            transform: translateY(-5px);
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
         }
 
         .team-member img {
-            width: 200px;
-            height: 200px;
+            width: 150px;
+            height: 150px;
             border-radius: 50%;
             object-fit: cover;
-            margin-bottom: 1rem;
+            margin-bottom: 1.5rem;
+            border: 4px solid var(--primary-light);
+            transition: border-color 0.3s ease;
+        }
+
+        .team-member:hover img {
+            border-color: var(--primary-color);
         }
 
         .team-member h3 {
-            color: var(--text-color);
+            color: var(--primary-color);
             margin: 0.5rem 0;
+            font-size: 1.4rem;
+            font-weight: 600;
         }
 
         .team-member p {
+            color: var(--text-secondary);
+            font-weight: 500;
+            font-size: 1.1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        /* Team Contact Form */
+        .team-contact-section {
+            max-width: 800px;
+            margin: 5rem auto;
+            padding: 2rem;
+        }
+
+        .team-form-container {
+            background: white;
+            border-radius: 24px;
+            padding: 3rem;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .team-form-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 6px;
+            background: var(--primary-gradient);
+        }
+
+        .team-form-container h2 {
+            text-align: center;
             color: var(--primary-color);
+            font-size: 2.2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .team-form-container .form-subtitle {
+            text-align: center;
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+            margin-bottom: 2.5rem;
+        }
+
+        .contact-form {
+            display: grid;
+            gap: 1.5rem;
+        }
+
+        .form-group {
+            position: relative;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 1rem 1.2rem;
+            border: 2px solid #e1e5e9;
+            border-radius: 12px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: #f8f9fa;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            background: white;
+            box-shadow: 0 0 0 3px rgba(139, 123, 247, 0.1);
+        }
+
+        .form-group label {
+            position: absolute;
+            top: 1rem;
+            left: 1.2rem;
+            color: var(--text-secondary);
+            font-size: 1rem;
+            pointer-events: none;
+            transition: all 0.3s ease;
+            background: transparent;
+            padding: 0 0.25rem;
+        }
+
+        .form-group input:focus + label,
+        .form-group input:not(:placeholder-shown) + label,
+        .form-group select:focus + label,
+        .form-group select:not([value=""]) + label,
+        .form-group textarea:focus + label,
+        .form-group textarea:not(:placeholder-shown) + label {
+            top: -0.5rem;
+            left: 0.8rem;
+            font-size: 0.8rem;
+            color: var(--primary-color);
+            background: white;
             font-weight: 500;
         }
 
-        .benefits-list {
+        .form-group textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+
+        .submit-btn {
+            background: var(--primary-gradient);
+            color: white;
+            padding: 1.2rem 2.5rem;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            justify-self: center;
+            min-width: 200px;
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(139, 123, 247, 0.4);
+        }
+
+        .submit-btn:active {
+            transform: translateY(0);
+        }
+
+        @media (max-width: 768px) {
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+            
+            .team-form-container {
+                padding: 2rem;
+            }
+            
+            .team-contact-section {
+                padding: 1rem;
+            }
+        }.benefits-list {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 1rem;
-            margin-top: 1.5rem;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin: 3rem 0;
         }
 
         .benefit-item {
             background: white;
-            padding: 1rem;
-            border-radius: 12px;
+            padding: 2rem;
+            border-radius: 16px;
             text-align: center;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            position: relative;
+            border: 2px solid transparent;
+        }
+
+        .benefit-item:hover {
+            transform: translateY(-5px);
+            border-color: var(--primary-color);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+        }
+
+        .benefit-item::before {
+            content: '✓';
+            position: absolute;
+            top: -10px;
+            right: -10px;
+            width: 30px;
+            height: 30px;
+            background: var(--primary-gradient);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 1rem;
+        }
+
+        .benefit-item {
+            color: var(--text-color);
+            font-weight: 500;
+            font-size: 1.1rem;
+            line-height: 1.5;
         }
 
         .member-details {
@@ -194,9 +566,7 @@
             cursor: pointer;
             color: var(--text-color);
             padding: 0.5rem;
-        }
-
-        @media (max-width: 768px) {
+        }        @media (max-width: 768px) {
             .mobile-menu {
                 display: block;
             }
@@ -208,21 +578,57 @@
                 left: 0;
                 right: 0;
                 background: white;
+                flex-direction: column;
                 padding: 1rem;
                 box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-                text-align: center;
+                border-radius: 0 0 12px 12px;
             }
 
             .nav-links.active {
                 display: flex;
-                flex-direction: column;
-                gap: 1rem;
             }
 
             .nav-links a {
-                padding: 0.5rem;
+                padding: 0.75rem 0;
+                border-bottom: 1px solid #eee;
             }
-        }    </style>
+
+            .nav-links a:last-child {
+                border-bottom: none;
+            }
+
+            .about-hero h1 {
+                font-size: 2.5rem;
+            }
+
+            .about-hero p {
+                font-size: 1.1rem;
+            }
+
+            .content-grid {
+                grid-template-columns: 1fr;
+                gap: 2rem;
+            }
+
+            .key-features {
+                grid-template-columns: 1fr;
+            }
+
+            .about-stats {
+                grid-template-columns: repeat(2, 1fr);
+            }        }
+
+        @media (max-width: 480px) {
+            .about-stats {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Fix for icon-inner issue */
+        .nav-links a .icon-inner {
+            display: inline;
+        }
+    </style>
 </head>
 <body>
     <header>        <nav>            <a href="../index.html" class="logo">
@@ -240,113 +646,206 @@
         </nav>
     </header>
 
-    <main>
-        <!-- About Section -->
+    <main>        <!-- About Section -->
         <section class="about-section">
-            <div class="about-content">
+            <div class="about-hero">
                 <h1>About NexStaff</h1>
-                <p>NexStaff is a pioneering staffing platform that revolutionizes how talent connects with opportunity. Built on innovative blockchain technology, our platform creates seamless bridges between qualified professionals and forward-thinking employers while maintaining the highest standards of transparency and efficiency.</p>
-                
-                <h2>Our Vision</h2>
-                <p>To transform the global staffing industry by leveraging cutting-edge technology to create more transparent, efficient, and equitable employment opportunities for all.</p>
+                <p>Revolutionizing staffing through innovative technology and seamless connections between talent and opportunity</p>
+            </div>
 
-                <h2>Our Mission</h2>
-                <p>We're dedicated to building a decentralized staffing ecosystem that empowers both employers and job seekers with direct, secure, and rewarding employment connections. By eliminating traditional barriers and intermediaries, we're creating a more accessible and equitable job market.</p>
+            <div class="about-stats">
+                <div class="stat-card">
+                    <div class="stat-number">10,000+</div>
+                    <div class="stat-label">Active Candidates</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">500+</div>
+                    <div class="stat-label">Partner Companies</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">95%</div>
+                    <div class="stat-label">Success Rate</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">24/7</div>
+                    <div class="stat-label">Support Available</div>
+                </div>
+            </div>
 
+            <div class="content-grid">
+                <div class="content-card">
+                    <h2>Our Vision</h2>
+                    <p>To transform the global staffing industry by leveraging cutting-edge technology to create more transparent, efficient, and equitable employment opportunities for all. We envision a world where talent meets opportunity seamlessly, regardless of geographical boundaries or traditional barriers.</p>
+                </div>
+                <div class="content-card">
+                    <h2>Our Mission</h2>
+                    <p>We're dedicated to building a decentralized staffing ecosystem that empowers both employers and job seekers with direct, secure, and rewarding employment connections. By eliminating traditional barriers and intermediaries, we're creating a more accessible and equitable job market.</p>
+                </div>
+            </div>
+
+            <div class="about-content">
                 <h2>Key Features</h2>
                 <div class="key-features">
                     <div class="feature-item">
+                        <div class="feature-icon">
+                            <ion-icon name="search-outline"></ion-icon>
+                        </div>
                         <h3>Smart Job Matching</h3>
-                        <p>Advanced algorithms match candidates with opportunities based on skills, experience, and preferences.</p>
+                        <p>Advanced AI algorithms analyze skills, experience, and preferences to create perfect matches between candidates and opportunities, ensuring higher success rates and satisfaction.</p>
                     </div>
                     <div class="feature-item">
+                        <div class="feature-icon">
+                            <ion-icon name="shield-checkmark-outline"></ion-icon>
+                        </div>
                         <h3>Blockchain Security</h3>
-                        <p>Immutable record-keeping and verification of credentials and employment history.</p>
+                        <p>Immutable record-keeping and verification of credentials and employment history through advanced blockchain technology, ensuring transparency and trust.</p>
                     </div>
                     <div class="feature-item">
+                        <div class="feature-icon">
+                            <ion-icon name="people-outline"></ion-icon>
+                        </div>
                         <h3>Direct Connections</h3>
-                        <p>Facilitate direct communication between employers and candidates.</p>
+                        <p>Facilitate direct communication between employers and candidates, removing unnecessary intermediaries and speeding up the hiring process.</p>
                     </div>
                     <div class="feature-item">
+                        <div class="feature-icon">
+                            <ion-icon name="analytics-outline"></ion-icon>
+                        </div>
                         <h3>Analytics & Insights</h3>
-                        <p>Real-time market data and trends to inform hiring decisions.</p>
+                        <p>Real-time market data, hiring trends, and performance analytics to inform better hiring decisions and career moves.</p>
                     </div>
                     <div class="feature-item">
+                        <div class="feature-icon">
+                            <ion-icon name="globe-outline"></ion-icon>
+                        </div>
                         <h3>Global Reach</h3>
-                        <p>Connect with opportunities and talent worldwide without geographical barriers.</p>
+                        <p>Connect with opportunities and talent worldwide without geographical barriers, opening doors to international career prospects.</p>
                     </div>
                     <div class="feature-item">
+                        <div class="feature-icon">
+                            <ion-icon name="layers-outline"></ion-icon>
+                        </div>
                         <h3>Seamless Integration</h3>
-                        <p>Easy integration with existing HR systems and workflows.</p>
+                        <p>Easy integration with existing HR systems and workflows, ensuring smooth adoption without disrupting current processes.</p>
                     </div>
                 </div>
 
                 <h2>Why Choose NexStaff?</h2>
                 <div class="benefits-list">
                     <div class="benefit-item">Blockchain-powered security and transparency</div>
-                    <div class="benefit-item">Innovative talent matching algorithms</div>
+                    <div class="benefit-item">AI-driven talent matching algorithms</div>
                     <div class="benefit-item">Global talent pool access</div>
                     <div class="benefit-item">Reduced hiring costs and time</div>
                 </div>
             </div>
-        </section>
-
-        <!-- Team Section -->
+        </section>        <!-- Team Section -->
         <section class="our-team">
-            <h2>Our Team</h2>
+            <h2>Meet Our Team</h2>
+            <p style="font-size: 1.2rem; color: var(--text-secondary); margin-bottom: 2rem;">The passionate professionals behind NexStaff's success</p>
             <div class="team-grid">
                 <div class="team-member">
-                    <img src="login/admin/img/lee.png" alt="Team Member - Lee">
+                    <img src="../login/admin/img/lee.png" alt="Team Member - Lee">
                     <h3>Jazz Lee</h3>
-                    <p>Admin</p>
+                    <p>Admin & Strategy</p>
                     <div class="member-details">
                         <span><ion-icon name="call-outline"></ion-icon>+1 404-233-7961</span>
                         <span><ion-icon name="mail-outline"></ion-icon>admin@nexstaff.com</span>
-                        <span><ion-icon name="calendar-outline"></ion-icon>Joined: 2019-06-06</span>
+                        <span><ion-icon name="calendar-outline"></ion-icon>Since 2019</span>
                     </div>
                 </div>
                 <div class="team-member">
-                    <img src="login/admin/img/lowe.png" alt="Team Member - Lowe">
+                    <img src="../login/admin/img/lowe.png" alt="Team Member - Lowe">
                     <h3>Yuji Lowe</h3>
-                    <p>Hardware</p>
+                    <p>Hardware & Infrastructure</p>
                     <div class="member-details">
                         <span><ion-icon name="call-outline"></ion-icon>+1 404-233-7962</span>
                         <span><ion-icon name="mail-outline"></ion-icon>louis@nexstaff.com</span>
-                        <span><ion-icon name="calendar-outline"></ion-icon>Joined: 2019-01-01</span>
+                        <span><ion-icon name="calendar-outline"></ion-icon>Since 2019</span>
                     </div>
                 </div>
                 <div class="team-member">
-                    <img src="login/admin/img/cea.png" alt="Team Member - Cea">
+                    <img src="../login/admin/img/cea.png" alt="Team Member - Cea">
                     <h3>Marc Cea</h3>
-                    <p>Software</p>
+                    <p>Software Development</p>
                     <div class="member-details">
                         <span><ion-icon name="call-outline"></ion-icon>+1 404-233-7963</span>
                         <span><ion-icon name="mail-outline"></ion-icon>calvin@nexstaff.com</span>
-                        <span><ion-icon name="calendar-outline"></ion-icon>Joined: 2019-01-15</span>
+                        <span><ion-icon name="calendar-outline"></ion-icon>Since 2019</span>
                     </div>
                 </div>
                 <div class="team-member">
-                    <img src="login/admin/img/delosreyes.png" alt="Team Member - DelosReyes">
+                    <img src="../login/admin/img/delosreyes.png" alt="Team Member - DelosReyes">
                     <h3>Jericho DelosReyes</h3>
-                    <p>Marketing</p>
+                    <p>Marketing & Growth</p>
                     <div class="member-details">
                         <span><ion-icon name="call-outline"></ion-icon>+1 404-233-7964</span>
                         <span><ion-icon name="mail-outline"></ion-icon>mabel@nexstaff.com</span>
-                        <span><ion-icon name="calendar-outline"></ion-icon>Joined: 2019-04-03</span>
+                        <span><ion-icon name="calendar-outline"></ion-icon>Since 2019</span>
                     </div>
                 </div>
             </div>
         </section>
-    </main>
 
-    <footer>
-        <div class="footer-content">
-            <p>&copy; 2025 NexStaff. All rights reserved.</p>
-        </div>
-    </footer>
+        <!-- Team Contact Form Section -->
+        <section class="team-contact-section">
+            <div class="team-form-container">
+                <h2>Get in Touch</h2>
+                <p class="form-subtitle">Have questions or want to learn more about NexStaff? We'd love to hear from you!</p>
+                
+                <form class="contact-form" id="teamContactForm">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <input type="text" id="firstName" name="firstName" placeholder=" " required>
+                            <label for="firstName">First Name</label>
+                        </div>
+                        <div class="form-group">
+                            <input type="text" id="lastName" name="lastName" placeholder=" " required>
+                            <label for="lastName">Last Name</label>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <input type="email" id="email" name="email" placeholder=" " required>
+                            <label for="email">Email Address</label>
+                        </div>
+                        <div class="form-group">
+                            <input type="tel" id="phone" name="phone" placeholder=" ">
+                            <label for="phone">Phone Number</label>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <select id="inquiryType" name="inquiryType" required>
+                            <option value="">Select inquiry type...</option>
+                            <option value="general">General Information</option>
+                            <option value="partnership">Partnership Opportunities</option>
+                            <option value="technical">Technical Support</option>
+                            <option value="careers">Career Opportunities</option>
+                            <option value="media">Media & Press</option>
+                        </select>
+                        <label for="inquiryType">Inquiry Type</label>
+                    </div>
+                    
+                    <div class="form-group">
+                        <textarea id="message" name="message" placeholder=" " required></textarea>
+                        <label for="message">Your Message</label>
+                    </div>
+                    
+                    <button type="submit" class="submit-btn">
+                        <ion-icon name="send-outline" style="margin-right: 0.5rem;"></ion-icon>
+                        Send Message
+                    </button>
+                </form>
+            </div>
+        </section></main>
+    
+    <!-- Dynamic Footer -->
+    <div id="footer-container"></div>
 
-    <script type="module" src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js"></script>
-    <script nomodule src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js"></script>    <script>
+    <script type="module" src="https://unpkg.com/ionicons@7.2.1/dist/ionicons/ionicons.esm.js"></script>
+    <script nomodule src="https://unpkg.com/ionicons@7.2.1/dist/ionicons/ionicons.js"></script>    <script src="../client/js/footer-loader.js"></script>
+    <script>
         document.addEventListener('DOMContentLoaded', () => {
             // Mobile menu toggle
             const menuToggle = document.getElementById('menuToggle');
@@ -360,6 +859,103 @@
                         icon.name = navLinks.classList.contains('active') ? 'close-outline' : 'menu-outline';
                     }
                 });
+            }
+
+            // Team contact form handling
+            const contactForm = document.getElementById('teamContactForm');
+            if (contactForm) {
+                contactForm.addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    
+                    const formData = new FormData(contactForm);
+                    const formObject = {};
+                    formData.forEach((value, key) => {
+                        formObject[key] = value;
+                    });
+                    
+                    // Simulate form submission
+                    const submitBtn = contactForm.querySelector('.submit-btn');
+                    const originalText = submitBtn.innerHTML;
+                    
+                    submitBtn.innerHTML = '<ion-icon name="hourglass-outline" style="margin-right: 0.5rem;"></ion-icon>Sending...';
+                    submitBtn.disabled = true;
+                    
+                    setTimeout(() => {
+                        submitBtn.innerHTML = '<ion-icon name="checkmark-outline" style="margin-right: 0.5rem;"></ion-icon>Message Sent!';
+                        submitBtn.style.background = 'var(--success-color)';
+                        
+                        setTimeout(() => {
+                            submitBtn.innerHTML = originalText;
+                            submitBtn.disabled = false;
+                            submitBtn.style.background = '';
+                            contactForm.reset();
+                        }, 2000);
+                    }, 1500);
+                    
+                    console.log('Form submitted:', formObject);
+                });
+            }
+
+            // Smooth scrolling for internal links
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    const target = document.querySelector(this.getAttribute('href'));
+                    if (target) {
+                        target.scrollIntoView({
+                            behavior: 'smooth',
+                            block: 'start'
+                        });
+                    }
+                });
+            });
+
+            // Animate stats on scroll
+            const observerOptions = {
+                threshold: 0.5,
+                rootMargin: '0px 0px -50px 0px'
+            };
+
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        const statNumbers = entry.target.querySelectorAll('.stat-number');
+                        statNumbers.forEach(stat => {
+                            const finalValue = stat.textContent;
+                            const isPercentage = finalValue.includes('%');
+                            const isTime = finalValue.includes('/');
+                            
+                            if (!isPercentage && !isTime) {
+                                const numericValue = parseInt(finalValue.replace(/[^0-9]/g, ''));
+                                animateCounter(stat, 0, numericValue, finalValue);
+                            }
+                        });
+                    }
+                });
+            }, observerOptions);
+
+            const statsSection = document.querySelector('.about-stats');
+            if (statsSection) {
+                observer.observe(statsSection);
+            }
+
+            function animateCounter(element, start, end, suffix) {
+                const duration = 2000;
+                const startTime = performance.now();
+                
+                function update(currentTime) {
+                    const elapsed = currentTime - startTime;
+                    const progress = Math.min(elapsed / duration, 1);
+                    const current = Math.floor(start + (end - start) * progress);
+                    
+                    element.textContent = current.toLocaleString() + suffix.replace(/[0-9,]/g, '');
+                    
+                    if (progress < 1) {
+                        requestAnimationFrame(update);
+                    }
+                }
+                
+                requestAnimationFrame(update);
             }
         });
     </script>

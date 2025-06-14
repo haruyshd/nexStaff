@@ -1,18 +1,17 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
+<head>    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>NexStaff - Login</title>
     <link rel="stylesheet" href="../login/admin/css/login.css">
+    <link rel="stylesheet" href="../client/css/landing.css?v=2025">
     <link rel="icon" href="../client/img/logo.png" type="image/png">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <script src="../login/admin/js/auth.js"></script>
 </head>
 <body>
     <div class="login-container">
-        <div class="login-left">
-            <a href="../index.html" class="logo-link">
+        <div class="login-left">            <a href="../index.html" class="logo-link">
                 <img src="../client/img/logo.png" alt="NexStaff Logo" class="logo">
             </a>
             <div class="login-welcome">
@@ -73,10 +72,11 @@
                             <p>Track attendance and leave management</p>
                         </div>
                     </div>
-                </div>
-            </div>
+                </div>            </div>
         </div>
-    </div>    <script>
+    </div>
+
+    <script>
         document.addEventListener('DOMContentLoaded', function() {
             const loginForm = document.getElementById('loginForm');
             const loginBtn = loginForm.querySelector('.login-btn');
@@ -97,8 +97,7 @@
             loginForm.addEventListener('submit', async function(e) {
                 e.preventDefault();
                 
-                // Show loading state
-                loginBtn.disabled = true;
+                // Show loading state                loginBtn.disabled = true;
                 spinner.style.display = 'block';
                 btnText.style.opacity = '0';
                 loginError.textContent = '';
@@ -108,8 +107,11 @@
                     const password = document.getElementById('password').value;
                     const rememberMe = document.getElementById('rememberMe').checked;
 
+                    console.log('Login form submitted with:', { email, password: '***' });
+
                     // For demo purposes, convert email to username (admin)
                     const username = email.split('@')[0];
+                    console.log('Using username:', username);
 
                     const result = AuthAPI.login({
                         username: username,
@@ -117,11 +119,15 @@
                         remember: rememberMe
                     });
 
+                    console.log('Login result:', result);
+
                     if (result.success) {
                         // Successful login
+                        console.log('Login successful, redirecting to dashboard...');
                         window.location.href = '../login/admin/dashboard.html';
                     } else {
                         // Show error message
+                        console.log('Login failed:', result.message);
                         loginError.textContent = result.message || 'Invalid credentials';
                         loginBtn.disabled = false;
                         spinner.style.display = 'none';
@@ -130,12 +136,13 @@
                 } catch (error) {
                     console.error('Login error:', error);
                     loginError.textContent = 'An error occurred during login';
-                    loginBtn.disabled = false;
-                    spinner.style.display = 'none';
+                    loginBtn.disabled = false;                    spinner.style.display = 'none';
                     btnText.style.opacity = '1';
-                }
-            });
-        });
-    </script>
+                }            });
+        });    </script>
+    
+    <!-- Include ionicons -->
+    <script type="module" src="https://unpkg.com/ionicons@7.2.1/dist/ionicons/ionicons.esm.js"></script>
+    <script nomodule src="https://unpkg.com/ionicons@7.2.1/dist/ionicons/ionicons.js"></script>
 </body>
 </html>
