@@ -87,9 +87,7 @@ class TeamManagement {
             const teamCard = this.createTeamCard(team);
             teamsList.appendChild(teamCard);
         });
-    }
-
-    createTeamCard(team) {
+    }    createTeamCard(team) {
         const card = document.createElement('div');
         card.className = 'team-card';
         card.innerHTML = `
@@ -98,7 +96,32 @@ class TeamManagement {
             <p><strong>Description:</strong> ${team.description}</p>
             <p><strong>Requirements:</strong> ${team.requirements}</p>
             <p><strong>Contact:</strong> ${team.email} | ${team.phone}</p>
+            <div class="team-actions">
+                <button class="btn btn-primary" data-team-id="${team.id}">Edit Team</button>
+                <button class="btn btn-success" data-team-id="${team.id}">Contact Team</button>
+            </div>
         `;
+        
+        // Add event listeners to the buttons
+        setTimeout(() => {
+            const editBtn = card.querySelector('.btn-primary');
+            const contactBtn = card.querySelector('.btn-success');
+            
+            if (editBtn) {
+                editBtn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    this.handleEditTeam(team.id);
+                });
+            }
+            
+            if (contactBtn) {
+                contactBtn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    this.handleContactTeam(team.id);
+                });
+            }
+        }, 0);
+        
         return card;
     }
 
@@ -129,6 +152,56 @@ class TeamManagement {
         if (this.createTeam(data)) {
             event.target.reset();
         }
+    }
+
+    handleEditTeam(teamId) {
+        console.log('Editing team:', teamId);
+        const teams = this.dataService.getTeams();
+        const team = teams.find(t => t.id == teamId);
+        
+        if (!team) {
+            this.showNotification('Team not found', 'error');
+            return;
+        }
+        
+        // Fill the form with team data
+        const form = document.getElementById('createTeamForm');
+        if (form) {
+            form.teamName.value = team.teamName;
+            form.department.value = team.department;
+            form.description.value = team.description;
+            form.requirements.value = team.requirements;
+            form.email.value = team.email;
+            form.phone.value = team.phone;
+            
+            // Scroll to the form
+            form.scrollIntoView({ behavior: 'smooth' });
+            
+            // Change submit button to indicate editing
+            const submitBtn = form.querySelector('.submit-btn');
+            if (submitBtn) {
+                submitBtn.textContent = 'Update Team';
+                submitBtn.dataset.editing = teamId;
+            }
+        }
+    }
+    
+    handleContactTeam(teamId) {
+        console.log('Contacting team:', teamId);
+        const teams = this.dataService.getTeams();
+        const team = teams.find(t => t.id == teamId);
+        
+        if (!team) {
+            this.showNotification('Team not found', 'error');
+            return;
+        }
+        
+        // Show contact info modal or redirect to email
+        const emailSubject = encodeURIComponent(`Inquiry about ${team.teamName} team`);
+        const emailBody = encodeURIComponent(`Hello,\n\nI am interested in your ${team.teamName} team.\n\nBest regards,`);
+        window.location.href = `mailto:${team.email}?subject=${emailSubject}&body=${emailBody}`;
+        
+        this.showNotification(`Opening email to contact ${team.teamName}`, 'success');
     }
 
     showNotification(message, type = 'info') {
