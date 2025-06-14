@@ -1,15 +1,9 @@
 // Authentication and user management
 const AuthAPI = {
-<<<<<<< HEAD
-    // Token storage key
-    TOKEN_KEY: 'nexstaff_auth_token',
-    USER_KEY: 'nexstaff_user',
-=======
     // Storage keys
     TOKEN_KEY: 'nexstaff_auth_token',
     USER_KEY: 'nexstaff_user',
     REMEMBER_KEY: 'nexstaff_remember',
->>>>>>> 0f9fc2e (Echo again)
 
     // User roles
     ROLES: {
@@ -19,17 +13,13 @@ const AuthAPI = {
         EMPLOYEE: 'employee'
     },
 
-<<<<<<< HEAD
-    // Initialize user session    init() {
-=======
     // Initialize user session
     init() {
         console.log('Initializing AuthAPI...');
         const session = this.checkAuth();
         if (!session) {
             console.log('No valid session found');
-            this.redirectToLogin();
-            return null;
+            return { isAuthenticated: false };
         }
         console.log('Valid session found:', session.user.role);
         return session;
@@ -37,113 +27,11 @@ const AuthAPI = {
 
     // Check if user is authenticated
     checkAuth() {
->>>>>>> 0f9fc2e (Echo again)
         try {
             const token = localStorage.getItem(this.TOKEN_KEY);
             const userStr = localStorage.getItem(this.USER_KEY);
             const user = userStr ? JSON.parse(userStr) : null;
             
-<<<<<<< HEAD
-            // Validate the session
-            if (token && user && user.role) {
-                return {
-                    isAuthenticated: true,
-                    user,
-                    token
-                };
-            } else {
-                // Clear invalid session data
-                this.logout();
-                return {
-                    isAuthenticated: false,
-                    user: null,
-                    token: null
-                };
-            }
-        } catch (error) {
-            console.error('Error initializing auth:', error);
-            this.logout();
-            return {
-                isAuthenticated: false,
-                user: null,
-                token: null
-            };
-        }
-    },
-    
-    // Login function with role-based access    async login(email, password) {
-        console.log('Login attempt:', { email });
-        
-        // Clear any existing auth data first
-        localStorage.removeItem(this.TOKEN_KEY);
-        localStorage.removeItem(this.USER_KEY);
-        
-        // This would be replaced with actual API call
-        if (email === 'admin@nexstaff.com' && password === 'admin123') {
-            console.log('Credentials valid, creating session');
-            
-            const userData = {
-                id: 1,
-                email,
-                name: 'Admin User',
-                role: this.ROLES.ADMIN,
-                permissions: ['manage_employees', 'manage_roles', 'view_analytics']
-            };
-            const token = 'dummy_token_' + Math.random();
-            
-            // Store auth data
-            localStorage.setItem(this.TOKEN_KEY, token);
-            localStorage.setItem(this.USER_KEY, JSON.stringify(userData));
-            
-            console.log('Session created successfully');
-            return { success: true, user: userData };
-        }
-        
-        console.log('Invalid credentials');
-        return { success: false, error: 'Invalid credentials' };
-    },
-    
-    // Logout function
-    logout() {
-        localStorage.removeItem(this.TOKEN_KEY);
-        localStorage.removeItem(this.USER_KEY);
-        localStorage.removeItem('nexstaff_remember');
-    },    // Check user permissions
-    hasPermission(permission) {
-        try {
-            const session = this.init();
-            return session.isAuthenticated && 
-                   session.user.permissions && 
-                   session.user.permissions.includes(permission);
-        } catch (error) {
-            console.error('Error checking permissions:', error);
-            return false;
-        }
-    },
-
-    // Check if user has admin role
-    isAdmin() {
-        try {
-            const session = this.init();
-            return session.isAuthenticated && session.user.role === this.ROLES.ADMIN;
-        } catch (error) {
-            console.error('Error checking admin status:', error);
-            return false;
-        }
-    },
-
-    // Check if user has HR role
-    isHR() {
-        try {
-            const session = this.init();
-            return session.isAuthenticated && session.user.role === this.ROLES.HR;
-        } catch (error) {
-            console.error('Error checking HR status:', error);
-            return false;
-        }
-    }
-};
-=======
             if (!token || !user || !user.role) {
                 console.log('No valid auth data found');
                 return null;
@@ -165,30 +53,60 @@ const AuthAPI = {
             console.error('Error checking auth:', error);
             return null;
         }
-    },
-
-    // Login user
+    },    // Login user
     login(credentials) {
         try {
-            // For demo, using hardcoded admin credentials
-            if (credentials.username === 'admin' && credentials.password === 'admin123') {
+            console.log('🔐 AuthAPI.login called with:', { ...credentials, password: '[HIDDEN]' });
+            
+            // Validate input
+            if (!credentials || !credentials.email || !credentials.password) {
+                console.log('❌ Missing credentials');
+                return { success: false, message: 'Email and password are required' };
+            }
+            
+            // Demo credentials for testing
+            const validCredentials = [
+                { email: 'admin@nexstaff.com', password: 'admin123', role: this.ROLES.ADMIN, name: 'Admin User' },
+                { email: 'hr@nexstaff.com', password: 'hr123', role: this.ROLES.HR, name: 'HR Manager' },
+                { email: 'manager@nexstaff.com', password: 'manager123', role: this.ROLES.MANAGER, name: 'Team Manager' }
+            ];
+            
+            console.log('🔍 Checking against valid credentials...');
+            
+            const validUser = validCredentials.find(cred => {
+                const emailMatch = cred.email === credentials.email;
+                const passwordMatch = cred.password === credentials.password;
+                console.log(`📧 Email "${credentials.email}" matches "${cred.email}": ${emailMatch}`);
+                console.log(`🔑 Password matches for ${cred.email}: ${passwordMatch}`);
+                return emailMatch && passwordMatch;
+            });
+            
+            if (validUser) {
+                console.log('✅ Valid user found:', validUser.name);
+                
                 const user = {
-                    id: '1',
-                    username: 'admin',
-                    role: this.ROLES.ADMIN,
-                    name: 'Admin User'
+                    id: Math.random().toString(36).substr(2, 9),
+                    email: validUser.email,
+                    role: validUser.role,
+                    name: validUser.name,
+                    username: validUser.email.split('@')[0] // Extract username from email
                 };
                 
                 const token = 'demo_token_' + Date.now();
                 
+                console.log('💾 Saving auth data...');
                 this.setAuth(token, user, credentials.remember);
+                
+                console.log('✅ Login successful, user authenticated');
                 return { success: true, user };
             }
             
-            return { success: false, message: 'Invalid credentials' };
+            console.log('❌ Invalid credentials provided');
+            console.log('💡 Valid emails: admin@nexstaff.com, hr@nexstaff.com, manager@nexstaff.com');
+            return { success: false, message: 'Invalid email or password. Try: admin@nexstaff.com/admin123' };
         } catch (error) {
-            console.error('Login error:', error);
-            return { success: false, message: 'Login failed' };
+            console.error('💥 Login error:', error);
+            return { success: false, message: 'Login failed: ' + error.message };
         }
     },
 
@@ -204,25 +122,42 @@ const AuthAPI = {
         localStorage.removeItem(this.TOKEN_KEY);
         localStorage.removeItem(this.USER_KEY);
         localStorage.removeItem(this.REMEMBER_KEY);
-    },
-
-    // Set authentication data
+    },    // Set authentication data
     setAuth(token, user, remember = false) {
-        localStorage.setItem(this.TOKEN_KEY, token);
-        localStorage.setItem(this.USER_KEY, JSON.stringify(user));
-        if (remember) {
-            localStorage.setItem(this.REMEMBER_KEY, 'true');
+        try {
+            console.log('💾 setAuth called with:', { token: token.substring(0, 20) + '...', user: user.name, remember });
+            
+            localStorage.setItem(this.TOKEN_KEY, token);
+            localStorage.setItem(this.USER_KEY, JSON.stringify(user));
+            
+            if (remember) {
+                localStorage.setItem(this.REMEMBER_KEY, 'true');
+                console.log('✅ Remember me enabled');
+            } else {
+                localStorage.removeItem(this.REMEMBER_KEY);
+            }
+            
+            // Verify data was saved
+            const savedToken = localStorage.getItem(this.TOKEN_KEY);
+            const savedUser = localStorage.getItem(this.USER_KEY);
+            
+            console.log('✅ Auth data saved successfully');
+            console.log('🔍 Verification - Token saved:', !!savedToken);
+            console.log('🔍 Verification - User saved:', !!savedUser);
+            
+        } catch (error) {
+            console.error('💥 Error saving auth data:', error);
         }
     },
 
     // Check if token is expired (demo implementation)
     isTokenExpired(token) {
-        return false; // For demo purposes
+        return false; // For demo purposes, tokens never expire
     },
 
     // Redirect to login page
     redirectToLogin() {
-        window.location.href = 'login.html';
+        window.location.href = '../login.html';
     },
 
     // Check if user has required role
@@ -234,9 +169,18 @@ const AuthAPI = {
     // Check if user has admin access
     isAdmin() {
         return this.hasRole(this.ROLES.ADMIN);
+    },
+
+    // Check if user has HR role
+    isHR() {
+        return this.hasRole(this.ROLES.HR);
+    },
+
+    // Check if user has manager role
+    isManager() {
+        return this.hasRole(this.ROLES.MANAGER);
     }
 };
 
 // Expose AuthAPI globally
 window.AuthAPI = AuthAPI;
->>>>>>> 0f9fc2e (Echo again)
