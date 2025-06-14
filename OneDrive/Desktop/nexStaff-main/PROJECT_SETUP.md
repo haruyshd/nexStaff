@@ -2,45 +2,61 @@
 
 ## 🚀 How to Run the Project
 
-### Option 1: Using Live Server (Recommended)
-1. **Open the correct folder**: Open `nexStaff-main/nexStaff-main/` in VS Code (the inner folder)
-2. **Right-click** on `index.html` 
-3. **Select** "Open with Live Server"
-4. The project will open at `http://localhost:5500`
+### Using Live Server (Simple!)
+1. **Right-click** on `index.html` in the root directory
+2. **Select** "Open with Live Server"
+3. The project will open at `http://localhost:5500`
 
-### Option 2: From Root Directory
-1. **Open** the root `nexStaff-main/` folder in VS Code
-2. **Right-click** on the root `index.html` (the redirect page)
-3. **Select** "Open with Live Server"
-4. You'll be automatically redirected to the main application
-
-## 📁 Project Structure
+## 📁 Project Structure (FIXED!)
 ```
-nexStaff-main/                    ← Root directory
-├── index.html                    ← Redirect page (created to fix live server issue)
+nexStaff-main/                    ← Root directory (clean structure!)
+├── index.html                    ← Main application entry point
 ├── .vscode/settings.json         ← Live Server configuration
-└── nexStaff-main/               ← Actual project folder
-    ├── index.html               ← Main application
-    ├── client/                  ← CSS, JS, Images
-    ├── auth/                    ← Authentication pages
-    ├── login/                   ← Admin dashboard
-    └── pages/                   ← Other pages
+├── client/                       ← Frontend assets
+│   ├── css/                      ← Stylesheets
+│   ├── js/                       ← JavaScript files
+│   ├── img/                      ← Images and icons
+│   └── templates/                ← HTML templates
+├── auth/                         ← Authentication pages
+│   ├── login.html
+│   └── signup.html
+├── login/                        ← Admin dashboard
+│   ├── dashboard.html
+│   ├── admin/                    ← Admin-specific pages
+│   ├── css/                      ← Admin styles
+│   ├── js/                       ← Admin JavaScript
+│   └── img/                      ← Admin images
+├── pages/                        ← Public pages
+│   ├── about.html
+│   ├── candidates.html
+│   ├── employers.html
+│   └── jobs.html
+└── docs/                         ← Documentation files
+    ├── ADMIN_README.md
+    ├── README.md
+    └── other .md files
 ```
 
 ## 🔧 What Was Fixed
 
-### The Problem
-- You had a nested folder structure (`nexStaff-main/nexStaff-main/`)
-- Live Server was trying to serve from the outer folder instead of the inner folder
-- This caused a blank page when going live
+### The Problem ❌
+- **Nested folder structure**: `nexStaff-main/nexStaff-main/`
+- **Confusing navigation**: Hard to find the actual project files
+- **Live Server issues**: Served from wrong directory
+- **Development complexity**: Extra navigation steps
 
-### The Solution
-1. **Created a redirect page** in the root directory that automatically redirects to the correct location
-2. **Added proper Live Server configuration** to handle the nested structure
-3. **Set up automatic redirect** with a nice loading screen
+### The Solution ✅
+1. **Flattened structure**: All project files now in root directory
+2. **Direct access**: No more nested folders with same name
+3. **Clean organization**: Logical folder structure
+4. **Easy Live Server**: Just right-click index.html and go live!
 
-## 🎯 Best Practice
-For future projects, avoid nested folders with the same name. Consider renaming the inner folder to something like `src/` or `app/` to avoid confusion.
+## 🎯 Benefits of New Structure
+- ✅ **Simpler**: One-click Live Server setup
+- ✅ **Cleaner**: No more confusing nested folders
+- ✅ **Faster**: Direct access to all files
+- ✅ **Professional**: Industry-standard folder structure
+- ✅ **Maintainable**: Easy to navigate and understand
 
 ## 📱 Features
 - **Responsive Design**: Works on all devices
