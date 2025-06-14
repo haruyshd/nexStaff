@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About NexStaff - Employee Management System</title>    <link rel="stylesheet" href="../client/css/landing.css">
+    <link rel="icon" href="../client/img/logo.png" type="image/png">
+    <link href="https://unpkg.com/ionicons@5.5.2/dist/css/ionicons.min.css" rel="stylesheet">
+    <style>
+        .about-section {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 2rem;
+            background: var(--gradient-soft);
+            border-radius: 24px;
+        }        .about-content {
+            color: var(--text-color);
+            line-height: 1.6;
+        }
+
+        .key-features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .feature-item {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 1.5rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            transition: transform 0.3s;
+        }
+
+        .feature-item:hover {
+            transform: translateY(-5px);
+        }
+
+        .benefits-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+
+        .benefit-item {
+            background: white;
+            padding: 1rem;
+            border-radius: 12px;
+            text-align: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        .our-team {
+            max-width: 1200px;
+            margin: 4rem auto;
+            padding: 2rem;
+        }
+
+        .team-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .team-member {
+            background: white;
+            border-radius: 15px;
+            padding: 1.5rem;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .team-member img {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            margin-bottom: 1rem;
+            object-fit: cover;
+        }
+
+        .member-details {
+            margin-top: 1rem;
+            font-size: 0.9rem;
+        }
+
+        .member-details span {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 0.5rem;
+            justify-content: center;
+            color: var(--text-color);
+        }
+
+        .key-features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .feature-item {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 1.5rem;
+            border-radius: 16px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        }
+
+        .our-team {
+            max-width: 1200px;
+            margin: 4rem auto;
+            padding: 2rem;
+            text-align: center;
+        }
+
+        .team-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .team-member {
+            background: white;
+            border-radius: 16px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .team-member:hover {
+            transform: translateY(-5px);
+        }
+
+        .team-member img {
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-bottom: 1rem;
+        }
+
+        .team-member h3 {
+            color: var(--text-color);
+            margin: 0.5rem 0;
+        }
+
+        .team-member p {
+            color: var(--primary-color);
+            font-weight: 500;
+        }
+
+        .benefits-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+
+        .benefit-item {
+            background: white;
+            padding: 1rem;
+            border-radius: 12px;
+            text-align: center;
+        }
+
+        .member-details {
+            margin-top: 0.5rem;
+            font-size: 0.9rem;
+            color: var(--text-color);
+        }
+
+        .member-details span {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 0.3rem;
+        }
+
+        .member-details i {
+            color: var(--primary-color);
+            font-size: 1.1rem;
+        }
+
+        /* Mobile menu styles */
+        .mobile-menu {
+            display: none;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--text-color);
+            padding: 0.5rem;
+        }
+
+        @media (max-width: 768px) {
+            .mobile-menu {
+                display: block;
+            }
+
+            .nav-links {
+                display: none;
+                position: absolute;
+                top: 100%;
+                left: 0;
+                right: 0;
+                background: white;
+                padding: 1rem;
+                box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+                text-align: center;
+            }
+
+            .nav-links.active {
+                display: flex;
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .nav-links a {
+                padding: 0.5rem;
+            }
+        }    </style>
+</head>
+<body>
+    <header>        <nav>            <a href="../index.html" class="logo">
+                <img src="../client/img/logo.png" alt="NexStaff Logo" class="nav-logo">
+                <span>NexStaff</span>
+            </a>
+            <div class="nav-links">                <a href="about.html" class="active"><ion-icon name="information-circle-outline"></ion-icon> About</a>
+                <a href="jobs.html"><ion-icon name="briefcase-outline"></ion-icon> Jobs</a>
+                <a href="candidates.html"><ion-icon name="people-outline"></ion-icon> Candidates</a>
+                <a href="employers.html"><ion-icon name="business-outline"></ion-icon> Employers</a>
+            </div>
+            <div class="nav-buttons">
+                <a href="../auth/login.html" class="login-btn">Sign In</a>
+            </div>
+        </nav>
+    </header>
+
+    <main>
+        <!-- About Section -->
+        <section class="about-section">
+            <div class="about-content">
+                <h1>About NexStaff</h1>
+                <p>NexStaff is a pioneering staffing platform that revolutionizes how talent connects with opportunity. Built on innovative blockchain technology, our platform creates seamless bridges between qualified professionals and forward-thinking employers while maintaining the highest standards of transparency and efficiency.</p>
+                
+                <h2>Our Vision</h2>
+                <p>To transform the global staffing industry by leveraging cutting-edge technology to create more transparent, efficient, and equitable employment opportunities for all.</p>
+
+                <h2>Our Mission</h2>
+                <p>We're dedicated to building a decentralized staffing ecosystem that empowers both employers and job seekers with direct, secure, and rewarding employment connections. By eliminating traditional barriers and intermediaries, we're creating a more accessible and equitable job market.</p>
+
+                <h2>Key Features</h2>
+                <div class="key-features">
+                    <div class="feature-item">
+                        <h3>Smart Job Matching</h3>
+                        <p>Advanced algorithms match candidates with opportunities based on skills, experience, and preferences.</p>
+                    </div>
+                    <div class="feature-item">
+                        <h3>Blockchain Security</h3>
+                        <p>Immutable record-keeping and verification of credentials and employment history.</p>
+                    </div>
+                    <div class="feature-item">
+                        <h3>Direct Connections</h3>
+                        <p>Facilitate direct communication between employers and candidates.</p>
+                    </div>
+                    <div class="feature-item">
+                        <h3>Analytics & Insights</h3>
+                        <p>Real-time market data and trends to inform hiring decisions.</p>
+                    </div>
+                    <div class="feature-item">
+                        <h3>Global Reach</h3>
+                        <p>Connect with opportunities and talent worldwide without geographical barriers.</p>
+                    </div>
+                    <div class="feature-item">
+                        <h3>Seamless Integration</h3>
+                        <p>Easy integration with existing HR systems and workflows.</p>
+                    </div>
+                </div>
+
+                <h2>Why Choose NexStaff?</h2>
+                <div class="benefits-list">
+                    <div class="benefit-item">Blockchain-powered security and transparency</div>
+                    <div class="benefit-item">Innovative talent matching algorithms</div>
+                    <div class="benefit-item">Global talent pool access</div>
+                    <div class="benefit-item">Reduced hiring costs and time</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Team Section -->
+        <section class="our-team">
+            <h2>Our Team</h2>
+            <div class="team-grid">
+                <div class="team-member">
+                    <img src="login/admin/img/lee.png" alt="Team Member - Lee">
+                    <h3>Jazz Lee</h3>
+                    <p>Admin</p>
+                    <div class="member-details">
+                        <span><ion-icon name="call-outline"></ion-icon>+1 404-233-7961</span>
+                        <span><ion-icon name="mail-outline"></ion-icon>admin@nexstaff.com</span>
+                        <span><ion-icon name="calendar-outline"></ion-icon>Joined: 2019-06-06</span>
+                    </div>
+                </div>
+                <div class="team-member">
+                    <img src="login/admin/img/lowe.png" alt="Team Member - Lowe">
+                    <h3>Yuji Lowe</h3>
+                    <p>Hardware</p>
+                    <div class="member-details">
+                        <span><ion-icon name="call-outline"></ion-icon>+1 404-233-7962</span>
+                        <span><ion-icon name="mail-outline"></ion-icon>louis@nexstaff.com</span>
+                        <span><ion-icon name="calendar-outline"></ion-icon>Joined: 2019-01-01</span>
+                    </div>
+                </div>
+                <div class="team-member">
+                    <img src="login/admin/img/cea.png" alt="Team Member - Cea">
+                    <h3>Marc Cea</h3>
+                    <p>Software</p>
+                    <div class="member-details">
+                        <span><ion-icon name="call-outline"></ion-icon>+1 404-233-7963</span>
+                        <span><ion-icon name="mail-outline"></ion-icon>calvin@nexstaff.com</span>
+                        <span><ion-icon name="calendar-outline"></ion-icon>Joined: 2019-01-15</span>
+                    </div>
+                </div>
+                <div class="team-member">
+                    <img src="login/admin/img/delosreyes.png" alt="Team Member - DelosReyes">
+                    <h3>Jericho DelosReyes</h3>
+                    <p>Marketing</p>
+                    <div class="member-details">
+                        <span><ion-icon name="call-outline"></ion-icon>+1 404-233-7964</span>
+                        <span><ion-icon name="mail-outline"></ion-icon>mabel@nexstaff.com</span>
+                        <span><ion-icon name="calendar-outline"></ion-icon>Joined: 2019-04-03</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="footer-content">
+            <p>&copy; 2025 NexStaff. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script type="module" src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js"></script>
+    <script nomodule src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js"></script>    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Mobile menu toggle
+            const menuToggle = document.getElementById('menuToggle');
+            const navLinks = document.getElementById('navLinks');
+            
+            if (menuToggle && navLinks) {
+                menuToggle.addEventListener('click', () => {
+                    navLinks.classList.toggle('active');
+                    const icon = menuToggle.querySelector('ion-icon');
+                    if (icon) {
+                        icon.name = navLinks.classList.contains('active') ? 'close-outline' : 'menu-outline';
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+</html>

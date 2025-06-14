@@ -112,6 +112,11 @@ const EmployeeManagementAPI = {
 
     // Initialize storage with default data
     init() {
+<<<<<<< HEAD
+=======
+        console.log('Initializing EmployeeManagementAPI');
+        this.setupInitialEmployees();
+>>>>>>> 0f9fc2e (Echo again)
         // Initialize departments
         if (!localStorage.getItem(this.KEYS.DEPARTMENTS)) {
             const defaultDepartments = [
@@ -137,6 +142,54 @@ const EmployeeManagementAPI = {
         }
     },
 
+<<<<<<< HEAD
+=======
+    setupInitialEmployees() {
+        // Only initialize if no employees exist
+        if (this.getEmployees().length === 0) {
+            const initialEmployees = [
+                {
+                    id: '1',
+                    fullName: 'Jazz Lee',
+                    role: 'Admin',
+                    phone: '+1 404-233-7961',
+                    email: 'admin@nexstaff.com',
+                    joinDate: '2019-06-06',
+                    photo: '../login/admin/img/lee.png'
+                },
+                {
+                    id: '2',
+                    fullName: 'Yuji Lowe',
+                    role: 'Hardware',
+                    phone: '+1 404-233-7962',
+                    email: 'louis@nexstaff.com',
+                    joinDate: '2019-01-01',
+                    photo: '../login/admin/img/lowe.png'
+                },
+                {
+                    id: '3',
+                    fullName: 'Marc Cea',
+                    role: 'Software',
+                    phone: '+1 404-233-7963',
+                    email: 'calvin@nexstaff.com',
+                    joinDate: '2019-01-15',
+                    photo: '../login/admin/img/cea.png'
+                },
+                {
+                    id: '4',
+                    fullName: 'Jericho DelosReyes',
+                    role: 'Marketing',
+                    phone: '+1 404-233-7964',
+                    email: 'mabel@nexstaff.com',
+                    joinDate: '2019-04-03',
+                    photo: '../login/admin/img/delosreyes.png'
+                }
+            ];
+            localStorage.setItem('employees', JSON.stringify(initialEmployees));
+        }
+    },
+
+>>>>>>> 0f9fc2e (Echo again)
     // Employee CRUD operations
     async getEmployees(filters = {}) {
         const employees = JSON.parse(localStorage.getItem(this.KEYS.EMPLOYEES)) || [];
@@ -543,5 +596,218 @@ const EmployeeManagementAPI = {
             emp.jobDetails.employmentStatus === 'Terminated'
         ).length;
         return (resigned / employees.length) * 100;
+<<<<<<< HEAD
+=======
+    },
+
+    // Employee Management API
+    init() {
+        console.log('Initializing EmployeeManagementAPI');
+        this.setupInitialEmployees();
+        this.setupEventListeners();
+        this.refreshEmployeeList();
+    },
+
+    setupEventListeners() {
+        // Add Employee button click handler
+        const addBtn = document.getElementById('addEmployeeBtn');
+        if (addBtn) {
+            addBtn.addEventListener('click', () => this.showEmployeeModal());
+        }
+
+        // Global event delegation for employee actions
+        document.addEventListener('click', (e) => {
+            const target = e.target.closest('[data-action]');
+            if (!target) return;
+
+            const action = target.dataset.action;
+            const employeeId = target.closest('[data-employee-id]')?.dataset.employeeId;
+
+            switch (action) {
+                case 'edit':
+                    this.showEmployeeModal(employeeId);
+                    break;
+                case 'delete':
+                    this.confirmDeleteEmployee(employeeId);
+                    break;
+            }
+        });
+    },
+
+    showEmployeeModal(employeeId = null) {
+        const employee = employeeId ? this.getEmployeeById(employeeId) : null;
+        const modalTitle = employee ? 'Edit Employee' : 'Add Employee';
+
+        const modal = document.createElement('div');
+        modal.className = 'modal active';
+        modal.innerHTML = `
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>${modalTitle}</h2>
+                    <button class="close-modal" onclick="this.closest('.modal').remove()">&times;</button>
+                </div>
+                <form id="employeeForm">
+                    <input type="hidden" name="id" value="${employee?.id || ''}">
+                    <div class="form-group">
+                        <label for="fullName">Full Name</label>
+                        <input type="text" id="fullName" name="fullName" value="${employee?.fullName || ''}" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="role">Role</label>
+                        <select id="role" name="role" required>
+                            <option value="">Select Role</option>
+                            <option value="Admin" ${employee?.role === 'Admin' ? 'selected' : ''}>Admin</option>
+                            <option value="Hardware" ${employee?.role === 'Hardware' ? 'selected' : ''}>Hardware</option>
+                            <option value="Software" ${employee?.role === 'Software' ? 'selected' : ''}>Software</option>
+                            <option value="Marketing" ${employee?.role === 'Marketing' ? 'selected' : ''}>Marketing</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="phone">Phone</label>
+                        <input type="tel" id="phone" name="phone" value="${employee?.phone || ''}" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="email">Email</label>
+                        <input type="email" id="email" name="email" value="${employee?.email || ''}" required>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" onclick="this.closest('.modal').remove()">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Save</button>
+                    </div>
+                </form>
+            </div>
+        `;
+
+        document.body.appendChild(modal);
+
+        // Handle form submission
+        modal.querySelector('form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            const data = Object.fromEntries(formData.entries());
+            
+            if (employee) {
+                this.updateEmployee(data);
+            } else {
+                this.addEmployee(data);
+            }
+            
+            modal.remove();
+        });
+    },
+
+    confirmDeleteEmployee(employeeId) {
+        const employee = this.getEmployeeById(employeeId);
+        if (!employee) return;
+
+        if (confirm(`Are you sure you want to remove ${employee.fullName}?`)) {
+            this.deleteEmployee(employeeId);
+        }
+    },
+
+    getEmployees() {
+        try {
+            return JSON.parse(localStorage.getItem('employees')) || [];
+        } catch (error) {
+            console.error('Error getting employees:', error);
+            return [];
+        }
+    },
+
+    getEmployeeById(id) {
+        return this.getEmployees().find(emp => emp.id === id);
+    },
+
+    addEmployee(data) {
+        const employees = this.getEmployees();
+        const newEmployee = {
+            ...data,
+            id: Date.now().toString(),
+            joinDate: new Date().toISOString().split('T')[0],
+            photo: '../client/img/default-avatar.png'
+        };
+        
+        employees.push(newEmployee);
+        localStorage.setItem('employees', JSON.stringify(employees));
+        this.refreshEmployeeList();
+        this.showNotification('Employee added successfully!', 'success');
+    },
+
+    updateEmployee(data) {
+        const employees = this.getEmployees();
+        const index = employees.findIndex(emp => emp.id === data.id);
+        
+        if (index >= 0) {
+            employees[index] = {
+                ...employees[index],
+                ...data
+            };
+            localStorage.setItem('employees', JSON.stringify(employees));
+            this.refreshEmployeeList();
+            this.showNotification('Employee updated successfully!', 'success');
+        }
+    },
+
+    deleteEmployee(id) {
+        const employees = this.getEmployees().filter(emp => emp.id !== id);
+        localStorage.setItem('employees', JSON.stringify(employees));
+        this.refreshEmployeeList();
+        this.showNotification('Employee removed successfully!', 'success');
+    },
+
+    refreshEmployeeList() {
+        const container = document.getElementById('employeeCards');
+        if (!container) return;
+
+        const employees = this.getEmployees();
+        if (employees.length === 0) {
+            container.innerHTML = '<div class="no-data">No employees found.</div>';
+            return;
+        }
+
+        container.innerHTML = employees.map(emp => `
+            <div class="employee-card" data-employee-id="${emp.id}">
+                <img src="${emp.photo}" alt="${emp.fullName}" class="employee-photo">
+                <h3 class="employee-name">${emp.fullName}</h3>
+                <p class="employee-role">
+                    <span class="role-badge ${emp.role.toLowerCase()}">${emp.role}</span>
+                </p>
+                <div class="employee-contact">
+                    <span><i class="phone-icon"></i>${emp.phone}</span>
+                    <span><i class="email-icon"></i>${emp.email}</span>
+                </div>
+                <div class="join-date">Joined: ${new Date(emp.joinDate).toLocaleDateString()}</div>
+                <div class="employee-actions">
+                    <button class="btn btn-icon" data-action="edit" title="Edit">
+                        <i class="edit-icon"></i>
+                    </button>
+                    <button class="btn btn-icon" data-action="delete" title="Remove">
+                        <i class="delete-icon"></i>
+                    </button>
+                </div>
+            </div>
+        `).join('');
+    },
+
+    showNotification(message, type = 'info') {
+        const notification = document.createElement('div');
+        notification.className = `notification ${type}`;
+        notification.innerHTML = `
+            <div class="notification-content">
+                <span class="message">${message}</span>
+                <button class="close-btn" onclick="this.parentElement.parentElement.remove()">&times;</button>
+            </div>
+        `;
+
+        let container = document.getElementById('notifications');
+        if (!container) {
+            container = document.createElement('div');
+            container.id = 'notifications';
+            document.body.appendChild(container);
+        }
+
+        container.appendChild(notification);
+        setTimeout(() => notification.remove(), 5000);
+>>>>>>> 0f9fc2e (Echo again)
     }
 };

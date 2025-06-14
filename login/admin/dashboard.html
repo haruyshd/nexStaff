@@ -1,0 +1,979 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NexStaff Dashboard</title>
+    <link rel="stylesheet" href="./admin/css/landing.css">
+    <link rel="stylesheet" href="./admin/css/applications.css">
+    <link rel="icon" href="../client/img/logo.png" type="image/x-icon">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+    <!-- Load scripts -->
+    <script src="./admin/js/dataService.js"></script>
+    <script src="./admin/js/auth.js"></script>
+    <script src="./admin/js/employeeData.js"></script>
+    <script src="./admin/js/employeeImages.js"></script>
+    <script src="./admin/js/employeeManagement.js"></script>
+    <script src="./admin/js/candidateProfiles.js"></script>
+    <script src="./admin/js/employerProfiles.js"></script>
+    <script src="./admin/js/teamManagement.js"></script>
+    <script src="./admin/js/schedule.js"></script>
+    <script src="./admin/js/applicationsManagement.js"></script>
+
+    <style>
+        :root {
+            --primary-color: #8B7BF7;
+            --primary-light: #F3F1FF;
+            --primary-dark: #6B5ED9;
+            --text-primary: #2D3748;
+            --text-secondary: #718096;
+            --bg-light: #F8FAFC;
+            --border-color: #E2E8F0;
+            --success-color: #48BB78;
+            --warning-color: #ECC94B;
+            --danger-color: #F56565;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: var(--bg-light);
+            color: var(--text-primary);
+        }
+         :root {
+            --primary-color: #8B7BF7;
+            --primary-light: #F3F1FF;
+            --primary-dark: #6B5ED9;
+            --text-primary: #2D3748;
+            --text-secondary: #718096;
+            --bg-light: #F8FAFC;
+            --border-color: #E2E8F0;
+            --success-color: #48BB78;
+            --warning-color: #ECC94B;
+            --danger-color: #F56565;
+        }
+
+        .nav-sidebar {
+            width: 260px;
+            background: white;
+            min-height: 100vh;
+            padding: 24px 0;
+            position: fixed;
+            left: 0;
+            top: 0;
+            border-right: 1px solid var(--border-color);
+            z-index: 100;
+            box-shadow: 2px 0 4px rgba(0,0,0,0.05);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 22px;
+            font-weight: 600;
+            margin: 0 24px 32px;
+            color: var(--primary-color);
+        }
+
+        .logo-img {
+            width: 32px;
+            height: 32px;
+            object-fit: contain;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 24px;
+            color: var(--text-secondary);
+            text-decoration: none;
+            transition: all 0.2s;
+            border-left: 3px solid transparent;
+            font-size: 14px;
+        }
+
+        .nav-link i {
+            width: 20px;
+            font-size: 16px;
+            text-align: center;
+        }
+
+        .nav-link.active {
+            background: var(--primary-light);
+            color: var(--primary-color);
+            border-left-color: var(--primary-color);
+        }
+
+        .nav-link.active i {
+            color: var(--primary-color);
+        }
+
+        .nav-link:hover:not(.active) {
+            background: var(--bg-light);
+            color: var(--text-primary);
+        }
+
+        .content {
+            margin-left: 260px;
+            padding: 24px;
+        }
+
+        .dashboard-section {
+            display: none;
+        }
+
+        .dashboard-section.active {
+            display: block;
+        }
+
+        .header-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 24px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            margin-bottom: 24px;
+        }
+
+        .header-row h2 {
+            margin: 0;
+            color: var(--text-primary);
+            font-size: 24px;
+            font-weight: 600;
+        }
+
+        .current-time {
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+
+        .dashboard-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 24px;
+            margin-bottom: 32px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 24px;
+            border-radius: 12px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        .stat-title {
+            color: var(--text-secondary);
+            font-size: 14px;
+            margin-bottom: 8px;
+        }
+
+        .stat-value {
+            font-size: 32px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .add-btn {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+        
+        .add-btn:hover {
+            background-color: var(--primary-dark);
+            transform: translateY(-1px);
+        }
+
+        .add-btn svg {
+            width: 16px;
+            height: 16px;
+        }
+
+        .employee-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+            gap: 24px;
+            padding: 24px;
+        }
+
+        .employee-card {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            text-align: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            transition: transform 0.2s;
+        }
+
+        .employee-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        .employee-image {
+            width: 120px;
+            height: 120px;
+            margin: 0 auto 16px;
+            border-radius: 50%;
+            overflow: hidden;
+            border: 3px solid var(--primary-light);
+        }
+
+        .employee-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .employee-card h3 {
+            margin: 0 0 8px;
+            color: var(--text-primary);
+            font-size: 18px;
+        }
+
+        .employee-card p {
+            margin: 0;
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+
+        .btn-primary {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: background 0.2s;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+        }
+
+        .employee-contact {
+            margin: 16px 0;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .employee-contact span {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+
+        .join-date {
+            font-size: 13px;
+            color: var(--text-secondary);
+            margin-top: 16px;
+            padding-top: 16px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .employee-actions {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            gap: 8px;
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+
+        .employee-card:hover .employee-actions {
+            opacity: 1;
+        }
+
+        .btn-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            background: white;
+            color: var(--text-secondary);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+
+        .btn-icon:hover {
+            background: var(--primary-light);
+            color: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+
+        /* Modal styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(45, 55, 72, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(4px);
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 16px;
+            padding: 32px;
+            width: 90%;
+            max-width: 500px;
+            position: relative;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+
+        .modal-header h2 {
+            margin: 0;
+            font-size: 20px;
+            color: var(--text-primary);
+        }
+
+        .close-modal {
+            background: none;
+            border: none;
+            font-size: 24px;
+            color: var(--text-secondary);
+            cursor: pointer;
+            padding: 4px;
+            border-radius: 4px;
+            transition: all 0.2s;
+        }
+
+        .close-modal:hover {
+            background: var(--bg-light);
+            color: var(--text-primary);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--text-primary);
+            font-weight: 500;
+            font-size: 14px;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px var(--primary-light);
+        }
+
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+            margin-top: 32px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-primary {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+        }
+
+        .btn-secondary {
+            background: white;
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+        }
+
+        .btn-secondary:hover {
+            background: var(--bg-light);
+            border-color: var(--text-secondary);
+        }
+
+        /* Notifications */
+        #notifications {
+            position: fixed;
+            top: 24px;
+            right: 24px;
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .notification {
+            background: white;
+            border-radius: 12px;
+            padding: 16px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            min-width: 300px;
+            border-left: 4px solid var(--primary-color);
+            animation: slideIn 0.3s ease;
+        }
+
+        .notification.success {
+            border-left-color: var(--success-color);
+        }
+
+        .notification.error {
+            border-left-color: var(--danger-color);
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .nav-sidebar {
+                transform: translateX(-100%);
+                transition: transform 0.3s ease;
+            }
+
+            .nav-sidebar.active {
+                transform: translateX(0);
+            }
+
+            .content {
+                margin-left: 0;
+            }
+
+            .header-row {
+                position: sticky;
+                top: 0;
+                z-index: 99;
+            }
+
+            body.menu-open {
+                overflow: hidden;
+            }
+
+            .overlay {
+                display: none;
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: rgba(0, 0, 0, 0.5);
+                z-index: 90;
+            }
+
+            .overlay.active {
+                display: block;
+            }
+
+            .menu-toggle {
+                display: block;
+            }
+        }
+
+        /* Applications section styles */
+        .applications-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+            padding: 1.5rem;
+        }
+
+        .application-card {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            border: 1px solid var(--border-color);
+        }
+
+        .application-card h3 {
+            margin: 0 0 0.5rem;
+            color: var(--text-primary);
+            font-size: 1.1rem;
+        }
+
+        .application-meta {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+        }
+
+        .application-details {
+            margin: 1rem 0;
+        }
+
+        .application-details p {
+            margin: 0.5rem 0;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 1rem;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+
+        .status-New {
+            background: var(--primary-light);
+            color: var(--primary-dark);
+        }
+
+        .status-Under-Review {
+            background: #FEF3C7;
+            color: #D97706;
+        }
+
+        .status-Interview {
+            background: #E0E7FF;
+            color: #4F46E5;
+        }
+
+        .status-Accepted {
+            background: #ECFDF5;
+            color: #059669;
+        }
+
+        .status-Rejected {
+            background: #FEE2E2;
+            color: #DC2626;
+        }
+
+        .application-actions {
+            margin-top: 1rem;
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .application-actions button {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.2s;
+        }
+
+        .btn-view-resume {
+            background: var(--primary-light);
+            color: var(--primary-dark);
+        }
+
+        .btn-update-status {
+            background: white;
+            border: 1px solid var(--border-color) !important;
+            color: var(--text-secondary);
+        }
+
+        .filter-controls {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .filter-select,
+        .search-input {
+            padding: 0.5rem;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            font-size: 0.9rem;
+        }
+
+        .search-input {
+            width: 250px;
+        }
+    </style>
+</head>
+<body>
+    <div class="overlay"></div>
+    <button class="menu-toggle">
+        <i class="fas fa-bars"></i>
+    </button>
+    <div class="nav-sidebar">
+        <div class="logo">
+            <img src="../client/img/logo.png" alt="NexStaff" class="logo-img" style="width:40px;height:40px;object-fit:contain;">
+            <span>NexStaff</span>
+        </div>
+        <a href="#" class="nav-link active" data-tab="dashboard">
+            <i class="fas fa-th-large"></i>
+            <span>Dashboard</span>
+        </a>
+        <a href="#" class="nav-link" data-tab="employee">
+            <i class="fas fa-users"></i>
+            <span>Employees</span>
+        </a>
+        <a href="#" class="nav-link" data-tab="candidates">
+            <i class="fas fa-user-tie"></i>
+            <span>Candidates</span>
+        </a>
+        <a href="#" class="nav-link" data-tab="employers">
+            <i class="fas fa-building"></i>
+            <span>Employers</span>
+        </a>
+        <a href="#" class="nav-link" data-tab="schedule">
+            <i class="fas fa-calendar-alt"></i>
+            <span>Schedule</span>
+        </a>
+        <a href="#" class="nav-link" data-tab="applications">
+            <i class="fas fa-file-alt"></i>
+            <span>Applications</span>
+        </a>
+        <a href="#" class="nav-link" data-tab="jobs">
+            <i class="fas fa-briefcase"></i>
+            <span>Jobs</span>
+        </a>
+        <a href="#" class="nav-link" data-tab="settings">
+            <i class="fas fa-cog"></i>
+            <span>Settings</span>
+        </a>
+        <a href="#" class="nav-link" id="logoutLink">
+            <i class="fas fa-sign-out-alt"></i>
+            <span>Logout</span>
+        </a>
+    </div>
+
+    <div class="content">
+        <!-- Dashboard Section -->
+        <div id="dashboard-section" class="dashboard-section">
+            <div class="header-row">
+                <div class="current-time" id="currentTime"></div>
+            </div>
+
+            <div class="dashboard-stats">
+                <div class="stat-card">
+                    <div class="stat-title">Total Employees</div>
+                    <div class="stat-value" id="totalEmployees">0</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-title">Active Candidates</div>
+                    <div class="stat-value" id="activeCandidates">0</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-title">Active Employers</div>
+                    <div class="stat-value" id="activeEmployers">0</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-title">Pending Applications</div>
+                    <div class="stat-value" id="pendingApplications">0</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Employees Section -->
+        <div id="employee-section" class="dashboard-section">
+            <div class="header-row">
+                <h2>Employee Management</h2>
+                <button class="btn-primary" id="addEmployeeBtn">
+                    <i class="fas fa-plus"></i>
+                    Add Employee
+                </button>
+            </div>
+            <div class="employee-grid">
+                <div class="employee-card">
+                    <div class="employee-image">
+                        <img src="./admin/img/cea.png" alt="Cea">
+                    </div>
+                    <h3>Cea</h3>
+                    <p>HR Manager</p>
+                </div>
+                <div class="employee-card">
+                    <div class="employee-image">
+                        <img src="./admin/img/delosreyes.png" alt="Delos Reyes">
+                    </div>
+                    <h3>Delos Reyes</h3>
+                    <p>Senior Developer</p>
+                </div>
+                <div class="employee-card">
+                    <div class="employee-image">
+                        <img src="./admin/img/lee.png" alt="Lee">
+                    </div>
+                    <h3>Lee</h3>
+                    <p>Project Manager</p>
+                </div>
+                <div class="employee-card">
+                    <div class="employee-image">
+                        <img src="./admin/img/lowe.png" alt="Lowe">
+                    </div>
+                    <h3>Lowe</h3>
+                    <p>UI/UX Designer</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Candidates Section -->
+        <div id="candidates-section" class="dashboard-section">
+            <div class="header-row">
+                <h2>Candidates</h2>
+            </div>
+            <div id="candidatesContent">
+                <!-- Candidates content -->
+            </div>
+        </div>
+
+        <!-- Employers Section -->
+        <div id="employers-section" class="dashboard-section">
+            <div class="header-row">
+                <h2>Employers</h2>
+            </div>
+            <div id="employersContent">
+                <!-- Employers content -->
+            </div>
+        </div>
+
+        <!-- Schedule Section -->
+        <div id="schedule-section" class="dashboard-section">
+            <div class="header-row">
+                <h2>Schedule</h2>
+            </div>
+            <div id="scheduleContent">
+                <!-- Schedule content -->
+            </div>
+        </div>
+
+        <!-- Applications Section -->
+        <div id="applications-section" class="dashboard-section">
+            <div class="header-row">
+                <h2>Job Applications</h2>
+                <div class="filter-controls">
+                    <select id="applicationStatus" class="filter-select">
+                        <option value="all">All Status</option>
+                        <option value="New">New</option>
+                        <option value="Under Review">Under Review</option>
+                        <option value="Interview">Interview</option>
+                        <option value="Accepted">Accepted</option>
+                        <option value="Rejected">Rejected</option>
+                    </select>
+                    <input type="text" id="applicationSearch" class="search-input" placeholder="Search applications...">
+                </div>
+            </div>
+            <div class="applications-grid"></div>
+        </div>
+
+        <!-- Jobs Section -->
+        <div id="jobs-section" class="dashboard-section"></div>
+
+        <!-- Settings Section -->
+        <div id="settings-section" class="dashboard-section"></div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize dashboard components
+            console.log('Initializing dashboard...');
+            
+            // Check authentication
+            const auth = AuthAPI.checkAuth();
+            if (!auth) {
+                console.log('Not authenticated, redirecting to login...');
+                window.location.href = 'login.html';
+                return;
+            }
+
+            // Initialize menu functionality
+            const menuToggle = document.querySelector('.menu-toggle');
+            const navSidebar = document.querySelector('.nav-sidebar');
+            const overlay = document.querySelector('.overlay');
+            const body = document.body;
+
+            function toggleMenu() {
+                navSidebar.classList.toggle('active');
+                overlay.classList.toggle('active');
+                body.classList.toggle('menu-open');
+            }
+
+            menuToggle.addEventListener('click', toggleMenu);
+            overlay.addEventListener('click', toggleMenu);
+
+            // Close menu when clicking a link on mobile
+            const navLinks = document.querySelectorAll('.nav-link');
+            navLinks.forEach(link => {
+                link.addEventListener('click', function(e) {
+                    if (window.innerWidth <= 768) {
+                        toggleMenu();
+                    }
+
+                    if (this.id === 'logoutLink') {
+                        e.preventDefault();
+                        console.log('Logging out...');
+                        AuthAPI.logout();
+                        return;
+                    }
+
+                    e.preventDefault();
+                    const tabName = this.getAttribute('data-tab');
+                    console.log('Switching to tab:', tabName);
+
+                    // Update active state
+                    navLinks.forEach(l => l.classList.remove('active'));
+                    this.classList.add('active');
+
+                    // Hide all sections
+                    document.querySelectorAll('.dashboard-section').forEach(section => {
+                        section.style.display = 'none';
+                    });
+
+                    // Show selected section
+                    const section = document.getElementById(tabName + '-section');
+                    if (section) {
+                        section.style.display = 'block';
+                        // Refresh section data if needed
+                        if (tabName === 'applications') {
+                            ApplicationsAPI.refreshApplicationsList();
+                        }
+                    }
+                });
+            });
+
+            // Sidebar tab switching logic
+            const navLinks = document.querySelectorAll('.nav-link[data-tab]');
+            navLinks.forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const tabName = this.getAttribute('data-tab');
+                    // Update active state
+                    navLinks.forEach(l => l.classList.remove('active'));
+                    this.classList.add('active');
+                    // Hide all sections
+                    document.querySelectorAll('.dashboard-section').forEach(section => {
+                        section.style.display = 'none';
+                    });
+                    // Show selected section
+                    const section = document.getElementById(tabName + '-section');
+                    if (section) {
+                        section.style.display = 'block';
+                        if (tabName === 'applications' && typeof ApplicationsAPI !== 'undefined') {
+                            ApplicationsAPI.refreshApplicationsList();
+                        }
+                    }
+                });
+            });
+
+            // Load initial data
+            function loadData() {
+                console.log('Loading initial data...');
+                // Load employee data
+                EmployeeAPI.getAllEmployees().then(employees => {
+                    console.log('Employees:', employees);
+                    // TODO: Render employees to the employee grid
+                });
+
+                // Load candidate data
+                CandidateAPI.getAllCandidates().then(candidates => {
+                    console.log('Candidates:', candidates);
+                    // TODO: Render candidates to the candidates section
+                });
+
+                // Load employer data
+                EmployerAPI.getAllEmployers().then(employers => {
+                    console.log('Employers:', employers);
+                    // TODO: Render employers to the employers section
+                });
+
+                // Load schedule data
+                ScheduleAPI.getSchedule().then(schedule => {
+                    console.log('Schedule:', schedule);
+                    // TODO: Render schedule to the schedule section
+                });
+
+                // Load applications data
+                ApplicationsAPI.getApplications().then(applications => {
+                    console.log('Applications:', applications);
+                    // TODO: Render applications to the applications grid
+                });
+
+                // Load job data
+                JobAPI.getAllJobs().then(jobs => {
+                    console.log('Jobs:', jobs);
+                    // TODO: Render jobs to the jobs section
+                });
+            }
+
+            loadData();
+
+            // Update current time
+            function updateTime() {
+                const now = new Date();
+                const options = { hour: '2-digit', minute: '2-digit', second: '2-digit' };
+                document.getElementById('currentTime').textContent = now.toLocaleTimeString([], options);
+            }
+
+            setInterval(updateTime, 1000);
+            updateTime();
+        });
+    </script>
+</body>
+</html>

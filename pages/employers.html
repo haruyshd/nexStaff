@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Team - NexStaff</title>    <link rel="stylesheet" href="../client/css/landing.css">
+    <link rel="icon" href="../client/img/logo.png" type="image/png">
+    <link href="https://unpkg.com/ionicons@5.5.2/dist/css/ionicons.min.css" rel="stylesheet">
+    <!-- Add DataService script first -->
+    <script src="../login/admin/js/dataService.js"></script>
+    <!-- Add employer profiles and team management -->
+    <script src="../login/admin/js/employerProfiles.js"></script>
+    <script src="../login/admin/js/teamManagement.js"></script>
+    <style>
+        .employers-section {
+            max-width: 1200px;
+            margin: 6rem auto 2rem;
+            padding: 2rem;
+        }
+
+        .intro-section {
+            text-align: center;
+            margin-bottom: 4rem;
+        }
+
+        .intro-section h1 {
+            font-size: 2.5rem;
+            color: var(--text-color);
+            margin-bottom: 1rem;
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .intro-section p {
+            font-size: 1.2rem;
+            color: var(--text-color);
+            opacity: 0.8;
+            max-width: 800px;
+            margin: 0 auto;
+        }        /* Notification styles */
+        #notifications {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            max-width: 400px;
+        }
+
+        .notification {
+            padding: 16px;
+            border-radius: 6px;
+            color: white;
+            font-size: 14px;
+            opacity: 0;
+            transform: translateX(100%);
+            animation: slideIn 0.3s forwards;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            transition: opacity 0.3s ease;
+        }
+
+        .notification-content {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 12px;
+        }
+
+        .notification .message {
+            flex-grow: 1;
+            margin-right: 8px;
+            line-height: 1.4;
+        }
+
+        .notification .close-btn {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 20px;
+            padding: 0;
+            cursor: pointer;
+            opacity: 0.8;
+            transition: opacity 0.2s;
+            line-height: 1;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+        }
+
+        .notification .close-btn:hover {
+            opacity: 1;
+            background-color: rgba(255,255,255,0.1);
+        }
+
+        .notification.success {
+            background-color: #4CAF50;
+            border-left: 4px solid #2E7D32;
+        }
+
+        .notification.error {
+            background-color: #f44336;
+            border-left: 4px solid #c62828;
+        }
+
+        .notification.persistent {
+            animation: shake 0.5s ease-in-out;
+        }
+
+        @keyframes slideIn {
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+
+        /* Team form styles */
+        .team-form-container {
+            max-width: 800px;
+            margin: 2rem auto;
+            padding: 2rem;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: #333;
+        }
+
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #007bff;
+            box-shadow: 0 0 0 2px rgba(0,123,255,0.25);
+        }
+
+        .form-group input.error,
+        .form-group textarea.error {
+            border-color: #f44336;
+        }
+
+        .submit-btn {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 4px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            width: 100%;
+        }
+
+        .submit-btn:hover {
+            background: #0056b3;
+        }
+
+        .submit-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+        .teams-list {
+            margin-top: 3rem;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+
+        .team-card {
+            background: white;
+            border-radius: 16px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+        }
+
+        .team-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .team-card h3 {
+            color: var(--text-color);
+            margin-bottom: 0.5rem;
+        }
+
+        .team-card .department {
+            color: var(--primary-color);
+            font-weight: 500;
+            margin-bottom: 1rem;
+        }
+
+        .requirements {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin: 1rem 0;
+        }
+
+        .tag {
+            background: var(--gradient-soft);
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            color: var(--primary-color);
+        }
+
+        .team-actions {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .team-actions button {
+            flex: 1;
+            padding: 0.5rem;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .team-actions button:first-child {
+            background: var(--gradient-soft);
+            color: var(--primary-color);
+        }
+
+        .team-actions button:last-child {
+            background: #ff4d4d;
+            color: white;
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 1rem;
+            border-radius: 8px;
+            color: white;
+            z-index: 1000;
+            animation: slideIn 0.3s ease;
+        }
+
+        .notification.success {
+            background: #4CAF50;
+        }
+
+        .notification.error {
+            background: #f44336;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        .no-teams {
+            text-align: center;
+            color: #666;
+            padding: 2rem;
+            font-style: italic;
+        }
+
+        /* Teams list styles */
+        #teamsList {
+            margin-top: 30px;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            padding: 20px;
+        }
+        .team-card {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+        .team-card:hover {
+            transform: translateY(-5px);
+        }
+    </style>
+</head>
+<body>
+    <header>        <nav>
+            <a href="../index.html" class="logo">
+                <img src="../client/img/logo.png" alt="NexStaff Logo" class="nav-logo">
+                <span>NexStaff</span>
+            </a>
+            <div class="nav-links">
+                <a href="about.html"><ion-icon name="information-circle-outline"></ion-icon> About</a>
+                <a href="jobs.html"><ion-icon name="briefcase-outline"></ion-icon> Jobs</a>
+                <a href="candidates.html"><ion-icon name="people-outline"></ion-icon> Candidates</a>
+                <a href="employers.html" class="active"><ion-icon name="business-outline"></ion-icon> Employers</a>
+            </div>
+            <div class="nav-buttons">
+                <a href="../auth/login.html" class="login-btn"><ion-icon name="person-outline"></ion-icon> Sign In</a>
+            </div>
+            <button class="mobile-menu">
+                <ion-icon name="menu-outline"></ion-icon>
+            </button>
+        </nav>
+    </header>
+
+    <main class="employers-section">
+        <div class="intro-section">
+            <h1>Create Your Team</h1>
+            <p>Build and manage your professional team. Define roles, set requirements, and streamline your recruitment process.</p>
+        </div>        <div class="team-form-container">
+            <form id="createTeamForm" onsubmit="return false;">
+                <div class="form-group">
+                    <label for="teamName">Team Name</label>
+                    <input type="text" id="teamName" name="teamName" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="department">Department</label>
+                    <input type="text" id="department" name="department" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="description">Team Description</label>
+                    <textarea id="description" name="description" required></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="requirements">Requirements (comma-separated)</label>
+                    <textarea id="requirements" name="requirements" placeholder="e.g., JavaScript, React, 3+ years experience" required></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="email">Contact Email</label>
+                    <input type="email" id="email" name="email" required>
+                </div>                <div class="form-group">
+                    <label for="phone">Contact Phone</label>
+                    <input type="tel" id="phone" name="phone" required>
+                </div>                <div class="form-group">
+                    <button type="submit" class="submit-btn">Create Team</button>
+                </div>
+            </form>
+        </div>
+
+        <div id="teamsList" class="teams-list">
+            <!-- Teams will be dynamically inserted here -->
+        </div>
+    </main>
+
+    <footer>
+        <div class="footer-content">
+            <p>&copy; 2025 NexStaff. All rights reserved.</p>
+        </div>
+    </footer>    <style>
+        /* Teams list styles */
+        #teamsList {
+            margin-top: 30px;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            padding: 20px;
+        }
+        .team-card {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+        .team-card:hover {
+            transform: translateY(-5px);
+        }
+    </style>    <!-- Team management script with initialization -->
+    <script src="login/admin/js/teamManagement.js"></script>
+    <script>
+        let teamManager = null;
+
+        // Initialize when the page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('Initializing employers page...');
+            teamManager = new TeamManagement();
+            
+            // Initialize form
+            initializeForm();
+            
+            // Initialize mobile menu
+            initializeMobileMenu();
+        });
+
+        function initializeForm() {
+            const form = document.getElementById('createTeamForm');
+            if (!form) {
+                console.error('Create team form not found');
+                return;
+            }
+
+            // Remove any existing listeners
+            const newForm = form.cloneNode(true);
+            form.parentNode.replaceChild(newForm, form);
+            
+            // Add new submit handler
+            newForm.addEventListener('submit', handleTeamSubmit);
+            
+            // Add input listeners for validation
+            const inputs = newForm.querySelectorAll('input, textarea');
+            inputs.forEach(input => {
+                input.addEventListener('input', function() {
+                    this.classList.remove('error');
+                });
+            });
+            
+            console.log('Form initialized successfully');
+        }
+
+        function handleTeamSubmit(event) {
+            event.preventDefault();
+            event.stopPropagation();
+            console.log('Form submitted');
+
+            const formData = {
+                teamName: this.teamName.value.trim(),
+                department: this.department.value.trim(),
+                description: this.description.value.trim(),
+                requirements: this.requirements.value.trim(),
+                email: this.email.value.trim(),
+                phone: this.phone.value.trim()
+            };
+            
+            console.log('Form data:', formData);
+
+            if (teamManager.validateTeamData(formData)) {
+                const team = teamManager.createTeam(formData);
+                if (team) {
+                    console.log('Team created successfully:', team);
+                    this.reset();
+                    return false;
+                }
+            }
+            
+            return false;
+        }
+
+        function initializeMobileMenu() {
+            const menuToggle = document.querySelector('.mobile-menu');
+            const navLinks = document.querySelector('.nav-links');
+            
+            if (menuToggle && navLinks) {
+                menuToggle.addEventListener('click', () => {
+                    navLinks.classList.toggle('active');
+                });
+            }
+        }
+    </script>
+</body>
+</html>

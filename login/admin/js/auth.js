@@ -1,8 +1,15 @@
 // Authentication and user management
 const AuthAPI = {
+<<<<<<< HEAD
     // Token storage key
     TOKEN_KEY: 'nexstaff_auth_token',
     USER_KEY: 'nexstaff_user',
+=======
+    // Storage keys
+    TOKEN_KEY: 'nexstaff_auth_token',
+    USER_KEY: 'nexstaff_user',
+    REMEMBER_KEY: 'nexstaff_remember',
+>>>>>>> 0f9fc2e (Echo again)
 
     // User roles
     ROLES: {
@@ -12,12 +19,31 @@ const AuthAPI = {
         EMPLOYEE: 'employee'
     },
 
+<<<<<<< HEAD
     // Initialize user session    init() {
+=======
+    // Initialize user session
+    init() {
+        console.log('Initializing AuthAPI...');
+        const session = this.checkAuth();
+        if (!session) {
+            console.log('No valid session found');
+            this.redirectToLogin();
+            return null;
+        }
+        console.log('Valid session found:', session.user.role);
+        return session;
+    },
+
+    // Check if user is authenticated
+    checkAuth() {
+>>>>>>> 0f9fc2e (Echo again)
         try {
             const token = localStorage.getItem(this.TOKEN_KEY);
             const userStr = localStorage.getItem(this.USER_KEY);
             const user = userStr ? JSON.parse(userStr) : null;
             
+<<<<<<< HEAD
             // Validate the session
             if (token && user && user.role) {
                 return {
@@ -117,3 +143,100 @@ const AuthAPI = {
         }
     }
 };
+=======
+            if (!token || !user || !user.role) {
+                console.log('No valid auth data found');
+                return null;
+            }
+            
+            // Check if token is expired
+            if (this.isTokenExpired(token)) {
+                console.log('Token expired');
+                this.clearAuth();
+                return null;
+            }
+            
+            return {
+                isAuthenticated: true,
+                user,
+                token
+            };
+        } catch (error) {
+            console.error('Error checking auth:', error);
+            return null;
+        }
+    },
+
+    // Login user
+    login(credentials) {
+        try {
+            // For demo, using hardcoded admin credentials
+            if (credentials.username === 'admin' && credentials.password === 'admin123') {
+                const user = {
+                    id: '1',
+                    username: 'admin',
+                    role: this.ROLES.ADMIN,
+                    name: 'Admin User'
+                };
+                
+                const token = 'demo_token_' + Date.now();
+                
+                this.setAuth(token, user, credentials.remember);
+                return { success: true, user };
+            }
+            
+            return { success: false, message: 'Invalid credentials' };
+        } catch (error) {
+            console.error('Login error:', error);
+            return { success: false, message: 'Login failed' };
+        }
+    },
+
+    // Logout user
+    logout() {
+        console.log('Logging out...');
+        this.clearAuth();
+        this.redirectToLogin();
+    },
+
+    // Clear authentication data
+    clearAuth() {
+        localStorage.removeItem(this.TOKEN_KEY);
+        localStorage.removeItem(this.USER_KEY);
+        localStorage.removeItem(this.REMEMBER_KEY);
+    },
+
+    // Set authentication data
+    setAuth(token, user, remember = false) {
+        localStorage.setItem(this.TOKEN_KEY, token);
+        localStorage.setItem(this.USER_KEY, JSON.stringify(user));
+        if (remember) {
+            localStorage.setItem(this.REMEMBER_KEY, 'true');
+        }
+    },
+
+    // Check if token is expired (demo implementation)
+    isTokenExpired(token) {
+        return false; // For demo purposes
+    },
+
+    // Redirect to login page
+    redirectToLogin() {
+        window.location.href = 'login.html';
+    },
+
+    // Check if user has required role
+    hasRole(requiredRole) {
+        const session = this.checkAuth();
+        return session && session.user && session.user.role === requiredRole;
+    },
+
+    // Check if user has admin access
+    isAdmin() {
+        return this.hasRole(this.ROLES.ADMIN);
+    }
+};
+
+// Expose AuthAPI globally
+window.AuthAPI = AuthAPI;
+>>>>>>> 0f9fc2e (Echo again)
