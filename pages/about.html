@@ -5,8 +5,18 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>About NexStaff - Employee Management System</title>    <link rel="stylesheet" href="../client/css/landing.css">
     <link rel="icon" href="../client/img/logo.png" type="image/png">
-    <link href="https://unpkg.com/ionicons@5.5.2/dist/css/ionicons.min.css" rel="stylesheet">
-    <style>        .about-section {
+    <link href="https://unpkg.com/ionicons@5.5.2/dist/css/ionicons.min.css" rel="stylesheet">    <style>
+        /* Additional CSS variables for About page */
+        :root {
+            --primary-dark: #7b6be6;
+            --primary-light: #F3F1FF;
+            --primary-gradient: linear-gradient(135deg, #9280fd, #7b6be6);
+            --success-color: #48BB78;
+            --warning-color: #ECC94B;
+            --danger-color: #F56565;
+        }
+
+        .about-section {
             max-width: 1200px;
             margin: 2rem auto;
             padding: 0;
@@ -786,60 +796,6 @@
             </div>
         </section>
 
-        <!-- Team Contact Form Section -->
-        <section class="team-contact-section">
-            <div class="team-form-container">
-                <h2>Get in Touch</h2>
-                <p class="form-subtitle">Have questions or want to learn more about NexStaff? We'd love to hear from you!</p>
-                
-                <form class="contact-form" id="teamContactForm">
-                    <div class="form-row">
-                        <div class="form-group">
-                            <input type="text" id="firstName" name="firstName" placeholder=" " required>
-                            <label for="firstName">First Name</label>
-                        </div>
-                        <div class="form-group">
-                            <input type="text" id="lastName" name="lastName" placeholder=" " required>
-                            <label for="lastName">Last Name</label>
-                        </div>
-                    </div>
-                    
-                    <div class="form-row">
-                        <div class="form-group">
-                            <input type="email" id="email" name="email" placeholder=" " required>
-                            <label for="email">Email Address</label>
-                        </div>
-                        <div class="form-group">
-                            <input type="tel" id="phone" name="phone" placeholder=" ">
-                            <label for="phone">Phone Number</label>
-                        </div>
-                    </div>
-                    
-                    <div class="form-group">
-                        <select id="inquiryType" name="inquiryType" required>
-                            <option value="">Select inquiry type...</option>
-                            <option value="general">General Information</option>
-                            <option value="partnership">Partnership Opportunities</option>
-                            <option value="technical">Technical Support</option>
-                            <option value="careers">Career Opportunities</option>
-                            <option value="media">Media & Press</option>
-                        </select>
-                        <label for="inquiryType">Inquiry Type</label>
-                    </div>
-                    
-                    <div class="form-group">
-                        <textarea id="message" name="message" placeholder=" " required></textarea>
-                        <label for="message">Your Message</label>
-                    </div>
-                    
-                    <button type="submit" class="submit-btn">
-                        <ion-icon name="send-outline" style="margin-right: 0.5rem;"></ion-icon>
-                        Send Message
-                    </button>
-                </form>
-            </div>
-        </section></main>
-    
     <!-- Dynamic Footer -->
     <div id="footer-container"></div>
 

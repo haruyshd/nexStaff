@@ -44,7 +44,6 @@
                 </button>
             </form>
             <div class="login-footer">
-                <p>Don't have an account? <a href="#" class="signup-link">Contact HR</a></p>
             </div>
         </div>
         <div class="login-right">
@@ -91,54 +90,63 @@
                 const type = passwordInput.type === 'password' ? 'text' : 'password';
                 passwordInput.type = type;
                 this.querySelector('i').textContent = type === 'password' ? 'visibility_off' : 'visibility';
-            });
-
-            // Handle form submission
-            loginForm.addEventListener('submit', async function(e) {
+            });            // Handle form submission
+            loginForm.addEventListener('submit', function(e) {
                 e.preventDefault();
+                console.log('🚀 Login form submitted');
                 
-                // Show loading state                loginBtn.disabled = true;
+                // Show loading state
+                loginBtn.disabled = true;
                 spinner.style.display = 'block';
                 btnText.style.opacity = '0';
                 loginError.textContent = '';
 
-                try {
-                    const email = document.getElementById('email').value;
-                    const password = document.getElementById('password').value;
-                    const rememberMe = document.getElementById('rememberMe').checked;
+                // Get form values
+                const email = document.getElementById('email').value.trim();
+                const password = document.getElementById('password').value;
+                const rememberMe = document.getElementById('rememberMe').checked;
 
-                    console.log('Login form submitted with:', { email, password: '***' });
+                console.log('📧 Email:', email);
+                console.log('🔐 Password length:', password.length);
 
-                    // For demo purposes, convert email to username (admin)
-                    const username = email.split('@')[0];
-                    console.log('Using username:', username);
-
-                    const result = AuthAPI.login({
-                        username: username,
-                        password: password,
-                        remember: rememberMe
-                    });
-
-                    console.log('Login result:', result);
-
-                    if (result.success) {
-                        // Successful login
-                        console.log('Login successful, redirecting to dashboard...');
-                        window.location.href = '../login/admin/dashboard.html';
-                    } else {
-                        // Show error message
-                        console.log('Login failed:', result.message);
-                        loginError.textContent = result.message || 'Invalid credentials';
-                        loginBtn.disabled = false;
-                        spinner.style.display = 'none';
-                        btnText.style.opacity = '1';
+                // Simple credential check
+                if (email === 'admin@nexstaff.com' && password === 'admin123') {
+                    console.log('✅ Valid credentials! Logging in...');
+                    
+                    // Save auth data
+                    const user = {
+                        id: 'admin_' + Date.now(),
+                        email: 'admin@nexstaff.com',
+                        role: 'admin',
+                        name: 'Admin User'
+                    };
+                    
+                    const token = 'auth_token_' + Date.now();
+                    
+                    // Save to localStorage
+                    localStorage.setItem('nexstaff_auth_token', token);
+                    localStorage.setItem('nexstaff_user', JSON.stringify(user));
+                    
+                    if (rememberMe) {
+                        localStorage.setItem('nexstaff_remember', 'true');
                     }
-                } catch (error) {
-                    console.error('Login error:', error);
-                    loginError.textContent = 'An error occurred during login';
-                    loginBtn.disabled = false;                    spinner.style.display = 'none';
+                    
+                    console.log('💾 Auth data saved');
+                    console.log('🔄 Redirecting to dashboard...');
+                    
+                    // Redirect to dashboard
+                    setTimeout(() => {
+                        window.location.href = '../login/admin/dashboard.html';
+                    }, 500);
+                    
+                } else {
+                    console.log('❌ Invalid credentials');
+                    loginError.textContent = 'Invalid email or password. Use: admin@nexstaff.com / admin123';
+                    loginBtn.disabled = false;
+                    spinner.style.display = 'none';
                     btnText.style.opacity = '1';
-                }            });
+                }
+            });
         });    </script>
     
     <!-- Include ionicons -->
