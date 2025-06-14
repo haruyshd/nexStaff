@@ -1,0 +1,3074 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">    <title>NexStaff Admin Dashboard</title>
+    <link rel="icon" href="../client/img/logo.png" type="image/png">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Include Data Service -->
+    <script src="js/dataService.js"></script>
+      <style>
+        :root {
+            /* Modern Color Palette */
+            --primary: #8B5CF6;
+            --primary-dark: #7C3AED;
+            --primary-light: #F3E8FF;
+            --primary-gradient: linear-gradient(135deg, #8B5CF6 0%, #3B82F6 50%, #06B6D4 100%);
+            --secondary: #64748B;
+            --success: #10B981;
+            --warning: #F59E0B;
+            --danger: #EF4444;
+            --info: #3B82F6;
+            --dark: #0F172A;
+            --light: #F8FAFC;
+            --white: #FFFFFF;
+            --border: #E2E8F0;
+            --border-light: #F1F5F9;
+            --text-primary: #0F172A;
+            --text-secondary: #64748B;
+            --text-muted: #94A3B8;
+            --sidebar-width: 320px;
+            --header-height: 80px;
+            
+            /* Modern Shadows */
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            --shadow-2xl: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            
+            /* Modern Border Radius */
+            --radius-sm: 8px;
+            --radius-md: 12px;
+            --radius-lg: 16px;
+            --radius-xl: 20px;
+            --radius-2xl: 24px;
+            
+            /* Modern Transitions */
+            --transition-fast: 0.15s ease-out;
+            --transition-normal: 0.25s ease-out;
+            --transition-slow: 0.35s ease-out;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: linear-gradient(135deg, #F8FAFC 0%, #E2E8F0 100%);
+            color: var(--text-primary);
+            line-height: 1.6;
+            font-size: 14px;
+            font-weight: 400;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        /* Layout */
+        .admin-layout {
+            display: flex;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #F8FAFC 0%, #E2E8F0 100%);
+        }        /* Modern Sidebar with Glass Morphism */
+        .sidebar {
+            width: var(--sidebar-width);
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-right: 1px solid rgba(255, 255, 255, 0.3);
+            box-shadow: var(--shadow-2xl);
+            position: fixed;
+            height: 100vh;
+            z-index: 1000;
+            transition: all var(--transition-normal);
+            overflow-y: auto;
+            overflow-x: hidden;
+        }
+
+        .sidebar::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .sidebar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .sidebar::-webkit-scrollbar-thumb {
+            background: rgba(139, 92, 246, 0.3);
+            border-radius: 3px;
+        }
+
+        .sidebar::-webkit-scrollbar-thumb:hover {
+            background: rgba(139, 92, 246, 0.5);
+        }
+
+        .sidebar.collapsed {
+            transform: translateX(-100%);
+        }
+
+        .sidebar-header {
+            padding: 2rem 1.5rem;
+            border-bottom: 1px solid var(--border-light);
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            background: rgba(139, 92, 246, 0.05);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .sidebar-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: var(--primary-gradient);
+            opacity: 0.1;
+            z-index: -1;
+        }
+
+        .logo {
+            width: 48px;
+            height: 48px;
+            object-fit: contain;
+            border-radius: var(--radius-md);
+            padding: 8px;
+            background: var(--white);
+            box-shadow: var(--shadow-md);
+            transition: all var(--transition-normal);
+        }
+
+        .logo:hover {
+            transform: scale(1.05);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .brand-text {
+            font-size: 1.75rem;
+            font-weight: 800;
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: -0.025em;
+        }
+
+        .nav-menu {
+            padding: 1.5rem 0;
+        }        .nav-item {
+            margin: 0.5rem 1.5rem;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem 1.25rem;
+            color: var(--text-secondary);
+            text-decoration: none;
+            border-radius: var(--radius-md);
+            transition: all var(--transition-normal);
+            font-weight: 500;
+            font-size: 0.95rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .nav-link::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: var(--primary-gradient);
+            opacity: 0;
+            transition: all var(--transition-normal);
+            z-index: -1;
+        }
+
+        .nav-link:hover {
+            color: var(--primary);
+            background: rgba(139, 92, 246, 0.08);
+            transform: translateX(4px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .nav-link:hover::before {
+            opacity: 0.1;
+        }
+
+        .nav-link.active {
+            color: var(--white);
+            background: var(--primary-gradient);
+            box-shadow: var(--shadow-lg);
+            transform: translateX(4px);
+        }
+
+        .nav-link.active::before {
+            opacity: 1;
+        }
+
+        .nav-link i {
+            font-size: 1.1rem;
+            width: 20px;
+            text-align: center;
+            transition: all var(--transition-normal);
+        }
+
+        .nav-link:hover i,
+        .nav-link.active i {
+            transform: scale(1.1);
+        }
+
+        .nav-link span {
+            font-weight: 600;
+            letter-spacing: -0.01em;
+        }
+
+        .nav-link:hover {
+            background: var(--primary-light);
+            color: var(--primary);
+        }
+
+        .nav-link.active {
+            background: var(--primary);
+            color: var(--white);
+        }
+
+        .nav-link i {
+            width: 20px;
+            font-size: 1.1rem;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            margin-left: var(--sidebar-width);
+            transition: margin-left 0.3s ease;
+        }
+
+        .main-content.expanded {
+            margin-left: 0;
+        }
+
+        /* Header */
+        .header {
+            background: var(--white);
+            height: var(--header-height);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 2rem;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .menu-toggle {
+            display: none;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: var(--text-secondary);
+            cursor: pointer;
+            padding: 0.5rem;
+            border-radius: 0.5rem;
+            transition: all 0.2s;
+        }
+
+        .menu-toggle:hover {
+            background: var(--light);
+            color: var(--primary);
+        }
+
+        .page-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .notification-badge {
+            position: absolute;
+            top: 0.25rem;
+            right: 0.25rem;
+            background: var(--danger);
+            color: white;
+            font-size: 0.75rem;
+            padding: 0.125rem 0.375rem;
+            border-radius: 1rem;
+            min-width: 1.25rem;
+            text-align: center;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+        }
+
+        .user-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .user-name {
+            font-weight: 600;
+            font-size: 0.875rem;
+            color: var(--text-primary);
+        }
+
+        .user-role {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+        }
+
+        /* Content Area */
+        .content {
+            padding: 2rem;
+            min-height: calc(100vh - var(--header-height));
+        }
+
+        .section {
+            display: none;
+        }
+
+        .section.active {
+            display: block;
+        }
+
+        /* Cards */
+        .card {
+            background: var(--white);
+            border-radius: 1rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            margin-bottom: 1.5rem;
+        }
+
+        .card-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: between;
+        }
+
+        .card-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .card-body {
+            padding: 1.5rem;
+        }
+
+        /* Stats Cards */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: var(--white);
+            padding: 1.5rem;
+            border-radius: 1rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            border-left: 4px solid var(--primary);
+        }
+
+        .stat-card.success {
+            border-left-color: var(--success);
+        }
+
+        .stat-card.warning {
+            border-left-color: var(--warning);
+        }
+
+        .stat-card.danger {
+            border-left-color: var(--danger);
+        }
+
+        .stat-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+        }
+
+        .stat-title {
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .stat-icon {
+            width: 3rem;
+            height: 3rem;
+            border-radius: 0.75rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: white;
+        }
+
+        .stat-icon.primary { background: var(--primary); }
+        .stat-icon.success { background: var(--success); }
+        .stat-icon.warning { background: var(--warning); }
+        .stat-icon.danger { background: var(--danger); }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-change {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.875rem;
+        }
+
+        .stat-change.positive {
+            color: var(--success);
+        }
+
+        .stat-change.negative {
+            color: var(--danger);
+        }
+
+        /* Tables */
+        .table-container {
+            overflow-x: auto;
+        }
+
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .table th,
+        .table td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .table th {
+            background: var(--light);
+            font-weight: 600;
+            color: var(--text-primary);
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .table tr:hover {
+            background: rgba(99, 102, 241, 0.05);
+        }
+
+        /* Buttons */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+            border: none;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+            text-align: center;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+        }
+
+        .btn-success {
+            background: var(--success);
+            color: white;
+        }
+
+        .btn-warning {
+            background: var(--warning);
+            color: white;
+        }
+
+        .btn-danger {
+            background: var(--danger);
+            color: white;
+        }
+
+        .btn-secondary {
+            background: var(--secondary);
+            color: white;
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--text-secondary);
+        }
+
+        .btn-sm {
+            padding: 0.5rem 1rem;
+            font-size: 0.75rem;
+        }
+
+        /* Forms */
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            display: block;
+            font-weight: 500;
+            color: var(--text-primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--border);
+            border-radius: 0.5rem;
+            font-size: 0.875rem;
+            transition: all 0.2s;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+        }
+
+        /* Status Badges */
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.25rem 0.75rem;
+            font-size: 0.75rem;
+            font-weight: 500;
+            border-radius: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .badge-success {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--success);
+        }
+
+        .badge-warning {
+            background: rgba(245, 158, 11, 0.1);
+            color: var(--warning);
+        }
+
+        .badge-danger {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--danger);
+        }
+
+        .badge-primary {
+            background: rgba(99, 102, 241, 0.1);
+            color: var(--primary);
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+
+            .sidebar.open {
+                transform: translateX(0);
+            }
+
+            .main-content {
+                margin-left: 0;
+            }
+
+            .menu-toggle {
+                display: block;
+            }
+
+            .content {
+                padding: 1rem;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .header {
+                padding: 0 1rem;
+            }
+        }
+
+        /* Overlay for mobile */
+        .overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+        }
+
+        .overlay.active {
+            display: block;
+        }
+
+        /* Loading States */
+        .loading {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 3rem;
+            color: var(--text-secondary);
+        }
+
+        .spinner {
+            border: 2px solid var(--border);
+            border-top: 2px solid var(--primary);
+            border-radius: 50%;
+            width: 1.5rem;
+            height: 1.5rem;
+            animation: spin 1s linear infinite;
+            margin-right: 0.5rem;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Charts Container */
+        .chart-container {
+            height: 300px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--light);
+            border-radius: 0.5rem;
+            color: var(--text-secondary);
+        }
+
+        /* Employee Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 2000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(4px);
+        }
+
+        .modal.active {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: var(--white);
+            border-radius: 12px;
+            width: 90%;
+            max-width: 600px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+            animation: modalSlideIn 0.3s ease;
+        }
+
+        .modal-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header h3 {
+            margin: 0;
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+
+        .close {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--text-secondary);
+            padding: 0.25rem;
+            border-radius: 4px;
+            transition: all 0.2s;
+        }
+
+        .close:hover {
+            background: var(--light);
+            color: var(--primary);
+        }
+
+        .modal-body {
+            padding: 1.5rem;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group label {
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: var(--text-primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .form-group input,
+        .form-group select {
+            padding: 0.75rem;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 0.875rem;
+            transition: all 0.2s;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 1rem;
+            justify-content: flex-end;
+        }
+
+        @keyframes modalSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Notification Styles */
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: var(--white);
+            border-radius: 8px;
+            padding: 1rem 1.5rem;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            z-index: 3000;
+            transform: translateX(100%);
+            opacity: 0;
+            transition: all 0.3s ease;
+            max-width: 400px;
+        }
+
+        .notification.show {
+            transform: translateX(0);
+            opacity: 1;
+        }
+
+        .notification-success {
+            border-left: 4px solid var(--success);
+        }
+
+        .notification-success i {
+            color: var(--success);
+        }
+
+        .notification-error {
+            border-left: 4px solid var(--danger);
+        }
+
+        .notification-error i {
+            color: var(--danger);
+        }
+
+        .notification-info {
+            border-left: 4px solid var(--info);
+        }
+
+        .notification-info i {
+            color: var(--info);
+        }
+
+        .notification-warning {
+            border-left: 4px solid var(--warning);
+        }
+
+        .notification-warning i {
+            color: var(--warning);
+        }        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-overlay.show {
+            display: flex !important;
+        }
+
+        .hire-modal-overlay {
+            display: flex !important;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(8px);
+            z-index: 10000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: var(--white);
+            border-radius: 12px;
+            width: 90%;
+            max-width: 800px;
+            padding: 2rem;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+            animation: modalSlideIn 0.3s ease;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .modal-header h3 {
+            margin: 0;
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--text-secondary);
+            padding: 0.25rem;
+            border-radius: 4px;
+            transition: all 0.2s;
+        }
+
+        .close-btn:hover {
+            background: var(--light);
+            color: var(--primary);
+        }
+
+        .modal-body {
+            margin-bottom: 1.5rem;
+        }
+
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 1rem;
+        }
+
+        /* Additional styles for CRUD modals */
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+        
+        .form-group.full-width {
+            grid-column: 1 / -1;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        .btn-sm {
+            padding: 0.25rem 0.5rem;
+            font-size: 0.875rem;
+        }
+        
+        .status-badge {
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.25rem;
+            font-size: 0.75rem;
+            font-weight: 500;
+            text-transform: uppercase;
+        }
+        
+        .status-active, .status-open, .status-scheduled { background: #d4edda; color: #155724; }
+        .status-inactive, .status-closed, .status-cancelled { background: #f8d7da; color: #721c24; }
+        .status-pending, .status-reviewing, .status-on { background: #fff3cd; color: #856404; }
+        .status-hired, .status-completed, .status-filled { background: #d1ecf1; color: #0c5460; }
+    </style>
+</head>
+<body>
+    <div class="admin-layout">
+        <!-- Overlay for mobile -->
+        <div class="overlay" id="overlay"></div>
+
+        <!-- Sidebar -->
+        <div class="sidebar" id="sidebar">            <div class="sidebar-header">
+                <img src="../../client/img/logo.png" alt="NexStaff" class="logo">
+                <span class="brand-text">NexStaff</span>
+            </div>
+            
+            <nav class="nav-menu">
+                <div class="nav-item">
+                    <a href="#" class="nav-link active" data-section="dashboard">
+                        <i class="fas fa-th-large"></i>
+                        <span>Dashboard</span>
+                    </a>
+                </div>
+                <div class="nav-item">
+                    <a href="#" class="nav-link" data-section="employees">
+                        <i class="fas fa-users"></i>
+                        <span>Employees</span>
+                    </a>
+                </div>
+                <div class="nav-item">
+                    <a href="#" class="nav-link" data-section="candidates">
+                        <i class="fas fa-user-tie"></i>
+                        <span>Candidates</span>
+                    </a>
+                </div>
+                <div class="nav-item">
+                    <a href="#" class="nav-link" data-section="employers">
+                        <i class="fas fa-building"></i>
+                        <span>Employers</span>
+                    </a>
+                </div>
+                <div class="nav-item">
+                    <a href="#" class="nav-link" data-section="schedule">
+                        <i class="fas fa-calendar-alt"></i>
+                        <span>Schedule</span>
+                    </a>
+                </div>
+                <div class="nav-item">
+                    <a href="#" class="nav-link" data-section="applications">
+                        <i class="fas fa-file-alt"></i>
+                        <span>Applications</span>
+                    </a>
+                </div>
+                <div class="nav-item">
+                    <a href="#" class="nav-link" data-section="jobs">
+                        <i class="fas fa-briefcase"></i>
+                        <span>Jobs</span>
+                    </a>
+                </div>
+                <div class="nav-item">
+                    <a href="#" class="nav-link" data-section="settings">
+                        <i class="fas fa-cog"></i>
+                        <span>Settings</span>
+                    </a>
+                </div>
+                <div class="nav-item" style="margin-top: 2rem;">
+                    <a href="#" class="nav-link" id="logoutBtn">
+                        <i class="fas fa-sign-out-alt"></i>
+                        <span>Logout</span>
+                    </a>
+                </div>
+            </nav>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content" id="mainContent">
+            <!-- Header -->
+            <header class="header">
+                <div class="header-left">
+                    <button class="menu-toggle" id="menuToggle">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <h1 class="page-title" id="pageTitle">Dashboard</h1>                </div>
+                
+                <div class="header-right">
+                    <!-- Notification and user menu removed -->
+                </div>
+            </header>
+
+            <!-- Content Area -->
+            <main class="content">
+                <!-- Dashboard Section -->
+                <section id="dashboard-section" class="section active">
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-header">
+                                <div class="stat-title">Total Employees</div>
+                                <div class="stat-icon primary">
+                                    <i class="fas fa-users"></i>
+                                </div>
+                            </div>
+                            <div class="stat-value">1,247</div>
+                            <div class="stat-change positive">
+                                <i class="fas fa-arrow-up"></i>
+                                <span>+12% from last month</span>
+                            </div>
+                        </div>
+
+                        <div class="stat-card success">
+                            <div class="stat-header">
+                                <div class="stat-title">Active Candidates</div>
+                                <div class="stat-icon success">
+                                    <i class="fas fa-user-tie"></i>
+                                </div>
+                            </div>
+                            <div class="stat-value">3,856</div>
+                            <div class="stat-change positive">
+                                <i class="fas fa-arrow-up"></i>
+                                <span>+8% from last month</span>
+                            </div>
+                        </div>
+
+                        <div class="stat-card warning">
+                            <div class="stat-header">
+                                <div class="stat-title">Open Positions</div>
+                                <div class="stat-icon warning">
+                                    <i class="fas fa-briefcase"></i>
+                                </div>
+                            </div>
+                            <div class="stat-value">124</div>
+                            <div class="stat-change negative">
+                                <i class="fas fa-arrow-down"></i>
+                                <span>-3% from last month</span>
+                            </div>
+                        </div>
+
+                        <div class="stat-card danger">
+                            <div class="stat-header">
+                                <div class="stat-title">Pending Applications</div>
+                                <div class="stat-icon danger">
+                                    <i class="fas fa-file-alt"></i>
+                                </div>
+                            </div>
+                            <div class="stat-value">89</div>
+                            <div class="stat-change positive">
+                                <i class="fas fa-arrow-up"></i>
+                                <span>+15% from last month</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 2rem; margin-bottom: 2rem;">
+                        <div class="card">
+                            <div class="card-header">
+                                <h3 class="card-title">Recent Activities</h3>
+                            </div>
+                            <div class="card-body">
+                                <div class="chart-container">
+                                    <i class="fas fa-chart-line" style="font-size: 3rem; margin-right: 1rem;"></i>
+                                    <span>Activity Chart Placeholder</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="card">
+                            <div class="card-header">
+                                <h3 class="card-title">Quick Actions</h3>
+                            </div>
+                            <div class="card-body" style="display: flex; flex-direction: column; gap: 1rem;">
+                                <button class="btn btn-primary">
+                                    <i class="fas fa-plus"></i>
+                                    Add New Employee
+                                </button>
+                                <button class="btn btn-success">
+                                    <i class="fas fa-user-plus"></i>
+                                    Register Candidate
+                                </button>
+                                <button class="btn btn-warning">
+                                    <i class="fas fa-briefcase"></i>
+                                    Post New Job
+                                </button>
+                                <button class="btn btn-secondary">
+                                    <i class="fas fa-calendar-plus"></i>
+                                    Schedule Interview
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">Recent Hires</h3>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-container">
+                                <table class="table">
+                                    <thead>
+                                        <tr>
+                                            <th>Name</th>
+                                            <th>Position</th>
+                                            <th>Department</th>
+                                            <th>Start Date</th>
+                                            <th>Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>John Smith</td>
+                                            <td>Software Engineer</td>
+                                            <td>Technology</td>
+                                            <td>2025-06-01</td>
+                                            <td><span class="badge badge-success">Active</span></td>
+                                        </tr>
+                                        <tr>
+                                            <td>Sarah Johnson</td>
+                                            <td>Marketing Manager</td>
+                                            <td>Marketing</td>
+                                            <td>2025-05-28</td>
+                                            <td><span class="badge badge-success">Active</span></td>
+                                        </tr>
+                                        <tr>
+                                            <td>Mike Chen</td>
+                                            <td>Data Analyst</td>
+                                            <td>Analytics</td>
+                                            <td>2025-05-25</td>
+                                            <td><span class="badge badge-warning">Training</span></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Employees Section -->
+                <section id="employees-section" class="section">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+                        <h2 style="font-size: 1.5rem; font-weight: 600;">Employee Management</h2>
+                        <button class="btn btn-primary" id="addEmployeeBtn">
+                            <i class="fas fa-plus"></i>
+                            Add Employee
+                        </button>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
+                            <h3 class="card-title">All Employees</h3>
+                            <div style="display: flex; gap: 1rem;">
+                                <input type="search" class="form-control" placeholder="Search employees..." style="width: 250px;">
+                                <select class="form-control" style="width: 150px;">
+                                    <option>All Departments</option>
+                                    <option>Technology</option>
+                                    <option>Marketing</option>
+                                    <option>Sales</option>
+                                    <option>HR</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-container">
+                                <table class="table">
+                                    <thead>
+                                        <tr>
+                                            <th>Employee ID</th>
+                                            <th>Name</th>
+                                            <th>Email</th>
+                                            <th>Department</th>
+                                            <th>Position</th>
+                                            <th>Hire Date</th>
+                                            <th>Status</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="employeesTableBody">
+                                        <tr>
+                                            <td>EMP001</td>
+                                            <td>John Smith</td>
+                                            <td>john.smith@nexstaff.com</td>
+                                            <td>Technology</td>
+                                            <td>Software Engineer</td>
+                                            <td>2024-01-15</td>
+                                            <td><span class="badge badge-success">Active</span></td>
+                                            <td>
+                                                <button class="btn btn-sm btn-outline">
+                                                    <i class="fas fa-eye"></i>
+                                                </button>
+                                                <button class="btn btn-sm btn-primary">
+                                                    <i class="fas fa-edit"></i>
+                                                </button>
+                                                <button class="btn btn-sm btn-danger">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>EMP002</td>
+                                            <td>Sarah Johnson</td>
+                                            <td>sarah.johnson@nexstaff.com</td>
+                                            <td>Marketing</td>
+                                            <td>Marketing Manager</td>
+                                            <td>2024-02-20</td>
+                                            <td><span class="badge badge-success">Active</span></td>
+                                            <td>
+                                                <button class="btn btn-sm btn-outline">
+                                                    <i class="fas fa-eye"></i>
+                                                </button>
+                                                <button class="btn btn-sm btn-primary">
+                                                    <i class="fas fa-edit"></i>
+                                                </button>
+                                                <button class="btn btn-sm btn-danger">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Continue with other sections... -->                <section id="candidates-section" class="section">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+                        <h2 style="font-size: 1.5rem; font-weight: 600;">Candidate Management</h2>
+                        <button class="btn btn-primary" id="addCandidateBtn">
+                            <i class="fas fa-user-plus"></i>
+                            Add Candidate
+                        </button>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
+                            <h3 class="card-title">All Candidates</h3>
+                            <div style="display: flex; gap: 1rem;">
+                                <input type="search" class="form-control" placeholder="Search candidates..." style="width: 250px;">
+                                <select class="form-control" style="width: 150px;">
+                                    <option>All Status</option>
+                                    <option>Available</option>
+                                    <option>Hired</option>
+                                    <option>Interviewing</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-container">
+                                <table class="table">
+                                    <thead>
+                                        <tr>
+                                            <th>Candidate ID</th>
+                                            <th>Name</th>
+                                            <th>Email</th>
+                                            <th>Phone</th>
+                                            <th>Skills</th>
+                                            <th>Experience</th>
+                                            <th>Status</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="candidatesTableBody">
+                                        <tr>
+                                            <td colspan="8" class="text-center">Loading candidates...</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </section>                <section id="employers-section" class="section">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+                        <h2 style="font-size: 1.5rem; font-weight: 600;">Employer Management</h2>
+                        <button class="btn btn-primary" id="addEmployerBtn">
+                            <i class="fas fa-building"></i>
+                            Add Employer
+                        </button>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
+                            <h3 class="card-title">All Employers</h3>
+                            <div style="display: flex; gap: 1rem;">
+                                <input type="search" class="form-control" placeholder="Search employers..." style="width: 250px;">
+                                <select class="form-control" style="width: 150px;">
+                                    <option>All Industries</option>
+                                    <option>Technology</option>
+                                    <option>Healthcare</option>
+                                    <option>Finance</option>
+                                    <option>Manufacturing</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-container">
+                                <table class="table">
+                                    <thead>
+                                        <tr>
+                                            <th>Employer ID</th>
+                                            <th>Company</th>
+                                            <th>Contact Person</th>
+                                            <th>Email</th>
+                                            <th>Phone</th>
+                                            <th>Industry</th>
+                                            <th>Status</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="employersTableBody">
+                                        <tr>
+                                            <td colspan="8" class="text-center">Loading employers...</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section id="schedule-section" class="section">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+                        <h2 style="font-size: 1.5rem; font-weight: 600;">Schedule Management</h2>
+                        <button class="btn btn-primary" id="addScheduleBtn">
+                            <i class="fas fa-calendar-plus"></i>
+                            New Event
+                        </button>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
+                            <h3 class="card-title">All Scheduled Events</h3>
+                            <div style="display: flex; gap: 1rem;">
+                                <input type="search" class="form-control" placeholder="Search events..." style="width: 250px;">
+                                <select class="form-control" style="width: 150px;">
+                                    <option>All Types</option>
+                                    <option>Interview</option>
+                                    <option>Meeting</option>
+                                    <option>Training</option>
+                                    <option>Other</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-container">
+                                <table class="table">
+                                    <thead>
+                                        <tr>
+                                            <th>Event ID</th>
+                                            <th>Title</th>
+                                            <th>Date</th>
+                                            <th>Time</th>
+                                            <th>Type</th>
+                                            <th>Participants</th>
+                                            <th>Status</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="schedulesTableBody">
+                                        <tr>
+                                            <td colspan="8" class="text-center">Loading events...</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </section>                <section id="applications-section" class="section">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+                        <h2 style="font-size: 1.5rem; font-weight: 600;">Application Management</h2>
+                        <button class="btn btn-primary" id="addApplicationBtn">
+                            <i class="fas fa-file-plus"></i>
+                            New Application
+                        </button>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
+                            <h3 class="card-title">All Applications</h3>
+                            <div style="display: flex; gap: 1rem;">
+                                <input type="search" class="form-control" placeholder="Search applications..." style="width: 250px;">                                <select class="form-control" style="width: 150px;">
+                                    <option>All Status</option>
+                                    <option>Pending</option>
+                                    <option>Under Review</option>
+                                    <option>Interview</option>
+                                    <option>Accepted</option>
+                                    <option>Rejected</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-container">
+                                <table class="table">
+                                    <thead>
+                                        <tr>
+                                            <th>
+                                                <input type="checkbox" id="selectAllApplications">
+                                            </th>
+                                            <th>Candidate</th>
+                                            <th>Job Position</th>
+                                            <th>Status</th>
+                                            <th>Application Date</th>
+                                            <th>Last Updated</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="applicationsTableBody">
+                                        <tr>
+                                            <td colspan="7" class="text-center">Loading applications...</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section id="jobs-section" class="section">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+                        <h2 style="font-size: 1.5rem; font-weight: 600;">Job Management</h2>
+                        <button class="btn btn-primary" id="addJobBtn">
+                            <i class="fas fa-briefcase"></i>
+                            Post Job
+                        </button>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
+                            <h3 class="card-title">All Job Postings</h3>
+                            <div style="display: flex; gap: 1rem;">
+                                <input type="search" class="form-control" placeholder="Search jobs..." style="width: 250px;">
+                                <select class="form-control" style="width: 150px;">
+                                    <option>All Types</option>
+                                    <option>Full-time</option>
+                                    <option>Part-time</option>
+                                    <option>Contract</option>
+                                    <option>Internship</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-container">
+                                <table class="table">
+                                    <thead>
+                                        <tr>
+                                            <th>Job ID</th>
+                                            <th>Title</th>
+                                            <th>Company</th>
+                                            <th>Location</th>
+                                            <th>Type</th>
+                                            <th>Salary</th>
+                                            <th>Status</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="jobsTableBody">
+                                        <tr>
+                                            <td colspan="8" class="text-center">Loading jobs...</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section id="settings-section" class="section">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+                        <h2 style="font-size: 1.5rem; font-weight: 600;">System Settings</h2>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem;">
+                        <div class="card">
+                            <div class="card-header">
+                                <h3 class="card-title">General Settings</h3>
+                            </div>
+                            <div class="card-body">
+                                <div class="form-group">
+                                    <label class="form-label">Company Name</label>
+                                    <input type="text" class="form-control" value="NexStaff">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Company Email</label>
+                                    <input type="email" class="form-control" value="admin@nexstaff.com">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Time Zone</label>
+                                    <select class="form-control">
+                                        <option>UTC-8 (Pacific Time)</option>
+                                        <option>UTC-5 (Eastern Time)</option>
+                                        <option>UTC+0 (GMT)</option>
+                                    </select>
+                                </div>
+                                <button class="btn btn-primary">Save Changes</button>
+                            </div>
+                        </div>
+
+                        <div class="card">
+                            <div class="card-header">
+                                <h3 class="card-title">Security Settings</h3>
+                            </div>
+                            <div class="card-body">
+                                <div class="form-group">
+                                    <label class="form-label">Current Password</label>
+                                    <input type="password" class="form-control">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">New Password</label>
+                                    <input type="password" class="form-control">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Confirm Password</label>
+                                    <input type="password" class="form-control">
+                                </div>
+                                <button class="btn btn-warning">Update Password</button>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </main>
+        </div>
+    </div>    <!-- CRUD Modals for All Entities -->
+    
+    <!-- Employees Modal -->
+    <div class="modal-overlay" id="employeesModal">
+        <div class="modal-content large">
+            <div class="modal-header">
+                <h3 id="employeesModalTitle">Add Employee</h3>
+                <button type="button" class="close-btn" onclick="crudManagers.employees.closeModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="employeesForm">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="employeeId">Employee ID</label>
+                            <input type="text" id="employeeId" name="employeeId" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="name">Full Name</label>
+                            <input type="text" id="name" name="name" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="email">Email</label>
+                            <input type="email" id="email" name="email" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="phone">Phone</label>
+                            <input type="tel" id="phone" name="phone" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="department">Department</label>
+                            <select id="department" name="department" required>
+                                <option value="">Select Department</option>
+                                <option value="Technology">Technology</option>
+                                <option value="Marketing">Marketing</option>
+                                <option value="Sales">Sales</option>
+                                <option value="HR">HR</option>
+                                <option value="Finance">Finance</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="position">Position</label>
+                            <input type="text" id="position" name="position" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="hireDate">Hire Date</label>
+                            <input type="date" id="hireDate" name="hireDate" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="salary">Salary</label>
+                            <input type="number" id="salary" name="salary" min="0" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="status">Status</label>
+                            <select id="status" name="status" required>
+                                <option value="">Select Status</option>
+                                <option value="Active">Active</option>
+                                <option value="Inactive">Inactive</option>
+                                <option value="On Leave">On Leave</option>
+                            </select>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="crudManagers.employees.closeModal()">Cancel</button>
+                <button type="submit" form="employeesForm" class="btn btn-primary">Save Employee</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Candidates Modal -->
+    <div class="modal-overlay" id="candidatesModal">
+        <div class="modal-content large">
+            <div class="modal-header">
+                <h3 id="candidatesModalTitle">Add Candidate</h3>
+                <button type="button" class="close-btn" onclick="crudManagers.candidates.closeModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="candidatesForm">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="candidateName">Full Name</label>
+                            <input type="text" id="candidateName" name="name" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="candidateEmail">Email</label>
+                            <input type="email" id="candidateEmail" name="email" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="candidatePhone">Phone</label>
+                            <input type="tel" id="candidatePhone" name="phone" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="experience">Years of Experience</label>
+                            <input type="number" id="experience" name="experience" min="0" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="education">Education</label>
+                            <input type="text" id="education" name="education" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="resume">Resume URL</label>
+                            <input type="url" id="resume" name="resume">
+                        </div>
+                        <div class="form-group full-width">
+                            <label for="skills">Skills</label>
+                            <textarea id="skills" name="skills" rows="3" required></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="candidateStatus">Status</label>
+                            <select id="candidateStatus" name="status" required>
+                                <option value="">Select Status</option>
+                                <option value="New">New</option>
+                                <option value="Reviewing">Reviewing</option>
+                                <option value="Shortlisted">Shortlisted</option>
+                                <option value="Interviewed">Interviewed</option>
+                                <option value="Hired">Hired</option>
+                                <option value="Rejected">Rejected</option>
+                            </select>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="crudManagers.candidates.closeModal()">Cancel</button>
+                <button type="submit" form="candidatesForm" class="btn btn-primary">Save Candidate</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Employers Modal -->
+    <div class="modal-overlay" id="employersModal">
+        <div class="modal-content large">
+            <div class="modal-header">
+                <h3 id="employersModalTitle">Add Employer</h3>
+                <button type="button" class="close-btn" onclick="crudManagers.employers.closeModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="employersForm">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="companyName">Company Name</label>
+                            <input type="text" id="companyName" name="companyName" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="contactName">Contact Person</label>
+                            <input type="text" id="contactName" name="contactName" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="employerEmail">Email</label>
+                            <input type="email" id="employerEmail" name="email" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="employerPhone">Phone</label>
+                            <input type="tel" id="employerPhone" name="phone" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="industry">Industry</label>
+                            <input type="text" id="industry" name="industry" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="website">Website</label>
+                            <input type="url" id="website" name="website">
+                        </div>
+                        <div class="form-group full-width">
+                            <label for="address">Address</label>
+                            <textarea id="address" name="address" rows="3" required></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="employerStatus">Status</label>
+                            <select id="employerStatus" name="status" required>
+                                <option value="">Select Status</option>
+                                <option value="Active">Active</option>
+                                <option value="Inactive">Inactive</option>
+                                <option value="Pending">Pending</option>
+                            </select>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="crudManagers.employers.closeModal()">Cancel</button>
+                <button type="submit" form="employersForm" class="btn btn-primary">Save Employer</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Applications Modal -->
+    <div class="modal-overlay" id="applicationsModal">
+        <div class="modal-content large">
+            <div class="modal-header">
+                <h3 id="applicationsModalTitle">Add Application</h3>
+                <button type="button" class="close-btn" onclick="crudManagers.applications.closeModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="applicationsForm">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="candidateName">Candidate Name</label>
+                            <input type="text" id="candidateName" name="candidateName" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="candidateEmail">Candidate Email</label>
+                            <input type="email" id="candidateEmail" name="candidateEmail" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="jobTitle">Job Title</label>
+                            <input type="text" id="jobTitle" name="jobTitle" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="companyName">Company</label>
+                            <input type="text" id="companyName" name="companyName" required>
+                        </div>
+                        <div class="form-group full-width">
+                            <label for="coverLetter">Cover Letter</label>
+                            <textarea id="coverLetter" name="coverLetter" rows="4"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="applicationStatus">Status</label>
+                            <select id="applicationStatus" name="status" required>
+                                <option value="">Select Status</option>
+                                <option value="Pending">Pending</option>
+                                <option value="Reviewing">Reviewing</option>
+                                <option value="Shortlisted">Shortlisted</option>
+                                <option value="Interviewed">Interviewed</option>
+                                <option value="Offered">Offered</option>
+                                <option value="Hired">Hired</option>
+                                <option value="Rejected">Rejected</option>
+                            </select>
+                        </div>
+                        <div class="form-group full-width">
+                            <label for="notes">Notes</label>
+                            <textarea id="notes" name="notes" rows="3"></textarea>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="crudManagers.applications.closeModal()">Cancel</button>
+                <button type="submit" form="applicationsForm" class="btn btn-primary">Save Application</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Jobs Modal -->
+    <div class="modal-overlay" id="jobsModal">
+        <div class="modal-content large">
+            <div class="modal-header">
+                <h3 id="jobsModalTitle">Add Job</h3>
+                <button type="button" class="close-btn" onclick="crudManagers.jobs.closeModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="jobsForm">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="jobTitle">Job Title</label>
+                            <input type="text" id="jobTitle" name="title" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="company">Company</label>
+                            <input type="text" id="company" name="company" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="location">Location</label>
+                            <input type="text" id="location" name="location" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="jobType">Job Type</label>
+                            <select id="jobType" name="type" required>
+                                <option value="">Select Type</option>
+                                <option value="Full-time">Full-time</option>
+                                <option value="Part-time">Part-time</option>
+                                <option value="Contract">Contract</option>
+                                <option value="Temporary">Temporary</option>
+                                <option value="Internship">Internship</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="salaryRange">Salary Range</label>
+                            <input type="text" id="salaryRange" name="salaryRange">
+                        </div>
+                        <div class="form-group">
+                            <label for="jobDescription">Job Description</label>
+                            <textarea id="jobDescription" name="description" rows="4"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="jobRequirements">Job Requirements</label>
+                            <textarea id="jobRequirements" name="requirements" rows="4"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="applicationDeadline">Application Deadline</label>
+                            <input type="date" id="applicationDeadline" name="deadline">
+                        </div>
+                        <div class="form-group">
+                            <label for="jobStatus">Status</label>
+                            <select id="jobStatus" name="status">
+                                <option value="">Select Status</option>
+                                <option value="Open">Open</option>
+                                <option value="Closed">Closed</option>
+                                <option value="Draft">Draft</option>
+                            </select>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="crudManagers.jobs.closeModal()">Cancel</button>
+                <button type="submit" form="jobsForm" class="btn btn-primary">Save Job</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Entity Modal -->
+    <div id="entityModal" class="modal-overlay">
+        <div class="modal-content large">
+            <div class="modal-header">
+                <h3 id="modalTitle">Add Entity</h3>
+                <button type="button" class="close-btn" onclick="crudManager.closeModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="entityForm">
+                    <!-- Form fields will be dynamically generated -->
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" id="cancelEntity">Cancel</button>
+                <button type="button" class="btn btn-primary" id="saveEntity">Save</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Delete Confirmation Modal -->
+    <div id="deleteModal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Confirm Delete</h3>
+                <button type="button" class="close-btn" onclick="crudManager.closeDeleteModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to delete this item? This action cannot be undone.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" id="cancelDelete">Cancel</button>
+                <button type="button" class="btn btn-danger" id="confirmDelete">Delete</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Authentication check - must be at the top
+        document.addEventListener('DOMContentLoaded', function() {
+            const token = localStorage.getItem('nexstaff_auth_token');
+            const user = localStorage.getItem('nexstaff_user');
+            
+            if (!token || !user) {
+                console.log('No authentication found, redirecting to login...');
+                window.location.href = '../login.html';
+                return;
+            }
+            
+            try {
+                const userData = JSON.parse(user);
+                console.log('User authenticated:', userData.email);
+                
+                // Update user info in header
+                const userNameEl = document.querySelector('.user-name');
+                const userRoleEl = document.querySelector('.user-role');
+                const userAvatarEl = document.querySelector('.user-avatar');
+                
+                if (userNameEl) userNameEl.textContent = userData.name || 'Admin User';
+                if (userRoleEl) userRoleEl.textContent = userData.role === 'admin' ? 'Administrator' : userData.role;
+                if (userAvatarEl) userAvatarEl.textContent = (userData.name || 'Admin').charAt(0).toUpperCase();
+                
+            } catch (e) {
+                console.error('Invalid user data, redirecting to login...');
+                localStorage.removeItem('nexstaff_auth_token');
+                localStorage.removeItem('nexstaff_user');
+                window.location.href = '../login.html';
+            }
+        });
+    </script>
+
+    <script>
+        // Admin Dashboard JavaScript
+        class AdminDashboard {
+            constructor() {
+                this.currentSection = 'dashboard';
+                this.isMobile = window.innerWidth <= 768;
+                this.init();
+            }
+
+            init() {
+                this.setupEventListeners();
+                this.setupMobileHandling();
+                this.loadUserData();
+            }
+
+            setupEventListeners() {
+                // Navigation
+                document.querySelectorAll('.nav-link[data-section]').forEach(link => {
+                    link.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        const section = e.currentTarget.dataset.section;
+                        this.switchSection(section);
+                    });
+                });
+
+                // Mobile menu toggle
+                const menuToggle = document.getElementById('menuToggle');
+                const overlay = document.getElementById('overlay');
+                
+                menuToggle?.addEventListener('click', () => this.toggleMobileMenu());
+                overlay?.addEventListener('click', () => this.closeMobileMenu());
+
+                // Logout
+                document.getElementById('logoutBtn')?.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    this.logout();                });                // Window resize
+                window.addEventListener('resize', () => this.handleResize());
+            }
+
+            setupMobileHandling() {
+                if (this.isMobile) {
+                    document.getElementById('sidebar')?.classList.add('collapsed');
+                }
+            }
+
+            switchSection(sectionName) {
+                // Update navigation
+                document.querySelectorAll('.nav-link').forEach(link => {
+                    link.classList.remove('active');
+                });
+                document.querySelector(`[data-section="${sectionName}"]`)?.classList.add('active');
+
+                // Update content
+                document.querySelectorAll('.section').forEach(section => {
+                    section.classList.remove('active');
+                });
+                document.getElementById(`${sectionName}-section`)?.classList.add('active');
+
+                // Update page title
+                const titles = {
+                    dashboard: 'Dashboard',
+                    employees: 'Employees',
+                    candidates: 'Candidates',
+                    employers: 'Employers',
+                    schedule: 'Schedule',
+                    applications: 'Applications',
+                    jobs: 'Jobs',
+                    settings: 'Settings'
+                };
+                
+                document.getElementById('pageTitle').textContent = titles[sectionName] || 'Dashboard';
+                this.currentSection = sectionName;
+
+                // Close mobile menu if open
+                if (this.isMobile) {
+                    this.closeMobileMenu();
+                }
+
+                // Load section data
+                this.loadSectionData(sectionName);
+            }
+
+            toggleMobileMenu() {
+                const sidebar = document.getElementById('sidebar');
+                const overlay = document.getElementById('overlay');
+                
+                sidebar?.classList.toggle('open');
+                overlay?.classList.toggle('active');
+            }
+
+            closeMobileMenu() {
+                const sidebar = document.getElementById('sidebar');
+                const overlay = document.getElementById('overlay');
+                
+                sidebar?.classList.remove('open');
+                overlay?.classList.remove('active');
+            }
+
+            handleResize() {
+                this.isMobile = window.innerWidth <= 768;
+                
+                if (!this.isMobile) {
+                    this.closeMobileMenu();
+                }
+            }
+
+            loadUserData() {
+                // Load user data from localStorage or API
+                const userData = this.getUserFromStorage();
+                if (userData) {
+                    document.querySelector('.user-name').textContent = userData.name || 'Admin User';
+                    document.querySelector('.user-role').textContent = userData.role || 'Administrator';
+                    document.querySelector('.user-avatar').textContent = userData.name ? userData.name.charAt(0).toUpperCase() : 'A';
+                }
+            }
+
+            getUserFromStorage() {
+                try {
+                    const userStr = localStorage.getItem('nexstaff_user');
+                    return userStr ? JSON.parse(userStr) : null;
+                } catch (error) {
+                    console.error('Error loading user data:', error);
+                    return null;
+                }
+            }
+
+            loadSectionData(section) {
+                console.log(`Loading data for section: ${section}`);
+                
+                // Here you would typically load data from your API
+                switch(section) {
+                    case 'employees':
+                        this.loadEmployees();
+                        break;
+                    case 'candidates':
+                        this.loadCandidates();
+                        break;
+                    case 'employers':
+                        this.loadEmployers();
+                        break;
+                    case 'schedule':
+                        this.loadSchedule();
+                        break;
+                    case 'applications':
+                        this.loadApplications();
+                        break;
+                    case 'jobs':
+                        this.loadJobs();
+                        break;
+                    default:
+                        break;
+                }
+            }
+
+            loadEmployees() {
+                // Simulate loading employees data
+                console.log('Loading employees...');
+                // In a real app, you'd fetch from your API here
+            }
+
+            loadCandidates() {
+                console.log('Loading candidates...');
+            }
+
+            loadEmployers() {
+                console.log('Loading employers...');
+            }
+
+            loadSchedule() {
+                console.log('Loading schedule...');
+            }
+
+            loadApplications() {
+                console.log('Loading applications...');
+            }
+
+            loadJobs() {                console.log('Loading jobs...');
+            }
+
+            logout() {
+                // Clear authentication data
+                localStorage.removeItem('nexstaff_auth_token');
+                localStorage.removeItem('nexstaff_user');
+                localStorage.removeItem('nexstaff_remember');
+                
+                // Redirect to login
+                window.location.href = '../login.html';
+            }
+        }        // Initialize dashboard when DOM is loaded
+        let dashboard; // Global reference for onclick handlers
+        document.addEventListener('DOMContentLoaded', () => {
+            dashboard = new AdminDashboard();
+        });
+
+        // Sample data and helper functions
+        const sampleEmployees = [
+            {
+                id: 'EMP001',
+                name: 'John Smith',
+                email: 'john.smith@nexstaff.com',
+                department: 'Technology',
+                position: 'Software Engineer',
+                hireDate: '2024-01-15',
+                status: 'Active'
+            },
+            {
+                id: 'EMP002',
+                name: 'Sarah Johnson',
+                email: 'sarah.johnson@nexstaff.com',
+                department: 'Marketing',
+                position: 'Marketing Manager',
+                hireDate: '2024-02-20',
+                status: 'Active'
+            }        ];
+
+        // Initialize CRUD Management System
+        class CRUDManager {
+            constructor() {
+                this.dataService = window.DataService || DataService;
+                this.currentEntity = null;
+                this.currentEntityType = null;
+                this.initializeEventListeners();
+                this.loadAllData();
+            }
+
+            initializeEventListeners() {
+                // Navigation listeners
+                document.querySelectorAll('.nav-link').forEach(link => {
+                    link.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        const section = e.currentTarget.dataset.section;
+                        this.showSection(section);
+                    });
+                });
+
+                // Add button listeners
+                document.getElementById('addEmployeeBtn')?.addEventListener('click', () => this.openCreateModal('employee'));
+                document.getElementById('addCandidateBtn')?.addEventListener('click', () => this.openCreateModal('candidate'));
+                document.getElementById('addEmployerBtn')?.addEventListener('click', () => this.openCreateModal('employer'));
+                document.getElementById('addJobBtn')?.addEventListener('click', () => this.openCreateModal('job'));
+                document.getElementById('addApplicationBtn')?.addEventListener('click', () => this.openCreateModal('application'));
+                document.getElementById('addScheduleBtn')?.addEventListener('click', () => this.openCreateModal('schedule'));
+
+                // Modal listeners
+                document.getElementById('saveEntity')?.addEventListener('click', () => this.saveEntity());
+                document.getElementById('cancelEntity')?.addEventListener('click', () => this.closeModal());
+                document.getElementById('confirmDelete')?.addEventListener('click', () => this.confirmDelete());
+                document.getElementById('cancelDelete')?.addEventListener('click', () => this.closeDeleteModal());
+            }
+
+            showSection(sectionName) {
+                // Hide all sections
+                document.querySelectorAll('.section').forEach(section => {
+                    section.classList.remove('active');
+                });
+
+                // Remove active class from nav links
+                document.querySelectorAll('.nav-link').forEach(link => {
+                    link.classList.remove('active');
+                });
+
+                // Show selected section
+                const targetSection = document.getElementById(`${sectionName}-section`);
+                if (targetSection) {
+                    targetSection.classList.add('active');
+                }
+
+                // Add active class to clicked nav link
+                const activeLink = document.querySelector(`[data-section="${sectionName}"]`);
+                if (activeLink) {
+                    activeLink.classList.add('active');
+                }
+
+                // Load data for the section
+                this.loadSectionData(sectionName);
+            }
+
+            loadAllData() {
+                this.loadSectionData('employees');
+                this.loadSectionData('candidates');
+                this.loadSectionData('employers');
+                this.loadSectionData('jobs');
+                this.loadSectionData('applications');
+                this.loadSectionData('schedule');
+            }
+
+            loadSectionData(section) {
+                switch(section) {
+                    case 'employees':
+                        this.loadEmployees();
+                        break;
+                    case 'candidates':
+                        this.loadCandidates();
+                        break;
+                    case 'employers':
+                        this.loadEmployers();
+                        break;
+                    case 'jobs':
+                        this.loadJobs();
+                        break;
+                    case 'applications':
+                        this.loadApplications();
+                        break;
+                    case 'schedule':
+                        this.loadSchedules();
+                        break;
+                }
+            }
+
+            loadEmployees() {
+                const employees = this.dataService.readEmployees();
+                const tbody = document.getElementById('employeesTableBody');
+                if (!tbody) return;
+
+                tbody.innerHTML = employees.map(emp => `
+                    <tr>
+                        <td>${emp.id || 'N/A'}</td>
+                        <td>${emp.name || 'N/A'}</td>
+                        <td>${emp.email || 'N/A'}</td>
+                        <td>${emp.department || 'N/A'}</td>
+                        <td>${emp.position || 'N/A'}</td>
+                        <td>${emp.hireDate || 'N/A'}</td>
+                        <td><span class="badge badge-${emp.status === 'Active' ? 'success' : 'warning'}">${emp.status || 'Active'}</span></td>
+                        <td>
+                            <button class="btn btn-sm btn-outline" onclick="crudManager.viewEntity('employee', ${emp.id})">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                            <button class="btn btn-sm btn-primary" onclick="crudManager.editEntity('employee', ${emp.id})">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="btn btn-sm btn-danger" onclick="crudManager.deleteEntity('employee', ${emp.id})">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `).join('');
+            }
+
+            loadCandidates() {
+                const candidates = this.dataService.readCandidates();
+                const tbody = document.getElementById('candidatesTableBody');
+                if (!tbody) return;
+
+                tbody.innerHTML = candidates.map(candidate => `
+                    <tr>
+                        <td>${candidate.id || 'N/A'}</td>
+                        <td>${candidate.name || 'N/A'}</td>
+                        <td>${candidate.email || 'N/A'}</td>
+                        <td>${candidate.phone || 'N/A'}</td>
+                        <td>${candidate.skills || 'N/A'}</td>
+                        <td>${candidate.experience || 'N/A'}</td>
+                        <td><span class="badge badge-${candidate.status === 'Available' ? 'success' : 'warning'}">${candidate.status || 'Available'}</span></td>
+                        <td>
+                            <button class="btn btn-sm btn-outline" onclick="crudManager.viewEntity('candidate', ${candidate.id})">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                            <button class="btn btn-sm btn-primary" onclick="crudManager.editEntity('candidate', ${candidate.id})">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="btn btn-sm btn-danger" onclick="crudManager.deleteEntity('candidate', ${candidate.id})">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `).join('');
+            }
+
+            loadEmployers() {
+                const employers = this.dataService.readEmployers();
+                const tbody = document.getElementById('employersTableBody');
+                if (!tbody) return;
+
+                tbody.innerHTML = employers.map(employer => `
+                    <tr>
+                        <td>${employer.id || 'N/A'}</td>
+                        <td>${employer.company || 'N/A'}</td>
+                        <td>${employer.contactPerson || 'N/A'}</td>
+                        <td>${employer.email || 'N/A'}</td>
+                        <td>${employer.phone || 'N/A'}</td>
+                        <td>${employer.industry || 'N/A'}</td>
+                        <td><span class="badge badge-${employer.status === 'Active' ? 'success' : 'warning'}">${employer.status || 'Active'}</span></td>
+                        <td>
+                            <button class="btn btn-sm btn-outline" onclick="crudManager.viewEntity('employer', ${employer.id})">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                            <button class="btn btn-sm btn-primary" onclick="crudManager.editEntity('employer', ${employer.id})">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="btn btn-sm btn-danger" onclick="crudManager.deleteEntity('employer', ${employer.id})">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `).join('');
+            }
+
+            loadJobs() {
+                const jobs = this.dataService.readJobs();
+                const tbody = document.getElementById('jobsTableBody');
+                if (!tbody) return;
+
+                tbody.innerHTML = jobs.map(job => `
+                    <tr>
+                        <td>${job.id || 'N/A'}</td>
+                        <td>${job.title || 'N/A'}</td>
+                        <td>${job.company || 'N/A'}</td>
+                        <td>${job.location || 'N/A'}</td>
+                        <td>${job.type || 'N/A'}</td>
+                        <td>${job.salary || 'N/A'}</td>
+                        <td><span class="badge badge-${job.status === 'Open' ? 'success' : 'warning'}">${job.status || 'Open'}</span></td>
+                        <td>
+                            <button class="btn btn-sm btn-outline" onclick="crudManager.viewEntity('job', ${job.id})">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                            <button class="btn btn-sm btn-primary" onclick="crudManager.editEntity('job', ${job.id})">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="btn btn-sm btn-danger" onclick="crudManager.deleteEntity('job', ${job.id})">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `).join('');
+            }            loadApplications() {
+                const applications = this.dataService.readApplications();
+                const tbody = document.getElementById('applicationsTableBody');
+                if (!tbody) return;
+
+                tbody.innerHTML = applications.map(app => {
+                    const status = app.status || 'Pending';
+                    const statusClass = status === 'Accepted' ? 'success' : 
+                                      status === 'Pending' ? 'warning' : 
+                                      status === 'Interview' ? 'info' :
+                                      status === 'Under Review' ? 'primary' : 'danger';
+                    
+                    // Show accept/decline buttons only for pending applications
+                    const hireBtns = (status === 'Pending' || status === 'Under Review' || status === 'Interview') ? `
+                        <button class="btn btn-sm btn-success" onclick="crudManager.acceptApplication(${app.id})" title="Accept & Hire">
+                            <i class="fas fa-check"></i> Accept
+                        </button>
+                        <button class="btn btn-sm btn-danger" onclick="crudManager.declineApplication(${app.id})" title="Decline">
+                            <i class="fas fa-times"></i> Decline
+                        </button>
+                    ` : '';
+
+                    return `
+                        <tr>
+                            <td><input type="checkbox" value="${app.id}"></td>
+                            <td>
+                                <div class="candidate-info">
+                                    <strong>${app.candidateName || app.name || 'N/A'}</strong>
+                                    <br><small class="text-muted">${app.email || 'No email'}</small>
+                                </div>
+                            </td>
+                            <td>${app.jobPosition || app.jobTitle || 'N/A'}</td>
+                            <td><span class="status-badge status-${status.replace(' ', '-')}">${status}</span></td>
+                            <td>${app.applicationDate || app.createdAt ? new Date(app.applicationDate || app.createdAt).toLocaleDateString() : 'N/A'}</td>
+                            <td>${app.lastUpdated ? new Date(app.lastUpdated).toLocaleDateString() : 'N/A'}</td>
+                            <td class="actions-cell">
+                                <div class="action-buttons">
+                                    ${hireBtns}
+                                    <button class="btn btn-sm btn-outline" onclick="crudManager.viewEntity('application', ${app.id})" title="View Details">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                    <button class="btn btn-sm btn-primary" onclick="crudManager.editEntity('application', ${app.id})" title="Edit">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button class="btn btn-sm btn-secondary" onclick="crudManager.deleteEntity('application', ${app.id})" title="Delete">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    `;
+                }).join('');
+            }
+
+            loadSchedules() {
+                const schedules = this.dataService.readSchedules();
+                const tbody = document.getElementById('schedulesTableBody');
+                if (!tbody) return;
+
+                tbody.innerHTML = schedules.map(schedule => `
+                    <tr>
+                        <td>${schedule.id || 'N/A'}</td>
+                        <td>${schedule.title || 'N/A'}</td>
+                        <td>${schedule.date || 'N/A'}</td>
+                        <td>${schedule.time || 'N/A'}</td>
+                        <td>${schedule.type || 'N/A'}</td>
+                        <td>${schedule.participants || 'N/A'}</td>
+                        <td><span class="badge badge-${schedule.status === 'Scheduled' ? 'success' : 'warning'}">${schedule.status || 'Scheduled'}</span></td>
+                        <td>
+                            <button class="btn btn-sm btn-outline" onclick="crudManager.viewEntity('schedule', ${schedule.id})">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                            <button class="btn btn-sm btn-primary" onclick="crudManager.editEntity('schedule', ${schedule.id})">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="btn btn-sm btn-danger" onclick="crudManager.deleteEntity('schedule', ${schedule.id})">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `).join('');
+            }
+
+            openCreateModal(entityType) {
+                this.currentEntityType = entityType;
+                this.currentEntity = null;
+                this.populateModal(entityType, {});
+                document.getElementById('entityModal').style.display = 'flex';
+            }
+
+            editEntity(entityType, id) {
+                this.currentEntityType = entityType;
+                let entity;
+                
+                switch(entityType) {
+                    case 'employee':
+                        entity = this.dataService.readEmployees().find(e => e.id == id);
+                        break;
+                    case 'candidate':
+                        entity = this.dataService.readCandidates().find(e => e.id == id);
+                        break;
+                    case 'employer':
+                        entity = this.dataService.readEmployers().find(e => e.id == id);
+                        break;
+                    case 'job':
+                        entity = this.dataService.readJobs().find(e => e.id == id);
+                        break;
+                    case 'application':
+                        entity = this.dataService.readApplications().find(e => e.id == id);
+                        break;
+                    case 'schedule':
+                        entity = this.dataService.readSchedules().find(e => e.id == id);
+                        break;
+                }
+
+                if (entity) {
+                    this.currentEntity = entity;
+                    this.populateModal(entityType, entity);
+                    document.getElementById('entityModal').style.display = 'flex';
+                }
+            }
+
+            viewEntity(entityType, id) {
+                this.editEntity(entityType, id);
+                // Make form read-only for view mode
+                document.querySelectorAll('#entityModal input, #entityModal select, #entityModal textarea').forEach(input => {
+                    input.disabled = true;
+                });
+                document.getElementById('saveEntity').style.display = 'none';
+            }
+
+            deleteEntity(entityType, id) {
+                this.currentEntityType = entityType;
+                this.currentEntity = { id };
+                document.getElementById('deleteModal').style.display = 'flex';
+            }
+
+            populateModal(entityType, data) {
+                const modal = document.getElementById('entityModal');
+                const title = document.getElementById('modalTitle');
+                const form = document.getElementById('entityForm');
+
+                title.textContent = `${this.currentEntity ? 'Edit' : 'Add'} ${entityType.charAt(0).toUpperCase() + entityType.slice(1)}`;
+
+                // Reset form
+                form.innerHTML = '';
+
+                // Generate form fields based on entity type
+                const fields = this.getFormFields(entityType);
+                form.innerHTML = fields.map(field => this.generateFormField(field, data[field.name] || '')).join('');
+            }
+
+            getFormFields(entityType) {
+                const fieldConfigs = {
+                    employee: [
+                        { name: 'name', type: 'text', label: 'Full Name', required: true },
+                        { name: 'email', type: 'email', label: 'Email', required: true },
+                        { name: 'phone', type: 'tel', label: 'Phone' },
+                        { name: 'department', type: 'text', label: 'Department', required: true },
+                        { name: 'position', type: 'text', label: 'Position', required: true },
+                        { name: 'hireDate', type: 'date', label: 'Hire Date' },
+                        { name: 'salary', type: 'number', label: 'Salary' },
+                        { name: 'status', type: 'select', label: 'Status', options: ['Active', 'Inactive', 'On Leave'] }
+                    ],
+                    candidate: [
+                        { name: 'name', type: 'text', label: 'Full Name', required: true },
+                        { name: 'email', type: 'email', label: 'Email', required: true },
+                        { name: 'phone', type: 'tel', label: 'Phone' },
+                        { name: 'skills', type: 'text', label: 'Skills' },
+                        { name: 'experience', type: 'text', label: 'Experience' },
+                        { name: 'education', type: 'text', label: 'Education' },
+                        { name: 'status', type: 'select', label: 'Status', options: ['Available', 'Hired', 'Interviewing'] }
+                    ],
+                    employer: [
+                        { name: 'company', type: 'text', label: 'Company Name', required: true },
+                        { name: 'contactPerson', type: 'text', label: 'Contact Person', required: true },
+                        { name: 'email', type: 'email', label: 'Email', required: true },
+                        { name: 'phone', type: 'tel', label: 'Phone' },
+                        { name: 'industry', type: 'text', label: 'Industry' },
+                        { name: 'address', type: 'text', label: 'Address' },
+                        { name: 'status', type: 'select', label: 'Status', options: ['Active', 'Inactive', 'Pending'] }
+                    ],
+                    job: [
+                        { name: 'title', type: 'text', label: 'Job Title', required: true },
+                        { name: 'company', type: 'text', label: 'Company', required: true },
+                        { name: 'location', type: 'text', label: 'Location' },
+                        { name: 'type', type: 'select', label: 'Job Type', options: ['Full-time', 'Part-time', 'Contract', 'Temporary', 'Internship'] },
+                        { name: 'salary', type: 'text', label: 'Salary Range' },
+                        { name: 'description', type: 'textarea', label: 'Description' },
+                        { name: 'requirements', type: 'textarea', label: 'Requirements' },
+                        { name: 'deadline', type: 'date', label: 'Application Deadline' },
+                        { name: 'status', type: 'select', label: 'Status', options: ['Open', 'Closed', 'Draft'] }
+                    ],                    application: [
+                        { name: 'candidateName', type: 'text', label: 'Candidate Name', required: true },
+                        { name: 'email', type: 'email', label: 'Email', required: true },
+                        { name: 'phone', type: 'tel', label: 'Phone' },
+                        { name: 'jobPosition', type: 'text', label: 'Job Position', required: true },
+                        { name: 'applicationDate', type: 'date', label: 'Application Date' },
+                        { name: 'status', type: 'select', label: 'Status', options: ['Pending', 'Under Review', 'Interview', 'Accepted', 'Rejected'] },
+                        { name: 'notes', type: 'textarea', label: 'Notes' }
+                    ],
+                    schedule: [
+                        { name: 'title', type: 'text', label: 'Event Title', required: true },
+                        { name: 'date', type: 'date', label: 'Date', required: true },
+                        { name: 'time', type: 'time', label: 'Time', required: true },
+                        { name: 'type', type: 'select', label: 'Type', options: ['Interview', 'Meeting', 'Training', 'Other'] },
+                        { name: 'participants', type: 'text', label: 'Participants' },
+                        { name: 'location', type: 'text', label: 'Location' },
+                        { name: 'description', type: 'textarea', label: 'Description' },
+                        { name: 'status', type: 'select', label: 'Status', options: ['Scheduled', 'Completed', 'Cancelled'] }
+                    ]
+                };
+
+                return fieldConfigs[entityType] || [];
+            }
+
+            generateFormField(field, value) {
+                const { name, type, label, required, options } = field;
+                
+                if (type === 'select') {
+                    return `
+                        <div class="form-group">
+                            <label for="${name}">${label}${required ? '*' : ''}</label>
+                            <select id="${name}" name="${name}" class="form-control" ${required ? 'required' : ''}>
+                                <option value="">Select ${label}</option>
+                                ${options.map(opt => `<option value="${opt}" ${value === opt ? 'selected' : ''}>${opt}</option>`).join('')}
+                            </select>
+                        </div>
+                    `;
+                } else if (type === 'textarea') {
+                    return `
+                        <div class="form-group">
+                            <label for="${name}">${label}${required ? '*' : ''}</label>
+                            <textarea id="${name}" name="${name}" class="form-control" rows="4" ${required ? 'required' : ''}>${value}</textarea>
+                        </div>
+                    `;
+                } else {
+                    return `
+                        <div class="form-group">
+                            <label for="${name}">${label}${required ? '*' : ''}</label>
+                            <input type="${type}" id="${name}" name="${name}" class="form-control" value="${value}" ${required ? 'required' : ''}>
+                        </div>
+                    `;
+                }
+            }
+
+            saveEntity() {
+                const form = document.getElementById('entityForm');
+                const formData = new FormData(form);
+                const data = Object.fromEntries(formData.entries());
+
+                if (this.currentEntity) {
+                    // Update existing entity
+                    data.id = this.currentEntity.id;
+                    switch(this.currentEntityType) {
+                        case 'employee':
+                            this.dataService.updateEmployee(data);
+                            break;
+                        case 'candidate':
+                            this.dataService.updateCandidate(data);
+                            break;
+                        case 'employer':
+                            this.dataService.updateEmployer(data);
+                            break;
+                        case 'job':
+                            this.dataService.updateJob(data);
+                            break;
+                        case 'application':
+                            this.dataService.updateApplication(data);
+                            break;
+                        case 'schedule':
+                            this.dataService.updateSchedule(data);
+                            break;
+                    }
+                } else {
+                    // Create new entity
+                    switch(this.currentEntityType) {
+                        case 'employee':
+                            this.dataService.createEmployee(data);
+                            break;
+                        case 'candidate':
+                            this.dataService.createCandidate(data);
+                            break;
+                        case 'employer':
+                            this.dataService.createEmployer(data);
+                            break;
+                        case 'job':
+                            this.dataService.createJob(data);
+                            break;
+                        case 'application':
+                            this.dataService.createApplication(data);
+                            break;
+                        case 'schedule':
+                            this.dataService.createSchedule(data);
+                            break;
+                    }
+                }
+
+                this.closeModal();
+                this.loadSectionData(this.currentEntityType === 'schedule' ? 'schedule' : this.currentEntityType + 's');
+            }
+
+            confirmDelete() {
+                const id = this.currentEntity.id;
+                
+                switch(this.currentEntityType) {
+                    case 'employee':
+                        this.dataService.deleteEmployee(id);
+                        break;
+                    case 'candidate':
+                        this.dataService.deleteCandidate(id);
+                        break;
+                    case 'employer':
+                        this.dataService.deleteEmployer(id);
+                        break;
+                    case 'job':
+                        this.dataService.deleteJob(id);
+                        break;
+                    case 'application':
+                        this.dataService.deleteApplication(id);
+                        break;
+                    case 'schedule':
+                        this.dataService.deleteSchedule(id);
+                        break;
+                }
+
+                this.closeDeleteModal();
+                this.loadSectionData(this.currentEntityType === 'schedule' ? 'schedule' : this.currentEntityType + 's');
+            }
+
+            closeModal() {
+                document.getElementById('entityModal').style.display = 'none';
+                // Re-enable form fields
+                document.querySelectorAll('#entityModal input, #entityModal select, #entityModal textarea').forEach(input => {
+                    input.disabled = false;
+                });
+                document.getElementById('saveEntity').style.display = 'inline-block';
+            }            closeDeleteModal() {
+                document.getElementById('deleteModal').style.display = 'none';
+            }            // Application Accept/Decline Methods
+            acceptApplication(applicationId) {
+                try {
+                    const application = this.dataService.readApplications().find(app => app.id == applicationId);
+                    if (!application) {
+                        alert('Application not found!');
+                        return;
+                    }
+
+                    // Show hire confirmation modal
+                    const hireDetails = {
+                        candidateName: application.candidateName || application.name,
+                        jobTitle: application.jobPosition || application.jobTitle,
+                        email: application.email
+                    };
+
+                    this.showHireModal(applicationId, hireDetails);
+                } catch (error) {
+                    console.error('Error in acceptApplication:', error);
+                    alert('Error processing application. Please try again.');
+                }
+            }
+
+            declineApplication(applicationId) {
+                try {
+                    const application = this.dataService.readApplications().find(app => app.id == applicationId);
+                    if (!application) {
+                        alert('Application not found!');
+                        return;
+                    }
+
+                    const reason = prompt(`Decline application for ${application.candidateName || application.name}?\n\nPlease provide a reason (optional):`, 'Position filled / Not a good fit');
+                    
+                    if (reason !== null) { // User didn't cancel
+                        const success = this.dataService.declineApplication(applicationId, reason);
+                        if (success) {
+                            alert('Application declined successfully!');
+                            this.loadApplications();
+                        } else {
+                            alert('Error declining application. Please try again.');
+                        }
+                    }
+                } catch (error) {
+                    console.error('Error in declineApplication:', error);
+                    alert('Error declining application. Please try again.');
+                }
+            }
+
+            showHireModal(applicationId, hireDetails) {
+                try {
+                    // Remove any existing hire modal
+                    const existingModal = document.querySelector('.hire-modal-overlay');
+                    if (existingModal) {
+                        existingModal.remove();
+                    }                    // Create and show hire confirmation modal
+                    const modal = document.createElement('div');
+                    modal.className = 'hire-modal-overlay';
+                    modal.style.cssText = `
+                        position: fixed;
+                        top: 0;
+                        left: 0;
+                        right: 0;
+                        bottom: 0;
+                        background: rgba(15, 23, 42, 0.6);
+                        backdrop-filter: blur(8px);
+                        display: flex !important;
+                        justify-content: center;
+                        align-items: center;
+                        z-index: 10000;
+                    `;
+                    
+                    modal.innerHTML = `                        <div class="modal hire-modal" style="
+                            background: rgba(255, 255, 255, 0.95);
+                            backdrop-filter: blur(20px);
+                            padding: 2rem;
+                            border-radius: 24px;
+                            width: 90%;
+                            max-width: 600px;
+                            max-height: 90vh;
+                            overflow-y: auto;
+                            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+                            border: 1px solid rgba(255, 255, 255, 0.3);
+                            position: relative;
+                            z-index: 10001;
+                            display: block;
+                        ">
+                            <div class="modal-header" style="
+                                display: flex;
+                                justify-content: space-between;
+                                align-items: center;
+                                margin-bottom: 2rem;
+                                padding-bottom: 1rem;
+                                border-bottom: 1px solid #F1F5F9;
+                            ">
+                                <h3 style="
+                                    font-size: 1.75rem;
+                                    font-weight: 700;
+                                    color: #0F172A;
+                                    margin: 0;
+                                ">Accept Application & Hire Candidate</h3>
+                                <button type="button" class="close-modal" style="
+                                    background: rgba(100, 116, 139, 0.1);
+                                    border: none;
+                                    width: 44px;
+                                    height: 44px;
+                                    border-radius: 12px;
+                                    cursor: pointer;
+                                    color: #64748B;
+                                    display: flex;
+                                    align-items: center;
+                                    justify-content: center;
+                                    font-size: 1.25rem;
+                                " onclick="this.closest('.hire-modal-overlay').remove()">×</button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="hire-info" style="
+                                    background: rgba(139, 92, 246, 0.05);
+                                    border: 1px solid rgba(139, 92, 246, 0.1);
+                                    border-radius: 12px;
+                                    padding: 1.5rem;
+                                    margin-bottom: 2rem;
+                                ">
+                                    <h4 style="color: #8B5CF6; font-size: 1.25rem; font-weight: 700; margin-bottom: 1rem;">
+                                        Candidate: ${hireDetails.candidateName || 'N/A'}
+                                    </h4>
+                                    <p style="margin: 0.5rem 0; color: #64748B;">
+                                        <strong style="color: #0F172A;">Position:</strong> ${hireDetails.jobTitle || 'N/A'}
+                                    </p>
+                                    <p style="margin: 0.5rem 0; color: #64748B;">
+                                        <strong style="color: #0F172A;">Email:</strong> ${hireDetails.email || 'N/A'}
+                                    </p>
+                                </div>
+                                <form id="hireForm">
+                                    <div class="form-group" style="margin-bottom: 1.5rem;">
+                                        <label for="hireDepartment" style="
+                                            display: block;
+                                            margin-bottom: 0.75rem;
+                                            color: #0F172A;
+                                            font-weight: 600;
+                                            font-size: 0.875rem;
+                                        ">Department</label>                                        <input type="text" id="hireDepartment" name="department" style="
+                                            width: 100%;
+                                            padding: 1rem 1.25rem;
+                                            border: 2px solid #E2E8F0;
+                                            border-radius: 12px;
+                                            font-size: 1rem;
+                                            color: #0F172A;
+                                            background: #FFFFFF;
+                                            box-sizing: border-box;
+                                        " placeholder="e.g., Engineering, Sales, Marketing" required>
+                                    </div>
+                                    <div class="form-group" style="margin-bottom: 1.5rem;">
+                                        <label for="hireStartDate" style="
+                                            display: block;
+                                            margin-bottom: 0.75rem;
+                                            color: #0F172A;
+                                            font-weight: 600;
+                                            font-size: 0.875rem;
+                                        ">Start Date</label>                                        <input type="date" id="hireStartDate" name="startDate" style="
+                                            width: 100%;
+                                            padding: 1rem 1.25rem;
+                                            border: 2px solid #E2E8F0;
+                                            border-radius: 12px;
+                                            font-size: 1rem;
+                                            color: #0F172A;
+                                            background: #FFFFFF;
+                                            box-sizing: border-box;
+                                        " required>
+                                    </div>
+                                    <div class="form-group" style="margin-bottom: 1.5rem;">
+                                        <label for="hireSalary" style="
+                                            display: block;
+                                            margin-bottom: 0.75rem;
+                                            color: #0F172A;
+                                            font-weight: 600;
+                                            font-size: 0.875rem;
+                                        ">Salary (optional)</label>                                        <input type="text" id="hireSalary" name="salary" style="
+                                            width: 100%;
+                                            padding: 1rem 1.25rem;
+                                            border: 2px solid #E2E8F0;
+                                            border-radius: 12px;
+                                            font-size: 1rem;
+                                            color: #0F172A;
+                                            background: #FFFFFF;
+                                            box-sizing: border-box;
+                                        " placeholder="e.g., $60,000/year or TBD">
+                                    </div>
+                                    <div class="form-group" style="margin-bottom: 1.5rem;">
+                                        <label for="hireNotes" style="
+                                            display: block;
+                                            margin-bottom: 0.75rem;
+                                            color: #0F172A;
+                                            font-weight: 600;
+                                            font-size: 0.875rem;
+                                        ">Notes</label>                                        <textarea id="hireNotes" name="notes" style="
+                                            width: 100%;
+                                            padding: 1rem 1.25rem;
+                                            border: 2px solid #E2E8F0;
+                                            border-radius: 12px;
+                                            font-size: 1rem;
+                                            color: #0F172A;
+                                            background: #FFFFFF;
+                                            min-height: 120px;
+                                            resize: vertical;
+                                            box-sizing: border-box;
+                                        " rows="3" placeholder="Any additional notes or comments..."></textarea>
+                                    </div>
+                                    <div class="form-group" style="margin-bottom: 1.5rem;">
+                                        <label style="
+                                            display: flex;
+                                            align-items: center;
+                                            gap: 0.75rem;
+                                            color: #0F172A;
+                                            font-size: 0.875rem;
+                                            font-weight: 500;
+                                            cursor: pointer;
+                                        ">
+                                            <input type="checkbox" id="createEmployeeRecord" name="createEmployee" checked style="
+                                                width: 18px;
+                                                height: 18px;
+                                                accent-color: #8B5CF6;
+                                            ">
+                                            Create employee record automatically
+                                        </label>
+                                    </div>
+                                </form>
+                            </div>
+                            <div class="modal-footer" style="
+                                margin-top: 2.5rem;
+                                display: flex;
+                                justify-content: flex-end;
+                                gap: 1rem;
+                                padding-top: 1.5rem;
+                                border-top: 1px solid #F1F5F9;
+                            ">
+                                <button type="button" class="btn btn-cancel" style="
+                                    padding: 0.75rem 1.5rem;
+                                    border: none;
+                                    border-radius: 12px;
+                                    cursor: pointer;
+                                    font-weight: 600;
+                                    font-size: 0.875rem;
+                                    background: #E2E8F0;
+                                    color: #64748B;
+                                " onclick="this.closest('.hire-modal-overlay').remove()">Cancel</button>
+                                <button type="button" class="btn btn-success" style="
+                                    padding: 0.75rem 1.5rem;
+                                    border: none;
+                                    border-radius: 12px;
+                                    cursor: pointer;
+                                    font-weight: 600;
+                                    font-size: 0.875rem;
+                                    background: linear-gradient(135deg, #8B5CF6 0%, #3B82F6 50%, #06B6D4 100%);
+                                    color: white;
+                                " onclick="window.crudManager.confirmHire(${applicationId})">Accept & Hire</button>
+                            </div>
+                        </div>
+                    `;
+                    
+                    document.body.appendChild(modal);
+                    
+                    // Set default start date to next Monday
+                    const nextMonday = new Date();
+                    nextMonday.setDate(nextMonday.getDate() + (1 + 7 - nextMonday.getDay()) % 7);
+                    document.getElementById('hireStartDate').value = nextMonday.toISOString().split('T')[0];
+                } catch (error) {
+                    console.error('Error showing hire modal:', error);
+                    alert('Error showing hire form. Please try again.');
+                }
+            }
+
+            confirmHire(applicationId) {
+                try {
+                    const form = document.getElementById('hireForm');
+                    if (!form) {
+                        alert('Form not found. Please try again.');
+                        return;
+                    }
+
+                    const formData = new FormData(form);
+                    const hireDetails = Object.fromEntries(formData.entries());
+                    hireDetails.createEmployee = document.getElementById('createEmployeeRecord').checked;
+                    hireDetails.acceptedBy = 'Admin'; // You can customize this
+
+                    const success = this.dataService.acceptApplication(applicationId, hireDetails);
+                    
+                    if (success) {
+                        // Close modal
+                        const modal = document.querySelector('.hire-modal-overlay');
+                        if (modal) {
+                            modal.remove();
+                        }
+                        
+                        // Show success message
+                        alert('Application accepted successfully! ' + 
+                              (hireDetails.createEmployee ? 'Employee record has been created.' : ''));
+                        
+                        // Refresh applications table
+                        this.loadApplications();
+                        
+                        // Refresh employees table if we created an employee record
+                        if (hireDetails.createEmployee) {
+                            this.loadEmployees();
+                        }
+                    } else {
+                        alert('Error accepting application. Please try again.');
+                    }
+                } catch (error) {
+                    console.error('Error in confirmHire:', error);
+                    alert('Error processing hire. Please try again.');
+                }
+            }        }        // Initialize CRUD Manager
+        let crudManager;
+        document.addEventListener('DOMContentLoaded', () => {
+            // Initialize DataService
+            if (typeof DataService !== 'undefined') {
+                window.DataService = DataService;
+                DataService.initializeSampleData();
+                DataService.initSync();
+            }
+            
+            // Initialize CRUD Manager
+            crudManager = new CRUDManager();
+            window.crudManager = crudManager; // Make it globally available
+        });
+    </script>
+</body>
+</html>
