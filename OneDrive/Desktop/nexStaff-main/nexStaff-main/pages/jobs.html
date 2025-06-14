@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jobs - NexStaff</title>    <link rel="stylesheet" href="../client/css/landing.css">
+    <link rel="icon" href="../client/img/logo.png" type="image/png">
+    <link href="https://unpkg.com/ionicons@5.5.2/dist/css/ionicons.min.css" rel="stylesheet">
+    <style>
+        body {
+            padding-top: var(--nav-height);
+            min-height: 100vh;
+        }
+
+        .jobs-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 1.5rem;
+            position: relative;
+        }
+
+        .search-container {
+            background: var(--gradient-soft);
+            padding: 2rem;
+            border-radius: 16px;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+        }
+
+        .search-row {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .search-row input,
+        .search-row select {
+            flex: 1;
+            padding: 0.8rem 1rem;
+            border: 1px solid rgba(146, 128, 253, 0.2);
+            border-radius: 8px;
+            background: white;
+            font-size: 1rem;
+            color: var(--text-color);
+        }
+
+        .job-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .job-card {
+            background: white;
+            border-radius: 16px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+            border: 1px solid rgba(146, 128, 253, 0.1);
+        }
+
+        .job-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(146, 128, 253, 0.15);
+        }
+
+        .job-card h3 {
+            margin-bottom: 0.5rem;
+            color: var(--text-color);
+        }
+
+        .job-card .company {
+            color: var(--primary-color);
+            font-weight: 500;
+            margin-bottom: 1rem;
+        }
+
+        .job-details {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .job-details span {
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        .description {
+            margin-bottom: 1rem;
+            color: #444;
+        }
+
+        .requirements {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .requirements {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .requirements li {
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: #555;
+        }
+
+        .requirements li::before {
+            content: "•";
+            color: var(--primary-color);
+        }
+
+        .tag {
+            background: var(--gradient-soft);
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            color: var(--primary-color);
+        }
+
+        .apply-btn {
+            width: 100%;
+            padding: 0.8rem;
+            background: var(--gradient-primary);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .apply-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(146, 128, 253, 0.3);
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+        }
+
+        .modal-content {
+            position: relative;
+            background: white;
+            margin: 5vh auto;
+            padding: 2rem;
+            width: 90%;
+            max-width: 600px;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .close {
+            position: absolute;
+            right: 1.5rem;
+            top: 1.5rem;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #666;
+            transition: color 0.3s;
+        }
+
+        .close:hover {
+            color: var(--primary-color);
+        }
+
+        .application-form {
+            margin-top: 1.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--text-color);
+            font-weight: 500;
+        }
+
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 0.8rem;
+            border: 1px solid rgba(146, 128, 253, 0.2);
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        @media (max-width: 768px) {
+            .search-row {
+                flex-direction: column;
+            }
+            
+            .modal-content {
+                margin: 2vh auto;
+                padding: 1.5rem;
+                width: 95%;
+            }
+        }
+
+        /* Notification Styles */
+        .notification {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            padding: 1rem 2rem;
+            border-radius: 8px;
+            background: #fff;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            transform: translateY(100%);
+            opacity: 0;
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+
+        .notification.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        .notification.success {
+            background: #4CAF50;
+            color: white;
+        }
+
+        .notification.error {
+            background: #f44336;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <header>        <nav>            <a href="../index.html" class="logo">
+                <img src="../client/img/logo.png" alt="NexStaff Logo" class="nav-logo">
+                <span>NexStaff</span>
+            </a>
+            <div class="nav-links">
+                <a href="about.html"><ion-icon name="information-circle-outline"></ion-icon> About</a>
+                <a href="jobs.html" class="active"><ion-icon name="briefcase-outline"></ion-icon> Jobs</a>
+                <a href="candidates.html"><ion-icon name="people-outline"></ion-icon> Candidates</a>
+                <a href="employers.html"><ion-icon name="business-outline"></ion-icon> Employers</a>
+            </div>
+            <div class="nav-buttons">
+                <a href="../login/login.html" class="login-btn"><ion-icon name="person-outline"></ion-icon> Sign In</a>
+            </div>
+            <button class="mobile-menu" aria-label="Toggle navigation menu">
+                <ion-icon name="menu-outline"></ion-icon>
+            </button>
+        </nav>
+    </header>    <main class="jobs-container">
+        <div class="search-container">
+            <div class="search-row">
+                <input type="text" id="searchInput" placeholder="Search jobs by title, skills, or keywords">
+                <select id="categoryFilter">
+                    <option value="">All Categories</option>
+                    <option value="full-time">Full-time</option>
+                    <option value="part-time">Part-time</option>
+                    <option value="contract">Contract</option>
+                    <option value="remote">Remote</option>
+                </select>
+                <select id="locationFilter">
+                    <option value="">All Locations</option>
+                    <option value="remote">Remote</option>
+                    <option value="on-site">On-site</option>
+                    <option value="hybrid">Hybrid</option>
+                </select>
+            </div>
+        </div>
+        <div id="jobsList" class="job-cards">
+            <!-- Job cards will be dynamically inserted here -->
+        </div>    </main>
+    <!-- Job Application Modal -->
+    <div id="applicationModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Apply for Position</h2>
+            <form id="applicationForm" class="application-form">
+                <input type="hidden" id="jobId" name="jobId">
+                <input type="hidden" id="jobTitle" name="jobTitle">
+                <input type="hidden" id="companyName" name="companyName">
+                
+                <div class="form-group">
+                    <label for="fullName">Full Name</label>
+                    <input type="text" id="fullName" name="fullName" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="email">Email</label>
+                    <input type="email" id="email" name="email" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="phone">Phone Number</label>
+                    <input type="tel" id="phone" name="phone" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="resume">Resume (PDF)</label>
+                    <input type="file" id="resume" name="resume" accept=".pdf" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="coverLetter">Cover Letter</label>
+                    <textarea id="coverLetter" name="coverLetter" rows="4"></textarea>
+                </div>
+                
+                <button type="submit" class="btn-primary">Submit Application</button>
+            </form>
+        </div>
+    </div>
+    <script>
+        // Sample job data
+        const jobs = [
+            {
+                title: 'Senior Full Stack Developer',
+                company: 'NexStaff Technologies',
+                type: 'Full-time',
+                location: 'Remote',
+                salary: '$120K - $150K',
+                description: 'Join our team to build next-generation staffing solutions.',
+                requirements: ['5+ years experience', 'React', 'Node.js', 'MongoDB']
+            },
+            {
+                title: 'UI/UX Designer',
+                company: 'NexStaff Creative',
+                type: 'Contract',
+                location: 'Hybrid',
+                salary: '$90K - $110K',
+                description: 'Create beautiful and intuitive user interfaces for our platforms.',
+                requirements: ['3+ years experience', 'Figma', 'Adobe Creative Suite', 'User Research']
+            },
+            {
+                title: 'Digital Marketing Specialist',
+                company: 'NexStaff Marketing',
+                type: 'Full-time',
+                location: 'On-site',
+                salary: '$60K - $80K',
+                description: 'Drive our digital marketing initiatives and growth.',
+                requirements: ['Digital Marketing', 'SEO', 'Content Strategy', 'Analytics']
+            }
+        ];
+
+        function displayJobs(jobsToDisplay = jobs) {
+            const jobsList = document.getElementById('jobsList');
+            jobsList.innerHTML = '';
+
+            jobsToDisplay.forEach(job => {
+                const jobCard = document.createElement('div');
+                jobCard.className = 'job-card';
+                jobCard.innerHTML = `
+                    <h3>${job.title}</h3>
+                    <p class="company">${job.company}</p>
+                    <div class="job-details">
+                        <span><ion-icon name="business-outline"></ion-icon> ${job.type}</span>
+                        <span><ion-icon name="location-outline"></ion-icon> ${job.location}</span>
+                        <span><ion-icon name="cash-outline"></ion-icon> ${job.salary}</span>
+                    </div>
+                    <p class="description">${job.description}</p>
+                    <div class="requirements">
+                        ${job.requirements.map(req => `<span class="tag">${req}</span>`).join('')}
+                    </div>
+                    <button onclick="showJobApplication('${job.title}')" class="apply-btn">
+                        Apply Now
+                    </button>
+                `;
+                jobsList.appendChild(jobCard);
+            });
+        }
+
+        // Function to show job application modal
+        function showJobApplication(jobTitle) {
+            const modal = document.getElementById('applicationModal');
+            const jobIdInput = document.getElementById('jobId');
+            const jobTitleInput = document.getElementById('jobTitle');
+            const companyNameInput = document.getElementById('companyName');
+
+            // Set the job details in the modal
+            jobIdInput.value = jobTitle; // Assuming jobTitle is unique for each job
+            jobTitleInput.value = jobTitle;
+            companyNameInput.value = 'NexStaff'; // Hardcoded for now
+
+            modal.style.display = 'flex';
+            document.body.style.overflow = 'hidden'; // Prevent scrolling
+        }
+
+        // Function to close job application modal
+        function closeJobApplication() {
+            const modal = document.getElementById('applicationModal');
+            modal.style.display = 'none';
+            document.body.style.overflow = ''; // Restore scrolling
+        }
+
+        // Submit application form
+        document.getElementById('applicationForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            // Here you would normally handle the form submission, e.g. send data to the server
+            alert('Application submitted successfully!');
+            closeJobApplication();
+        });
+
+        // Search and filter functionality
+        document.getElementById('searchInput').addEventListener('input', filterJobs);
+        document.getElementById('categoryFilter').addEventListener('change', filterJobs);
+        document.getElementById('locationFilter').addEventListener('change', filterJobs);
+
+        function filterJobs() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const category = document.getElementById('categoryFilter').value.toLowerCase();
+            const location = document.getElementById('locationFilter').value.toLowerCase();
+
+            const filteredJobs = jobs.filter(job => {
+                const matchesSearch = !searchTerm || 
+                    job.title.toLowerCase().includes(searchTerm) ||
+                    job.description.toLowerCase().includes(searchTerm) ||
+                    job.requirements.some(req => req.toLowerCase().includes(searchTerm));
+                
+                const matchesCategory = !category || job.type.toLowerCase().includes(category);
+                const matchesLocation = !location || job.location.toLowerCase().includes(location);
+
+                return matchesSearch && matchesCategory && matchesLocation;
+            });
+
+            displayJobs(filteredJobs);
+        }
+
+        // Initialize jobs display
+        displayJobs();
+
+        // Mobile menu functionality
+        const mobileMenuButton = document.querySelector('.mobile-menu');
+        const navLinks = document.querySelector('.nav-links');
+        
+        mobileMenuButton.addEventListener('click', () => {
+            navLinks.classList.toggle('show');
+            document.body.classList.toggle('menu-open');
+        });
+
+        // Close mobile menu when clicking outside
+        document.addEventListener('click', (e) => {
+            if (navLinks.classList.contains('show') && 
+                !e.target.closest('.nav-links') && 
+                !e.target.closest('.mobile-menu')) {
+                navLinks.classList.remove('show');
+                document.body.classList.remove('menu-open');
+            }
+        });        // Close modal when clicking on close button
+        document.querySelector('.close').addEventListener('click', closeJobApplication);
+    </script>
+      <!-- Dynamic Footer -->
+    <div id="footer-container"></div>
+    
+    <!-- Data Management Scripts -->
+    <script src="../client/js/dataManager.js"></script>
+    <script src="../client/js/jobs.js"></script>
+    <script src="../client/js/jobApplications.js"></script>
+    
+    <script type="module" src="https://unpkg.com/ionicons@7.2.1/dist/ionicons/ionicons.esm.js"></script>
+    <script nomodule src="https://unpkg.com/ionicons@7.2.1/dist/ionicons/ionicons.js"></script>
+    <script src="../client/js/footer-loader.js"></script>
+</body>
+</html>

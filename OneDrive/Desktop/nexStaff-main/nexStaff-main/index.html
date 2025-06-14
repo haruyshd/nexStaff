@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NexStaff - Your Next Generation Staffing Solution</title>
+    <link rel="stylesheet" href="./client/css/landing.css">
+    <link rel="icon" href="./client/img/logo.png" type="image/png">
+    <link href="https://unpkg.com/ionicons@5.5.2/dist/css/ionicons.min.css" rel="stylesheet">
+</head>
+<body>
+    <header>
+        <nav>
+            <div class="logo">
+                <img src="./client/img/logo.png" alt="NexStaff Logo" class="nav-logo">
+                <span>NexStaff</span>
+            </div>            <div class="nav-links">
+                <a href="pages/about.html"><ion-icon name="information-circle-outline"></ion-icon> About</a>
+                <a href="pages/jobs.html"><ion-icon name="briefcase-outline"></ion-icon> Jobs</a>
+                <a href="pages/candidates.html"><ion-icon name="people-outline"></ion-icon> Candidates</a>
+                <a href="pages/employers.html"><ion-icon name="business-outline"></ion-icon> Employers</a>
+            </div>
+            <div class="nav-buttons">
+                <a href="login/login.html" class="login-btn"><ion-icon name="person-outline"></ion-icon> Sign In</a>
+            </div>
+            <button 
+                class="mobile-menu" 
+                aria-label="Toggle navigation menu" 
+                aria-expanded="false" 
+                aria-controls="nav-links"
+            >
+                <ion-icon name="menu-outline"></ion-icon>
+            </button>
+        </nav>
+    </header>
+
+    <main>
+        <div class="trusted-by">
+            <span><ion-icon name="trophy-outline"></ion-icon> Grant recipient from</span>
+            <img src="./client/img/logo.png" alt="NexStaff Foundation">
+        </div>
+
+        <section class="hero">
+            <div class="hero-content">
+                <div class="left-content">
+                    <h1>The Next Generation<br>Staffing Platform</h1>
+                    <p>Advanced talent management ecosystem dedicated to connecting over 1,000,000+ professionals with their dream careers.</p>                    <div class="cta-buttons">
+                        <a href="auth/signup.html" class="start-btn"><ion-icon name="rocket-outline"></ion-icon> Start Now</a>
+                        <a href="pages/about.html" class="learn-btn"><ion-icon name="book-outline"></ion-icon> Learn More</a>
+                    </div>
+                </div>
+                <div class="hero-visual">
+                    <div class="gradient-bg" aria-hidden="true"></div>
+                    <img 
+                        src="./client/img/landingpageMainPic.webp" 
+                        alt="NexStaff Platform" 
+                        class="symbol"
+                        loading="eager"
+                    >
+                </div>
+            </div>
+        </section>        <section class="features">
+            <a href="pages/jobs.html" class="market-section feature-card-link">
+                <img src="./client/img/jobMarket.png" alt="Job Market" class="feature-img">
+                <h2><ion-icon name="globe-outline"></ion-icon> Job Market</h2>
+                <p>Access our extensive job marketplace and ecosystem of opportunities at a glance in one super-app.</p>
+                <ul>
+                    <li>Thousands of curated job listings</li>
+                    <li>Advanced search and filtering</li>
+                    <li>Real-time market insights</li>                </ul>
+                <span class="feature-link">More details <ion-icon name="arrow-forward-outline"></ion-icon></span>
+            </a>
+            <a href="pages/candidates.html" class="candidates-section feature-card-link">
+                <img src="./client/img/forCandidates.png" alt="For Candidates" class="feature-img">
+                <h2><ion-icon name="person-outline"></ion-icon> For Candidates</h2>
+                <p>Find your next career opportunity with personalized job matches and seamless application process.</p>
+                <ul>
+                    <li>Personalized job recommendations</li>
+                    <li>Easy resume uploads and profile building</li>
+                    <li>Career resources and interview tips</li>                </ul>
+                <span class="feature-link">More details <ion-icon name="arrow-forward-outline"></ion-icon></span>
+            </a>
+            <a href="pages/employers.html" class="employers-section feature-card-link">
+                <img src="./client/img/forEmployers.png" alt="For Employers" class="feature-img">
+                <h2><ion-icon name="business-outline"></ion-icon> For Employers</h2>
+                <p>Access top talent and streamline your recruitment process with our advanced hiring platform.</p>
+                <ul>
+                    <li>Smart candidate matching</li>
+                    <li>Automated interview scheduling</li>
+                    <li>Analytics and reporting dashboard</li>                </ul>
+                <span class="feature-link">More details <ion-icon name="arrow-forward-outline"></ion-icon></span>
+            </a>
+        </section>
+    </main>    <!-- Dynamic Footer -->
+    <div id="footer-container"></div>
+    
+    <!-- Scripts -->
+    <script type="module" src="https://unpkg.com/ionicons@7.2.1/dist/ionicons/ionicons.esm.js"></script>
+    <script nomodule src="https://unpkg.com/ionicons@7.2.1/dist/ionicons/ionicons.js"></script>
+    <script src="./client/js/navigation.js"></script>
+    <script src="./client/js/footer-loader.js"></script>
