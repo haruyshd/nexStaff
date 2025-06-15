@@ -3005,17 +3005,19 @@
             }
 
             loadApplications() {
-                console.log('Loading applications...');
+                console.log('Loading applications from shared DataService...');
                 try {
-                    if (!this.dataService) {
-                        console.error('DataService not available for loading applications');
-                        return;
-                    }
-                    const applications = this.dataService.readApplications();
+                    // Use the shared DataService instead of this.dataService
+                    const applications = DataService.getAllApplications();
                     console.log('Applications data:', applications);
                     const tbody = document.getElementById('applicationsTableBody');
                     if (!tbody) {
                         console.error('applicationsTableBody not found');
+                        return;
+                    }
+
+                    if (applications.length === 0) {
+                        tbody.innerHTML = '<tr><td colspan="7" class="text-center">No applications found</td></tr>';
                         return;
                     }
 
@@ -3028,10 +3030,10 @@
                     
                     // Show accept/decline buttons only for pending applications
                     const hireBtns = (status === 'Pending' || status === 'Under Review' || status === 'Interview') ? `
-                        <button class="btn btn-sm btn-success" onclick="crudManager.acceptApplication(${app.id})" title="Accept & Hire">
+                        <button class="btn btn-sm btn-success" onclick="crudManager.acceptApplication('${app.id}')" title="Accept & Hire">
                             <i class="fas fa-check"></i> Accept
                         </button>
-                        <button class="btn btn-sm btn-danger" onclick="crudManager.declineApplication(${app.id})" title="Decline">
+                        <button class="btn btn-sm btn-danger" onclick="crudManager.declineApplication('${app.id}')" title="Decline">
                             <i class="fas fa-times"></i> Decline
                         </button>
                     ` : '';
@@ -3043,22 +3045,23 @@
                                 <div class="candidate-info">
                                     <strong>${app.candidateName || app.name || 'N/A'}</strong>
                                     <br><small class="text-muted">${app.email || 'No email'}</small>
+                                    ${app.phone ? `<br><small class="text-muted">${app.phone}</small>` : ''}
                                 </div>
                             </td>
-                            <td>${app.jobPosition || app.jobTitle || 'N/A'}</td>
+                            <td>${app.jobTitle || app.jobPosition || 'N/A'}</td>
                             <td>${app.department || 'General'}</td>
                             <td><span class="badge badge-${statusClass}">${status}</span></td>
-                            <td>${app.applicationDate || app.createdAt ? new Date(app.applicationDate || app.createdAt).toLocaleDateString() : 'N/A'}</td>
+                            <td>${app.submittedAt || app.applicationDate || app.createdAt ? new Date(app.submittedAt || app.applicationDate || app.createdAt).toLocaleDateString() : 'N/A'}</td>
                             <td class="actions-cell">
                                 <div class="action-buttons">
                                     ${hireBtns}
-                                    <button class="btn btn-sm btn-outline" onclick="crudManager.viewEntity('application', ${app.id})" title="View Details">
+                                    <button class="btn btn-sm btn-outline" onclick="crudManager.viewEntity('application', '${app.id}')" title="View Details">
                                         <i class="fas fa-eye"></i>
                                     </button>
-                                    <button class="btn btn-sm btn-primary" onclick="crudManager.editEntity('application', ${app.id})" title="Edit">
+                                    <button class="btn btn-sm btn-primary" onclick="crudManager.editEntity('application', '${app.id}')" title="Edit">
                                         <i class="fas fa-edit"></i>
                                     </button>
-                                    <button class="btn btn-sm btn-secondary" onclick="crudManager.deleteEntity('application', ${app.id})" title="Delete">
+                                    <button class="btn btn-sm btn-secondary" onclick="crudManager.deleteEntity('application', '${app.id}')" title="Delete">
                                         <i class="fas fa-trash"></i>
                                     </button>
                                 </div>
@@ -3066,9 +3069,13 @@
                         </tr>
                     `;
                 }).join('');
-                    console.log('Applications table populated');
+                    console.log('Applications table populated with', applications.length, 'applications');
                 } catch (error) {
                     console.error('Error loading applications:', error);
+                    const tbody = document.getElementById('applicationsTableBody');
+                    if (tbody) {
+                        tbody.innerHTML = '<tr><td colspan="7" class="text-center text-danger">Error loading applications</td></tr>';
+                    }
                 }
             }
 

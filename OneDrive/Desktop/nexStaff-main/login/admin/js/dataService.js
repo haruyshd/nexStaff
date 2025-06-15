@@ -1,6 +1,15 @@
-// Shared data service for synchronization
+// Shared data service for synchronization between landing page and admin dashboard
 const DataService = {
     subscribers: new Set(),
+    storageKeys: {
+        jobs: 'nexstaff_jobs',
+        candidates: 'nexstaff_candidates', 
+        employers: 'nexstaff_employers',
+        applications: 'nexstaff_applications',
+        employees: 'nexstaff_employees',
+        teams: 'nexstaff_teams',
+        schedules: 'nexstaff_schedules'
+    },
 
     // Subscribe to data changes
     subscribe(callback) {
@@ -9,8 +18,91 @@ const DataService = {
     },
 
     // Notify all subscribers of data changes
-    notifySubscribers() {
-        this.subscribers.forEach(callback => callback());
+    notifySubscribers(entityType, action, data) {
+        this.subscribers.forEach(callback => {
+            try {
+                callback({ entityType, action, data });
+            } catch (error) {
+                console.error('Error in subscriber callback:', error);
+            }
+        });
+    },
+
+    // Initialize sample data if not exists
+    init() {
+        this.initializeJobs();
+        this.initializeApplications();
+        this.initializeCandidates();
+        this.initializeEmployers();
+        this.initializeEmployees();
+    },
+
+    initializeJobs() {
+        if (!localStorage.getItem(this.storageKeys.jobs)) {
+            const sampleJobs = [
+                {
+                    id: 'JOB001',
+                    title: 'Senior Full Stack Developer',
+                    company: 'NexStaff Technologies',
+                    employerId: 'EMP001',
+                    department: 'Technology',
+                    location: 'Remote',
+                    type: 'Full-time',
+                    category: 'Technology',
+                    salary: '$120,000 - $150,000',
+                    description: 'Join our team to build next-generation staffing solutions using modern technologies.',
+                    requirements: ['5+ years experience', 'React', 'Node.js', 'MongoDB', 'AWS'],
+                    benefits: ['Health Insurance', 'Remote Work', 'Professional Development', '401k'],
+                    status: 'Active',
+                    postedDate: new Date().toISOString(),
+                    createdAt: new Date().toISOString(),
+                    updatedAt: new Date().toISOString()
+                },
+                {
+                    id: 'JOB002',
+                    title: 'UI/UX Designer',
+                    company: 'NexStaff Creative',
+                    employerId: 'EMP002',
+                    department: 'Design',
+                    location: 'Hybrid',
+                    type: 'Contract',
+                    category: 'Design',
+                    salary: '$90,000 - $110,000',
+                    description: 'Create beautiful and intuitive user interfaces for our platforms.',
+                    requirements: ['3+ years experience', 'Figma', 'Adobe Creative Suite', 'User Research'],
+                    benefits: ['Flexible Hours', 'Creative Freedom', 'Latest Tools'],
+                    status: 'Active',
+                    postedDate: new Date().toISOString(),
+                    createdAt: new Date().toISOString(),
+                    updatedAt: new Date().toISOString()
+                },
+                {
+                    id: 'JOB003',
+                    title: 'Digital Marketing Specialist',
+                    company: 'NexStaff Marketing',
+                    employerId: 'EMP001',
+                    department: 'Marketing',
+                    location: 'On-site',
+                    type: 'Full-time',
+                    category: 'Marketing',
+                    salary: '$60,000 - $80,000',
+                    description: 'Drive our digital marketing initiatives and growth strategies.',
+                    requirements: ['Digital Marketing', 'SEO', 'Content Strategy', 'Analytics', 'Social Media'],
+                    benefits: ['Health Insurance', 'Performance Bonus', 'Training Budget'],
+                    status: 'Active',
+                    postedDate: new Date().toISOString(),
+                    createdAt: new Date().toISOString(),
+                    updatedAt: new Date().toISOString()
+                }
+            ];
+            localStorage.setItem(this.storageKeys.jobs, JSON.stringify(sampleJobs));
+        }
+    },
+
+    initializeApplications() {
+        if (!localStorage.getItem(this.storageKeys.applications)) {
+            localStorage.setItem(this.storageKeys.applications, JSON.stringify([]));
+        }
     },
 
     // Generic CRUD Operations
@@ -817,7 +909,7 @@ const DataService = {
                 application.lastUpdated = new Date().toISOString();
                 
                 localStorage.setItem('applications', JSON.stringify(applications));
-                this.notifySubscribers();
+                this.notifySubscribers('applications', 'decline', application);
                 return true;
             }
             return false;
@@ -826,4 +918,165 @@ const DataService = {
             return false;
         }
     },
+
+    // ===== JOB MANAGEMENT METHODS =====
+    
+    // Get all active jobs for public display
+    getActiveJobs() {
+        try {
+            const jobs = JSON.parse(localStorage.getItem(this.storageKeys.jobs)) || [];
+            return jobs.filter(job => job.status === 'Active');
+        } catch (error) {
+            console.error('Error getting active jobs:', error);
+            return [];
+        }
+    },
+
+    // Get job by ID
+    getJobById(jobId) {
+        try {
+            const jobs = JSON.parse(localStorage.getItem(this.storageKeys.jobs)) || [];
+            return jobs.find(job => job.id === jobId);
+        } catch (error) {
+            console.error('Error getting job by ID:', error);
+            return null;
+        }
+    },
+
+    // Add or update a job (admin function)
+    saveJob(jobData) {
+        try {
+            const jobs = JSON.parse(localStorage.getItem(this.storageKeys.jobs)) || [];
+            const existingIndex = jobs.findIndex(job => job.id === jobData.id);
+            
+            const jobToSave = {
+                ...jobData,
+                updatedAt: new Date().toISOString(),
+                createdAt: jobData.createdAt || new Date().toISOString()
+            };
+
+            if (existingIndex >= 0) {
+                jobs[existingIndex] = jobToSave;
+            } else {
+                jobToSave.id = jobToSave.id || `JOB${Date.now()}`;
+                jobs.push(jobToSave);
+            }
+
+            localStorage.setItem(this.storageKeys.jobs, JSON.stringify(jobs));
+            this.notifySubscribers('jobs', existingIndex >= 0 ? 'update' : 'create', jobToSave);
+            return jobToSave;
+        } catch (error) {
+            console.error('Error saving job:', error);
+            return null;
+        }
+    },
+
+    // ===== APPLICATION MANAGEMENT METHODS =====
+    
+    // Submit job application from landing page
+    submitJobApplication(applicationData) {
+        try {
+            const applications = JSON.parse(localStorage.getItem(this.storageKeys.applications)) || [];
+            
+            const newApplication = {
+                id: `APP${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+                ...applicationData,
+                status: 'Pending',
+                submittedAt: new Date().toISOString(),
+                createdAt: new Date().toISOString(),
+                updatedAt: new Date().toISOString(),
+                source: 'landing_page'
+            };
+
+            applications.push(newApplication);
+            localStorage.setItem(this.storageKeys.applications, JSON.stringify(applications));
+            this.notifySubscribers('applications', 'create', newApplication);
+            
+            console.log('Application submitted successfully:', newApplication.id);
+            return newApplication;
+        } catch (error) {
+            console.error('Error submitting application:', error);
+            return null;
+        }
+    },
+
+    // Get all applications (admin function)
+    getAllApplications() {
+        try {
+            return JSON.parse(localStorage.getItem(this.storageKeys.applications)) || [];
+        } catch (error) {
+            console.error('Error getting applications:', error);
+            return [];
+        }
+    },
+
+    // Update application status (admin function)
+    updateApplicationStatus(applicationId, status, notes = '') {
+        try {
+            const applications = JSON.parse(localStorage.getItem(this.storageKeys.applications)) || [];
+            const application = applications.find(app => app.id === applicationId);
+            
+            if (application) {
+                application.status = status;
+                application.notes = notes;
+                application.updatedAt = new Date().toISOString();
+                
+                if (status === 'Accepted') {
+                    application.acceptedAt = new Date().toISOString();
+                } else if (status === 'Rejected') {
+                    application.rejectedAt = new Date().toISOString();
+                }
+
+                localStorage.setItem(this.storageKeys.applications, JSON.stringify(applications));
+                this.notifySubscribers('applications', 'update', application);
+                return true;
+            }
+            return false;
+        } catch (error) {
+            console.error('Error updating application status:', error);
+            return false;
+        }
+    },
+
+    // ===== SYNC HELPER METHODS =====
+    
+    // Export data for backup or API sync
+    exportData() {
+        try {
+            const data = {};
+            Object.keys(this.storageKeys).forEach(key => {
+                data[key] = JSON.parse(localStorage.getItem(this.storageKeys[key])) || [];
+            });
+            return data;
+        } catch (error) {
+            console.error('Error exporting data:', error);
+            return {};
+        }
+    },
+
+    // Import data from backup or API
+    importData(data) {
+        try {
+            Object.keys(data).forEach(key => {
+                if (this.storageKeys[key]) {
+                    localStorage.setItem(this.storageKeys[key], JSON.stringify(data[key]));
+                }
+            });
+            this.notifySubscribers('all', 'import', data);
+            return true;
+        } catch (error) {
+            console.error('Error importing data:', error);
+            return false;
+        }
+    }
 };
+
+// Initialize DataService when loaded
+if (typeof window !== 'undefined') {
+    // Browser environment
+    DataService.init();
+    window.DataService = DataService;
+} else if (typeof module !== 'undefined' && module.exports) {
+    // Node.js environment
+    module.exports = DataService;
+}

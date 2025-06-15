@@ -3,7 +3,48 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Jobs - NexStaff</title>    <link rel="stylesheet" href="../client/css/landing.css">
+    <title>Jobs - NexStaff</title>    <link rel="stylesheet" href="../client/        .form-group textarea {
+            resize: vertical;
+            min-height: 120px;
+        }
+
+        /* Success Modal Styling */
+        #successModal .modal-content {
+            text-align: center;
+            padding: 2rem;
+        }
+
+        #successModal h2 {
+            color: #10B981;
+            margin-bottom: 1rem;
+        }
+
+        #successModal p {
+            margin-bottom: 2rem;
+            color: #666;
+        }
+
+        /* No jobs state */
+        .no-jobs {
+            text-align: center;
+            padding: 3rem;
+            color: #666;
+            font-size: 1.1rem;
+            grid-column: 1 / -1;
+        }
+
+        /* Modal responsive improvements */
+        @media (max-width: 768px) {
+            .modal-content {
+                width: 95%;
+                max-height: 90vh;
+                overflow-y: auto;
+            }
+            
+            .application-form {
+                padding: 1rem;
+            }
+        }landing.css">
     <link rel="icon" href="../client/img/logo.png" type="image/png">
     <link href="https://unpkg.com/ionicons@5.5.2/dist/css/ionicons.min.css" rel="stylesheet">
     <style>
@@ -331,54 +372,62 @@
                 </div>
                 
                 <div class="form-group">
+                    <label for="experience">Years of Experience</label>
+                    <select id="experience" name="experience" required>
+                        <option value="">Select Experience Level</option>
+                        <option value="Entry Level">Entry Level (0-1 years)</option>
+                        <option value="1-2 years">1-2 years</option>
+                        <option value="3-5 years">3-5 years</option>
+                        <option value="5-10 years">5-10 years</option>
+                        <option value="10+ years">10+ years</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
                     <label for="resume">Resume (PDF)</label>
-                    <input type="file" id="resume" name="resume" accept=".pdf" required>
+                    <input type="file" id="resume" name="resume" accept=".pdf,.doc,.docx" required>
                 </div>
                 
                 <div class="form-group">
                     <label for="coverLetter">Cover Letter</label>
-                    <textarea id="coverLetter" name="coverLetter" rows="4"></textarea>
+                    <textarea id="coverLetter" name="coverLetter" rows="4" placeholder="Tell us why you're interested in this position..."></textarea>
                 </div>
                 
                 <button type="submit" class="btn-primary">Submit Application</button>
             </form>
         </div>
     </div>
+
+    <!-- Success Modal -->
+    <div id="successModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeSuccessModal()">&times;</span>
+            <h2>Application Submitted Successfully!</h2>
+            <p>Thank you for your interest. We'll review your application and get back to you soon.</p>
+            <button onclick="closeSuccessModal()" class="btn-primary">Close</button>
+        </div>
+    </div>
+
+    <!-- Include Shared DataService -->
+    <script src="../login/admin/js/dataService.js"></script>
     <script>
-        // Sample job data
-        const jobs = [
-            {
-                title: 'Senior Full Stack Developer',
-                company: 'NexStaff Technologies',
-                type: 'Full-time',
-                location: 'Remote',
-                salary: '$120K - $150K',
-                description: 'Join our team to build next-generation staffing solutions.',
-                requirements: ['5+ years experience', 'React', 'Node.js', 'MongoDB']
-            },
-            {
-                title: 'UI/UX Designer',
-                company: 'NexStaff Creative',
-                type: 'Contract',
-                location: 'Hybrid',
-                salary: '$90K - $110K',
-                description: 'Create beautiful and intuitive user interfaces for our platforms.',
-                requirements: ['3+ years experience', 'Figma', 'Adobe Creative Suite', 'User Research']
-            },
-            {
-                title: 'Digital Marketing Specialist',
-                company: 'NexStaff Marketing',
-                type: 'Full-time',
-                location: 'On-site',
-                salary: '$60K - $80K',
-                description: 'Drive our digital marketing initiatives and growth.',
-                requirements: ['Digital Marketing', 'SEO', 'Content Strategy', 'Analytics']
-            }
-        ];
+        // Initialize jobs from DataService
+        let jobs = [];
+        
+        // Load jobs from shared data source
+        function loadJobs() {
+            jobs = DataService.getActiveJobs();
+            displayJobs();
+        }
 
         function displayJobs(jobsToDisplay = jobs) {
             const jobsList = document.getElementById('jobsList');
             jobsList.innerHTML = '';
+
+            if (jobsToDisplay.length === 0) {
+                jobsList.innerHTML = '<div class="no-jobs">No jobs available at the moment. Please check back later.</div>';
+                return;
+            }
 
             jobsToDisplay.forEach(job => {
                 const jobCard = document.createElement('div');
@@ -395,9 +444,171 @@
                     <div class="requirements">
                         ${job.requirements.map(req => `<span class="tag">${req}</span>`).join('')}
                     </div>
-                    <button onclick="showJobApplication('${job.title}')" class="apply-btn">
+                    <button onclick="showJobApplication('${job.id}', '${job.title}', '${job.company}')" class="apply-btn">
                         Apply Now
                     </button>
+                `;
+                jobsList.appendChild(jobCard);
+            });
+        }
+
+        // Function to show job application modal
+        function showJobApplication(jobId, jobTitle, companyName) {
+            const modal = document.getElementById('applicationModal');
+            const jobIdInput = document.getElementById('jobId');
+            const jobTitleInput = document.getElementById('jobTitle');
+            const companyNameInput = document.getElementById('companyName');
+
+            // Set the job details in the modal
+            jobIdInput.value = jobId;
+            jobTitleInput.value = jobTitle;
+            companyNameInput.value = companyName;
+
+            modal.style.display = 'flex';
+            document.body.style.overflow = 'hidden'; // Prevent scrolling
+        }
+
+        // Function to close job application modal
+        function closeJobApplication() {
+            const modal = document.getElementById('applicationModal');
+            modal.style.display = 'none';
+            document.body.style.overflow = ''; // Restore scrolling
+            
+            // Reset form
+            document.getElementById('applicationForm').reset();
+        }
+
+        // Function to show success modal
+        function showSuccessModal() {
+            const modal = document.getElementById('successModal');
+            modal.style.display = 'flex';
+        }
+
+        // Function to close success modal
+        function closeSuccessModal() {
+            const modal = document.getElementById('successModal');
+            modal.style.display = 'none';
+            document.body.style.overflow = '';
+        }
+
+        // Submit application form
+        document.getElementById('applicationForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            
+            const formData = new FormData(this);
+            const resumeFile = formData.get('resume');
+            
+            // Prepare application data
+            const applicationData = {
+                jobId: formData.get('jobId'),
+                jobTitle: formData.get('jobTitle'),
+                company: formData.get('companyName'),
+                candidateName: formData.get('fullName'),
+                email: formData.get('email'),
+                phone: formData.get('phone'),
+                experience: formData.get('experience'),
+                coverLetter: formData.get('coverLetter'),
+                resumeFileName: resumeFile ? resumeFile.name : null,
+                resumeSize: resumeFile ? resumeFile.size : null,
+                priority: 'Medium', // Default priority
+                department: 'General' // Will be updated based on job
+            };
+
+            // Submit to DataService
+            const result = DataService.submitJobApplication(applicationData);
+            
+            if (result) {
+                console.log('Application submitted with ID:', result.id);
+                closeJobApplication();
+                showSuccessModal();
+                
+                // Optionally, you could store the resume file in a more sophisticated way
+                // For now, we just store the filename
+            } else {
+                alert('There was an error submitting your application. Please try again.');
+            }
+        });
+
+        // Search and filter functionality
+        document.getElementById('searchInput').addEventListener('input', filterJobs);
+        document.getElementById('categoryFilter').addEventListener('change', filterJobs);
+        document.getElementById('locationFilter').addEventListener('change', filterJobs);
+
+        function filterJobs() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const category = document.getElementById('categoryFilter').value.toLowerCase();
+            const location = document.getElementById('locationFilter').value.toLowerCase();
+
+            const filteredJobs = jobs.filter(job => {
+                const matchesSearch = !searchTerm || 
+                    job.title.toLowerCase().includes(searchTerm) ||
+                    job.description.toLowerCase().includes(searchTerm) ||
+                    job.requirements.some(req => req.toLowerCase().includes(searchTerm)) ||
+                    job.company.toLowerCase().includes(searchTerm);
+                
+                const matchesCategory = !category || 
+                    job.category.toLowerCase().includes(category) ||
+                    job.type.toLowerCase().includes(category);
+                    
+                const matchesLocation = !location || job.location.toLowerCase().includes(location);
+
+                return matchesSearch && matchesCategory && matchesLocation;
+            });
+
+            displayJobs(filteredJobs);
+        }
+
+        // Subscribe to DataService changes
+        DataService.subscribe((changeEvent) => {
+            if (changeEvent.entityType === 'jobs') {
+                console.log('Jobs updated, reloading...');
+                loadJobs();
+            }
+        });
+
+        // Initialize jobs display when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            loadJobs();
+        });
+
+        // Mobile menu functionality
+        const mobileMenuButton = document.querySelector('.mobile-menu');
+        const navLinks = document.querySelector('.nav-links');
+        
+        if (mobileMenuButton && navLinks) {
+            mobileMenuButton.addEventListener('click', () => {
+                navLinks.classList.toggle('show');
+                document.body.classList.toggle('menu-open');
+            });
+
+            // Close mobile menu when clicking outside
+            document.addEventListener('click', (e) => {
+                if (navLinks.classList.contains('show') && 
+                    !e.target.closest('.nav-links') && 
+                    !e.target.closest('.mobile-menu')) {
+                    navLinks.classList.remove('show');
+                    document.body.classList.remove('menu-open');
+                }
+            });
+        }
+
+        // Close modals when clicking on close button or outside
+        document.querySelectorAll('.close').forEach(closeBtn => {
+            closeBtn.addEventListener('click', function() {
+                const modal = this.closest('.modal');
+                modal.style.display = 'none';
+                document.body.style.overflow = '';
+            });
+        });
+
+        // Close modal when clicking outside
+        window.addEventListener('click', function(event) {
+            if (event.target.classList.contains('modal')) {
+                event.target.style.display = 'none';
+                document.body.style.overflow = '';
+            }
+        });
+    </script>
                 `;
                 jobsList.appendChild(jobCard);
             });
