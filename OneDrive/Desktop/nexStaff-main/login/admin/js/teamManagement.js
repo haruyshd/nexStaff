@@ -83,20 +83,44 @@ class TeamManagement {
         if (!teamsList) return;
 
         teamsList.innerHTML = '';
+        
+        if (teams.length === 0) {
+            teamsList.innerHTML = `
+                <div class="content-card" style="grid-column: 1 / -1; text-align: center; padding: 3rem;">
+                    <h3 style="color: var(--text-secondary); margin-bottom: 1rem;">No Teams Created Yet</h3>
+                    <p style="color: var(--text-secondary); margin-bottom: 2rem;">Create your first team using the form above to get started.</p>
+                    <ion-icon name="business-outline" style="font-size: 4rem; color: var(--primary-color); opacity: 0.5;"></ion-icon>
+                </div>
+            `;
+            return;
+        }
+        
         teams.forEach(team => {
             const teamCard = this.createTeamCard(team);
             teamsList.appendChild(teamCard);
         });
+
+        // Scroll to teams list if new team was added
+        if (teams.length > 0) {
+            setTimeout(() => {
+                teamsList.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }, 100);
+        }
     }    createTeamCard(team) {
         const card = document.createElement('div');
-        card.className = 'team-card';
+        card.className = 'content-card';
         card.innerHTML = `
             <h3>${team.teamName}</h3>
             <p><strong>Department:</strong> ${team.department}</p>
             <p><strong>Description:</strong> ${team.description}</p>
-            <p><strong>Requirements:</strong> ${team.requirements}</p>
-            <p><strong>Contact:</strong> ${team.email} | ${team.phone}</p>
-            <div class="team-actions">
+            <div class="team-requirements">
+                <strong>Requirements:</strong>
+                ${team.requirements}
+            </div>
+            <div class="team-contact-info">
+                <strong>Contact:</strong> ${team.email} | ${team.phone}
+            </div>
+            <div class="card-actions">
                 <button class="btn btn-primary" data-team-id="${team.id}">Edit Team</button>
                 <button class="btn btn-success" data-team-id="${team.id}">Contact Team</button>
             </div>
@@ -178,7 +202,7 @@ class TeamManagement {
             form.scrollIntoView({ behavior: 'smooth' });
             
             // Change submit button to indicate editing
-            const submitBtn = form.querySelector('.submit-btn');
+            const submitBtn = form.querySelector('.btn-primary');
             if (submitBtn) {
                 submitBtn.textContent = 'Update Team';
                 submitBtn.dataset.editing = teamId;
@@ -205,13 +229,39 @@ class TeamManagement {
     }
 
     showNotification(message, type = 'info') {
-        const notification = document.createElement('div');
-        notification.className = `notification ${type}`;
-        notification.textContent = message;
+        const notificationContainer = document.getElementById('notifications') || document.querySelector('.notification-container');
+        
+        if (!notificationContainer) {
+            console.warn('Notification container not found');
+            return;
+        }
 
-        document.body.appendChild(notification);
+        const notification = document.createElement('div');
+        notification.className = `notification notification-${type}`;
+        
+        const content = document.createElement('div');
+        content.className = 'notification-content';
+        
+        const messageEl = document.createElement('div');
+        messageEl.className = 'message';
+        messageEl.textContent = message;
+        
+        const closeBtn = document.createElement('button');
+        closeBtn.className = 'close-btn';
+        closeBtn.innerHTML = '×';
+        closeBtn.onclick = () => notification.remove();
+        
+        content.appendChild(messageEl);
+        content.appendChild(closeBtn);
+        notification.appendChild(content);
+        
+        notificationContainer.appendChild(notification);
+        
+        // Auto remove after 5 seconds
         setTimeout(() => {
-            notification.remove();
+            if (notification.parentNode) {
+                notification.remove();
+            }
         }, 5000);
     }
 }
