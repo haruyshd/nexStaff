@@ -742,6 +742,35 @@
             }
         }
 
+        /* Section Management */
+        .section {
+            display: none;
+            opacity: 0;
+            transition: opacity var(--transition-normal);
+        }
+        
+        .section.active {
+            display: block;
+            opacity: 1;
+        }
+        
+        .section-content {
+            padding: 0;
+        }
+        
+        /* Chart Container Styling */
+        .chart-container {
+            position: relative;
+            height: 300px;
+            width: 100%;
+            padding: 1rem;
+        }
+        
+        .chart-container canvas {
+            width: 100% !important;
+            height: 100% !important;
+        }
+
         /* Overlay for mobile */
         .overlay {
             display: none;
@@ -1782,8 +1811,7 @@
                             </div>
                             <div class="card-body">
                                 <div class="chart-container">
-                                    <i class="fas fa-chart-line" style="font-size: 3rem; margin-right: 1rem;"></i>
-                                    <span>Activity Chart Placeholder</span>
+                                    <canvas id="activityChart" width="400" height="200"></canvas>
                                 </div>
                             </div>
                         </div>
@@ -1793,19 +1821,19 @@
                                 <h3 class="card-title">Quick Actions</h3>
                             </div>
                             <div class="card-body" style="display: flex; flex-direction: column; gap: 1rem;">
-                                <button class="btn btn-primary">
+                                <button class="btn btn-primary" id="addEmployeeBtn" onclick="handleQuickAction('employees', 'addEmployee');">
                                     <i class="fas fa-plus"></i>
                                     Add New Employee
                                 </button>
-                                <button class="btn btn-success">
+                                <button class="btn btn-success" id="registerCandidateBtn" onclick="handleQuickAction('candidates', 'registerCandidate');">
                                     <i class="fas fa-user-plus"></i>
                                     Register Candidate
                                 </button>
-                                <button class="btn btn-warning">
+                                <button class="btn btn-warning" id="postJobBtn" onclick="handleQuickAction('jobs', 'postJob');">
                                     <i class="fas fa-briefcase"></i>
                                     Post New Job
                                 </button>
-                                <button class="btn btn-secondary">
+                                <button class="btn btn-secondary" id="scheduleInterviewBtn" onclick="handleQuickAction('schedule', 'scheduleInterview');">
                                     <i class="fas fa-calendar-plus"></i>
                                     Schedule Interview
                                 </button>
@@ -1862,7 +1890,7 @@
                 <section id="employees-section" class="section">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
                         <h2 style="font-size: 1.5rem; font-weight: 600;">Employee Management</h2>
-                        <button class="btn btn-primary" id="addEmployeeBtn">
+                        <button class="btn btn-primary" id="employeeSectionAddBtn">
                             <i class="fas fa-plus"></i>
                             Add Employee
                         </button>
@@ -2583,6 +2611,172 @@
         </div>
     </div>
 
+    <!-- Quick Actions Modals -->
+    <!-- Add Employee Modal -->
+    <div id="addEmployeeModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Add New Employee</h3>
+                <button type="button" class="close-btn" onclick="closeAddEmployeeModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="addEmployeeForm">
+                    <div class="form-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                        <div class="form-group">
+                            <label for="empName">Full Name</label>
+                            <input type="text" id="empName" name="empName" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="empEmail">Email</label>
+                            <input type="email" id="empEmail" name="empEmail" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="empPhone">Phone</label>
+                            <input type="tel" id="empPhone" name="empPhone" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="empDepartment">Department</label>
+                            <select id="empDepartment" name="empDepartment" required>
+                                <option value="">Select Department</option>
+                                <option value="Human Resources">Human Resources</option>
+                                <option value="Technology">Technology</option>
+                                <option value="Marketing">Marketing</option>
+                                <option value="Finance">Finance</option>
+                                <option value="Operations">Operations</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="empPosition">Position</label>
+                            <input type="text" id="empPosition" name="empPosition" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="empStartDate">Start Date</label>
+                            <input type="date" id="empStartDate" name="empStartDate" required>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="closeAddEmployeeModal()">Cancel</button>
+                <button type="submit" form="addEmployeeForm" class="btn btn-primary">Add Employee</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Post Job Modal -->
+    <div id="postJobModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Post New Job</h3>
+                <button type="button" class="close-btn" onclick="closePostJobModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="postJobForm">
+                    <div class="form-group">
+                        <label for="jobTitle">Job Title</label>
+                        <input type="text" id="jobTitle" name="jobTitle" required>
+                    </div>
+                    <div class="form-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                        <div class="form-group">
+                            <label for="jobDepartment">Department</label>
+                            <select id="jobDepartment" name="jobDepartment" required>
+                                <option value="">Select Department</option>
+                                <option value="Human Resources">Human Resources</option>
+                                <option value="Technology">Technology</option>
+                                <option value="Marketing">Marketing</option>
+                                <option value="Finance">Finance</option>
+                                <option value="Operations">Operations</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="jobType">Employment Type</label>
+                            <select id="jobType" name="jobType" required>
+                                <option value="">Select Type</option>
+                                <option value="Full-time">Full-time</option>
+                                <option value="Part-time">Part-time</option>
+                                <option value="Contract">Contract</option>
+                                <option value="Internship">Internship</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="jobLocation">Location</label>
+                            <input type="text" id="jobLocation" name="jobLocation" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="jobSalary">Salary Range</label>
+                            <input type="text" id="jobSalary" name="jobSalary" placeholder="e.g., $50,000 - $70,000">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="jobDescription">Job Description</label>
+                        <textarea id="jobDescription" name="jobDescription" rows="4" required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="jobRequirements">Requirements</label>
+                        <textarea id="jobRequirements" name="jobRequirements" rows="3"></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="closePostJobModal()">Cancel</button>
+                <button type="submit" form="postJobForm" class="btn btn-warning">Post Job</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Schedule Interview Modal -->
+    <div id="scheduleModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Schedule Interview</h3>
+                <button type="button" class="close-btn" onclick="closeScheduleModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="scheduleForm">
+                    <div class="form-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                        <div class="form-group">
+                            <label for="candidateName">Candidate Name</label>
+                            <input type="text" id="candidateName" name="candidateName" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="candidateEmail">Candidate Email</label>
+                            <input type="email" id="candidateEmail" name="candidateEmail" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="interviewDate">Interview Date</label>
+                            <input type="date" id="interviewDate" name="interviewDate" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="interviewTime">Interview Time</label>
+                            <input type="time" id="interviewTime" name="interviewTime" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="interviewType">Interview Type</label>
+                            <select id="interviewType" name="interviewType" required>
+                                <option value="">Select Type</option>
+                                <option value="Phone">Phone Interview</option>
+                                <option value="Video">Video Interview</option>
+                                <option value="In-person">In-person Interview</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="interviewer">Interviewer</label>
+                            <input type="text" id="interviewer" name="interviewer" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="interviewNotes">Notes</label>
+                        <textarea id="interviewNotes" name="interviewNotes" rows="3" placeholder="Any special instructions or notes..."></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="closeScheduleModal()">Cancel</button>
+                <button type="submit" form="scheduleForm" class="btn btn-success">Schedule Interview</button>
+            </div>
+        </div>
+    </div>
+
     <script>
         // Authentication check - must be at the top
         document.addEventListener('DOMContentLoaded', function() {
@@ -2677,7 +2871,7 @@
                 this.loadAllData();
             }            initializeEventListeners() {
                 // Add button listeners
-                document.getElementById('addEmployeeBtn')?.addEventListener('click', () => this.openCreateModal('employee'));
+                document.getElementById('employeeSectionAddBtn')?.addEventListener('click', () => this.openCreateModal('employee'));
                 document.getElementById('addCandidateBtn')?.addEventListener('click', () => this.openCreateModal('candidate'));
                 document.getElementById('addEmployerBtn')?.addEventListener('click', () => this.openCreateModal('employer'));
                 document.getElementById('addJobBtn')?.addEventListener('click', () => this.openCreateModal('job'));
@@ -4068,9 +4262,510 @@
             }
         }
     </script>
-      <!-- jQuery and Bootstrap JS -->
+      <!-- Chart.js for dashboard analytics -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+    
+    <!-- jQuery and Bootstrap JS -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Dashboard Custom Functions -->
+    <script>
+        // Initialize Dashboard
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🚀 Dashboard initializing...');
+            
+            try {
+                // Show dashboard section by default
+                showSection('dashboard');
+                
+                // Initialize section navigation
+                initializeSectionNavigation();
+                
+                // Setup form handlers
+                setupFormHandlers();
+                
+                // Initialize Chart (with a slight delay to ensure DOM is ready)
+                setTimeout(() => {
+                    initializeActivityChart();
+                }, 100);
+                
+                // Initialize all modules
+                if (typeof DashboardAnalytics !== 'undefined') {
+                    console.log('Initializing DashboardAnalytics...');
+                    DashboardAnalytics.init();
+                } else {
+                    console.warn('DashboardAnalytics not available');
+                }
+                
+                if (typeof DashboardManager !== 'undefined') {
+                    console.log('Initializing DashboardManager...');
+                    DashboardManager.init();
+                } else {
+                    console.warn('DashboardManager not available');
+                }
+                
+                console.log('✅ Dashboard initialized successfully');
+            } catch (error) {
+                console.error('Error initializing dashboard:', error);
+            }
+        });
+        
+        // Activity Chart Implementation
+        // Handle quick action buttons to prevent double popups and stay on dashboard
+        function handleQuickAction(section, action) {
+            console.log(`Quick action: ${action} in section ${section}`);
+            
+            // Store the current section so we can return to it after modal operations
+            window.currentSectionBeforeAction = getCurrentSection();
+            
+            // Perform the specific action without switching sections
+            switch(action) {
+                case 'addEmployee':
+                    showAddEmployeeModal(); 
+                    break;
+                case 'registerCandidate':
+                    if (typeof CandidateProfilesAPI !== 'undefined' && CandidateProfilesAPI.createCandidate) {
+                        CandidateProfilesAPI.createCandidate();
+                    } else {
+                        console.error('CandidateProfilesAPI not available');
+                        alert('Candidate registration feature is not available');
+                    }
+                    break;
+                case 'postJob':
+                    showAddJobModal();
+                    break;
+                case 'scheduleInterview':
+                    showScheduleModal();
+                    break;
+                default:
+                    console.error('Unknown action:', action);
+            }
+        }
+        
+        // Function to get current visible section
+        function getCurrentSection() {
+            const visibleSection = document.querySelector('.section[style*="display: block"]');
+            if (visibleSection) {
+                const id = visibleSection.id;
+                return id.replace('-section', '');
+            }
+            return 'dashboard'; // Default to dashboard if no section is visible
+        }
+        
+        function initializeActivityChart() {
+            console.log('Initializing activity chart...');
+            const canvas = document.getElementById('activityChart');
+            if (!canvas) {
+                console.warn('Activity chart canvas not found');
+                return;
+            }
+            
+            try {
+                const ctx = canvas.getContext('2d');
+                if (!ctx) {
+                    console.warn('Could not get canvas context');
+                    return;
+                }
+                
+                console.log('Canvas context obtained, creating chart...');
+                
+                // Sample data for the activity chart
+                const activityData = {
+                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+                    datasets: [{
+                        label: 'Employees Added',
+                        data: [12, 19, 8, 15, 22, 18],
+                        borderColor: '#8B5CF6',
+                        backgroundColor: 'rgba(139, 92, 246, 0.1)',
+                        borderWidth: 3,
+                        fill: true,
+                        tension: 0.4
+                    }, {
+                        label: 'Candidates Registered',
+                        data: [8, 12, 15, 20, 18, 25],
+                        borderColor: '#10B981',
+                        backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                        borderWidth: 3,
+                        fill: true,
+                        tension: 0.4
+                    }, {
+                        label: 'Jobs Posted',
+                        data: [3, 5, 4, 7, 6, 8],
+                        borderColor: '#F59E0B',
+                        backgroundColor: 'rgba(245, 158, 11, 0.1)',
+                        borderWidth: 3,
+                        fill: true,
+                        tension: 0.4
+                    }]
+                };
+                
+                if (typeof Chart === 'undefined') {
+                    console.error('Chart.js is not loaded');
+                    
+                    // Add fallback content if Chart.js fails to load
+                    const container = canvas.parentElement;
+                    container.innerHTML = `
+                        <div style="height: 200px; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center;">
+                            <i class="fas fa-chart-line" style="font-size: 3rem; margin-bottom: 1rem; color: #8B5CF6;"></i>
+                            <p>Activity data visualization</p>
+                            <p style="color: #64748B; font-size: 0.9rem;">Recent activities show increasing employee and candidate registrations</p>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                // Create chart
+                window.activityChart = new Chart(ctx, {
+                    type: 'line',
+                    data: activityData,
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'top',
+                                labels: {
+                                    usePointStyle: true,
+                                    padding: 20
+                                }
+                            },
+                            tooltip: {
+                                backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                                titleColor: '#fff',
+                                bodyColor: '#fff',
+                                borderColor: '#8B5CF6',
+                                borderWidth: 1,
+                                cornerRadius: 8,
+                                displayColors: true
+                            }
+                        },
+                        scales: {
+                            x: {
+                                grid: {
+                                    color: 'rgba(0, 0, 0, 0.05)',
+                                    borderColor: 'rgba(0, 0, 0, 0.1)'
+                                }
+                            },
+                            y: {
+                                beginAtZero: true,
+                                grid: {
+                                    color: 'rgba(0, 0, 0, 0.05)',
+                                    borderColor: 'rgba(0, 0, 0, 0.1)'
+                                }
+                            }
+                        }
+                    }
+                });
+                
+                console.log('Activity chart created successfully');
+            } catch (error) {
+                console.error('Error creating chart:', error);
+                
+                // Add fallback content if chart creation fails
+                const container = canvas.parentElement;
+                container.innerHTML = `
+                    <div style="height: 200px; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center;">
+                        <i class="fas fa-chart-line" style="font-size: 3rem; margin-bottom: 1rem; color: #8B5CF6;"></i>
+                        <p>Activity data visualization</p>
+                        <p style="color: #64748B; font-size: 0.9rem;">Recent activities show increasing employee and candidate registrations</p>
+                    </div>
+                `;
+            }
+        }
+        
+        // Section Navigation Functions
+        function initializeSectionNavigation() {
+            const navLinks = document.querySelectorAll('.nav-link[data-section]');
+            navLinks.forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const section = this.getAttribute('data-section');
+                    showSection(section);
+                    
+                    // Update active nav link
+                    navLinks.forEach(l => l.classList.remove('active'));
+                    this.classList.add('active');
+                });
+            });
+        }
+        
+        function showSection(sectionName) {
+            console.log(`🔄 Switching to section: ${sectionName}`);
+            
+            // Hide all sections
+            const sections = document.querySelectorAll('.section');
+            sections.forEach(section => {
+                section.style.display = 'none';
+            });
+            
+            // Show target section
+            const targetSection = document.getElementById(sectionName + '-section');
+            if (targetSection) {
+                targetSection.style.display = 'block';
+                console.log(`✅ Section ${sectionName} displayed`);
+                
+                // Initialize section-specific functionality
+                initializeSectionContent(sectionName);
+            } else {
+                console.warn(`⚠️ Section ${sectionName} not found`);
+            }
+            
+            // Update page title
+            const titles = {
+                dashboard: 'NexStaff Admin Dashboard',
+                employees: 'Employee Management - NexStaff',
+                candidates: 'Candidate Management - NexStaff',
+                employers: 'Employer Management - NexStaff',
+                jobs: 'Job Management - NexStaff',
+                applications: 'Application Management - NexStaff',
+                schedule: 'Schedule Management - NexStaff',
+                settings: 'Settings - NexStaff'
+            };
+            
+            if (titles[sectionName]) {
+                document.title = titles[sectionName];
+            }
+        }
+        
+        function initializeSectionContent(sectionName) {
+            switch(sectionName) {
+                case 'candidates':
+                    if (typeof CandidateProfilesAPI !== 'undefined') {
+                        setTimeout(() => CandidateProfilesAPI.init(), 100);
+                    }
+                    break;
+                case 'employees':
+                    if (typeof EmployeeManagementAPI !== 'undefined') {
+                        // Initialize employee management
+                        console.log('Initializing employee management...');
+                    }
+                    break;
+                default:
+                    console.log(`No specific initialization for ${sectionName}`);
+            }
+        }
+        
+        // Quick Action Button Functions
+        // Track modal state to prevent duplicate opens
+        window.modalState = {
+            employeeModalOpen: false
+        };
+        
+        function showAddEmployeeModal() {
+            // Prevent double modal opening
+            if (window.modalState.employeeModalOpen) {
+                console.log('Employee modal already open, ignoring duplicate call');
+                return;
+            }
+            
+            const modal = document.getElementById('addEmployeeModal');
+            if (modal) {
+                // Store current section before showing modal
+                if (!window.currentSectionBeforeAction) {
+                    window.currentSectionBeforeAction = getCurrentSection();
+                }
+                modal.classList.add('active');
+                window.modalState.employeeModalOpen = true;
+                
+                // Reset form
+                document.getElementById('addEmployeeForm').reset();
+            }
+        }
+        
+        function closeAddEmployeeModal() {
+            const modal = document.getElementById('addEmployeeModal');
+            if (modal) {
+                modal.classList.remove('active');
+                // Reset modal state
+                window.modalState.employeeModalOpen = false;
+                // Restore original section
+                restoreSection();
+            }
+        }
+        
+        function showAddJobModal() {
+            const modal = document.getElementById('postJobModal');
+            if (modal) {
+                // Store current section before showing modal
+                if (!window.currentSectionBeforeAction) {
+                    window.currentSectionBeforeAction = getCurrentSection();
+                }
+                modal.classList.add('active');
+                // Reset form
+                document.getElementById('postJobForm').reset();
+            }
+        }
+        
+        function closePostJobModal() {
+            const modal = document.getElementById('postJobModal');
+            if (modal) {
+                modal.classList.remove('active');
+                // Restore original section
+                restoreSection();
+            }
+        }
+        
+        function showScheduleModal() {
+            const modal = document.getElementById('scheduleModal');
+            if (modal) {
+                // Store current section before showing modal
+                if (!window.currentSectionBeforeAction) {
+                    window.currentSectionBeforeAction = getCurrentSection();
+                }
+                modal.classList.add('active');
+                // Reset form
+                document.getElementById('scheduleForm').reset();
+                // Set minimum date to today
+                const dateInput = document.getElementById('interviewDate');
+                if (dateInput) {
+                    dateInput.min = new Date().toISOString().split('T')[0];
+                }
+            }
+        }
+        
+        function closeScheduleModal() {
+            const modal = document.getElementById('scheduleModal');
+            if (modal) {
+                modal.classList.remove('active');
+                // Restore original section
+                restoreSection();
+            }
+        }
+        
+        // Helper function to restore the original section after modal closes
+        function restoreSection() {
+            if (window.currentSectionBeforeAction) {
+                showSection(window.currentSectionBeforeAction);
+                
+                // Update active navigation link to match
+                document.querySelectorAll('.nav-link').forEach(link => {
+                    link.classList.remove('active');
+                    if (link.getAttribute('data-section') === window.currentSectionBeforeAction) {
+                        link.classList.add('active');
+                    }
+                });
+                
+                // Reset the stored section
+                window.currentSectionBeforeAction = null;
+            }
+        }
+        
+        // Form submission handlers
+        function setupFormHandlers() {
+            console.log('Setting up form handlers...');
+            
+            // Add Employee Form Handler
+            const addEmployeeForm = document.getElementById('addEmployeeForm');
+            if (addEmployeeForm) {
+                addEmployeeForm.onsubmit = function(e) {
+                    e.preventDefault();
+                    const formData = new FormData(this);
+                    const employeeData = Object.fromEntries(formData);
+                    
+                    console.log('Adding new employee:', employeeData);
+                    
+                    // Here you would typically send the data to your backend
+                    // For now, we'll just show a success message
+                    alert('Employee added successfully!');
+                    closeAddEmployeeModal(); // This already restores the original section
+                };
+                console.log('Employee form handler attached');
+            }
+            
+            // Post Job Form Handler
+            const postJobForm = document.getElementById('postJobForm');
+            if (postJobForm) {
+                postJobForm.onsubmit = function(e) {
+                    e.preventDefault();
+                    const formData = new FormData(this);
+                    const jobData = Object.fromEntries(formData);
+                    
+                    console.log('Posting new job:', jobData);
+                    
+                    // Here you would typically send the data to your backend
+                    alert('Job posted successfully!');
+                    closePostJobModal(); // This already restores the original section
+                };
+                console.log('Job form handler attached');
+            }
+            
+            // Schedule Interview Form Handler
+            const scheduleForm = document.getElementById('scheduleForm');
+            if (scheduleForm) {
+                scheduleForm.onsubmit = function(e) {
+                    e.preventDefault();
+                    const formData = new FormData(this);
+                    const scheduleData = Object.fromEntries(formData);
+                    
+                    console.log('Scheduling interview:', scheduleData);
+                    
+                    // Here you would typically send the data to your backend
+                    alert('Interview scheduled successfully!');
+                    closeScheduleModal(); // This already restores the original section
+                };
+                console.log('Schedule form handler attached');
+            }
+            
+            // Close modals when clicking outside
+            document.addEventListener('click', function(e) {
+                if (e.target.classList.contains('modal')) {
+                    e.target.classList.remove('active');
+                    
+                    // Reset all modal states
+                    if (window.modalState) {
+                        window.modalState.employeeModalOpen = false;
+                    }
+                    
+                    // Restore the original section
+                    restoreSection();
+                }
+            });
+            
+            console.log('Form handlers setup complete');
+        }
+        
+        // Navigation helper functions (from existing code)
+        function handleLogout(e) {
+            e.preventDefault();
+            if (confirm('Are you sure you want to logout?')) {
+                localStorage.removeItem('nexstaff_user');
+                localStorage.removeItem('nexstaff_auth_token');
+                window.location.href = '../login.html';
+            }
+        }
+        
+        function toggleMobileMenu() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('overlay');
+            
+            if (sidebar) sidebar.classList.toggle('open');
+            if (overlay) overlay.classList.toggle('active');
+        }
+        
+        function closeMobileMenu() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('overlay');
+            
+            if (sidebar) sidebar.classList.remove('open');
+            if (overlay) overlay.classList.remove('active');
+        }
+        
+        // Window resize handler
+        window.addEventListener('resize', function() {
+            const isMobile = window.innerWidth <= 768;
+            if (!isMobile) {
+                closeMobileMenu();
+            }
+        });
+    </script>
+    
+    <!-- Dashboard Analytics and Management Scripts -->
+    <script src="js/dashboardAnalytics.js"></script>
+    <script src="js/dashboardManager.js"></script>
+    <script src="js/employeeManagement.js"></script>
+    <script src="js/jobManagement.js"></script>
+    <script src="js/schedule.js"></script>
     
     <!-- Candidate Profiles Management -->
     <script src="js/candidateProfiles.js"></script>
