@@ -2,11 +2,782 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NexStaff - Your Next Generation Staffing Solution</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">    <title>NexStaff - Your Next Generation Staffing Solution</title>
     <link rel="stylesheet" href="./client/css/landing.css">
     <link rel="icon" href="./client/img/logo.png" type="image/png">
     <link href="https://unpkg.com/ionicons@5.5.2/dist/css/ionicons.min.css" rel="stylesheet">
+    
+    <style>
+        /* Application Modal Styles */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(5px);
+            z-index: 10000;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+            opacity: 1;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .modal-container {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 600px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            transform: scale(0.9);
+            transition: transform 0.3s ease;
+        }
+
+        .modal-overlay.active .modal-container {
+            transform: scale(1);
+        }
+
+        .modal-header {
+            padding: 24px 32px 16px;
+            border-bottom: 1px solid #e2e8f0;
+            position: relative;
+        }
+
+        .modal-header h2 {
+            margin: 0 0 8px 0;
+            color: #1a202c;
+            font-size: 24px;
+            font-weight: 600;
+        }
+
+        .company-name {
+            color: #8B5CF6;
+            font-size: 16px;
+            font-weight: 500;
+            margin: 0;
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            background: none;
+            border: none;
+            font-size: 24px;
+            color: #64748b;
+            cursor: pointer;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            transition: all 0.2s ease;
+        }
+
+        .modal-close:hover {
+            background: #f1f5f9;
+            color: #1a202c;
+        }
+
+        .modal-body {
+            padding: 24px 32px;
+        }
+
+        .form-section {
+            margin-bottom: 32px;
+        }
+
+        .form-section h3 {
+            color: #1a202c;
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .form-section h3 ion-icon {
+            color: #8B5CF6;
+            font-size: 20px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 6px;
+            color: #374151;
+            font-weight: 500;
+            font-size: 14px;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            font-size: 14px;
+            color: #1a202c;
+            background: white;
+            transition: all 0.2s ease;
+            box-sizing: border-box;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #8B5CF6;
+            box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        /* File Upload Styles */
+        .file-upload-area {
+            position: relative;
+            border: 2px dashed #d1d5db;
+            border-radius: 8px;
+            padding: 24px;
+            text-align: center;
+            background: #f8fafc;
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+
+        .file-upload-area:hover {
+            border-color: #8B5CF6;
+            background: #f3e8ff;
+        }
+
+        .file-upload-area input[type="file"] {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            cursor: pointer;
+        }
+
+        .file-upload-content ion-icon {
+            font-size: 32px;
+            color: #8B5CF6;
+            margin-bottom: 8px;
+        }
+
+        .file-upload-content p {
+            margin: 0 0 4px 0;
+            color: #4b5563;
+        }
+
+        .upload-link {
+            color: #8B5CF6;
+            font-weight: 500;
+        }
+
+        .file-upload-content small {
+            color: #6b7280;
+            font-size: 12px;
+        }
+
+        .file-info {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px;
+            background: #e0f2fe;
+            border-radius: 8px;
+            border: 1px solid #0ea5e9;
+        }
+
+        .file-info ion-icon {
+            color: #0ea5e9;
+            font-size: 20px;
+        }
+
+        .file-name {
+            flex: 1;
+            font-weight: 500;
+            color: #0c4a6e;
+        }
+
+        .file-size {
+            font-size: 12px;
+            color: #075985;
+        }
+
+        .char-count {
+            display: block;
+            text-align: right;
+            margin-top: 4px;
+            font-size: 12px;
+            color: #6b7280;
+        }
+
+        /* Checkbox Styles */
+        .checkbox-group {
+            margin-bottom: 16px;
+        }
+
+        .checkbox-label {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            cursor: pointer;
+            font-size: 14px;
+            color: #374151;
+            line-height: 1.5;
+        }
+
+        .checkbox-label input[type="checkbox"] {
+            display: none;
+        }
+
+        .checkmark {
+            width: 18px;
+            height: 18px;
+            border: 2px solid #d1d5db;
+            border-radius: 4px;
+            background: white;
+            position: relative;
+            flex-shrink: 0;
+            transition: all 0.2s ease;
+        }
+
+        .checkbox-label input[type="checkbox"]:checked + .checkmark {
+            background: #8B5CF6;
+            border-color: #8B5CF6;
+        }
+
+        .checkbox-label input[type="checkbox"]:checked + .checkmark::after {
+            content: '✓';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: white;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .modal-footer {
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+            padding: 24px 32px;
+            border-top: 1px solid #e2e8f0;
+            background: #f8fafc;
+            border-radius: 0 0 16px 16px;
+        }
+
+        .btn-primary,
+        .btn-secondary {
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-weight: 500;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            border: none;
+        }
+
+        .btn-primary {
+            background: #8B5CF6;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #7c3aed;
+            transform: translateY(-1px);
+        }
+
+        .btn-primary:disabled {
+            background: #9ca3af;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-secondary {
+            background: #f1f5f9;
+            color: #64748b;
+            border: 1px solid #e2e8f0;
+        }
+
+        .btn-secondary:hover {
+            background: #e2e8f0;
+            color: #475569;
+        }
+
+        /* Success Message */
+        .success-message {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: white;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .success-content {
+            text-align: center;
+            padding: 48px 32px;
+        }
+
+        .success-content ion-icon {
+            font-size: 64px;
+            color: #10b981;
+            margin-bottom: 16px;
+        }
+
+        .success-content h3 {
+            color: #1a202c;
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .success-content p {
+            color: #6b7280;
+            margin-bottom: 24px;
+            line-height: 1.5;
+        }
+
+        /* Approved Candidates Section */
+        .approved-candidates {
+            padding: 4rem 2rem;
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            margin: 2rem 0;
+        }
+
+        .section-header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .section-header h2 {
+            font-size: 2.5rem;
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 1rem;
+            font-weight: 700;
+        }
+
+        .section-header p {
+            font-size: 1.2rem;
+            color: var(--text-color);
+            opacity: 0.8;
+            margin-bottom: 1rem;
+        }
+
+        .candidate-count {
+            display: inline-block;
+            background: var(--primary-color);
+            color: white;
+            padding: 0.5rem 1.5rem;
+            border-radius: 25px;
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        .candidates-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2rem;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .candidate-card {
+            background: white;
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            border: 1px solid rgba(139, 92, 246, 0.1);
+        }
+
+        .candidate-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 30px rgba(139, 92, 246, 0.2);
+        }
+
+        .candidate-avatar {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: var(--gradient-primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1.5rem;
+            margin: 0 auto 1.5rem;
+        }
+
+        .candidate-avatar span {
+            color: white;
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        .candidate-info {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .candidate-info h4 {
+            font-size: 1.3rem;
+            margin-bottom: 0.5rem;
+            color: var(--text-color);
+            font-weight: 600;
+        }
+
+        .candidate-role {
+            color: var(--primary-color);
+            font-weight: 600;
+            margin-bottom: 0.5rem !important;
+            font-size: 1rem;
+        }
+
+        .candidate-experience {
+            color: var(--text-color);
+            opacity: 0.7;
+            margin-bottom: 1rem !important;
+            font-size: 0.9rem;
+        }
+
+        .candidate-skills {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            justify-content: center;
+        }
+
+        .skill-tag {
+            background: rgba(139, 92, 246, 0.1);
+            color: var(--primary-color);
+            padding: 0.3rem 0.8rem;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .skill-more {
+            background: rgba(107, 114, 128, 0.1);
+            color: #6B7280;
+            padding: 0.3rem 0.8rem;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .candidate-actions {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+        }
+
+        .btn-contact,
+        .btn-view {
+            flex: 1;
+            padding: 0.75rem 1rem;
+            border-radius: 12px;
+            font-weight: 600;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+
+        .btn-contact {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .btn-contact:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+        }
+
+        .btn-view {
+            background: rgba(139, 92, 246, 0.1);
+            color: var(--primary-color);
+            border: 1px solid rgba(139, 92, 246, 0.3);
+        }
+
+        .btn-view:hover {
+            background: rgba(139, 92, 246, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .view-all-container {
+            text-align: center;
+            margin-top: 3rem;
+        }
+
+        .btn-view-all {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 1rem 2rem;
+            background: var(--gradient-primary);
+            color: white;
+            text-decoration: none;
+            border-radius: 25px;
+            font-weight: 600;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            box-shadow: 0 4px 15px rgba(139, 92, 246, 0.3);
+        }
+
+        .btn-view-all:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(139, 92, 246, 0.4);
+        }
+
+        .no-candidates {
+            text-align: center;
+            padding: 4rem 2rem;
+            color: var(--text-color);
+            opacity: 0.7;
+        }
+
+        .no-candidates ion-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+        }
+
+        .no-candidates h3 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        /* Candidate Modal */
+        .candidate-modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(5px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .candidate-modal {
+            background: white;
+            border-radius: 20px;
+            max-width: 600px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            animation: modalSlideIn 0.3s ease-out;
+        }
+
+        .candidate-modal .modal-header {
+            padding: 2rem 2rem 1rem;
+            border-bottom: 1px solid #e5e7eb;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .candidate-modal .modal-header h3 {
+            font-size: 1.5rem;
+            color: var(--text-color);
+            margin: 0;
+        }
+
+        .candidate-modal .close-btn {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #6b7280;
+            padding: 0.5rem;
+            border-radius: 8px;
+            transition: background 0.2s ease;
+        }
+
+        .candidate-modal .close-btn:hover {
+            background: #f3f4f6;
+        }
+
+        .candidate-modal .modal-body {
+            padding: 2rem;
+        }
+
+        .candidate-detail {
+            margin-bottom: 2rem;
+        }
+
+        .detail-row {
+            display: flex;
+            margin-bottom: 1rem;
+            align-items: flex-start;
+        }
+
+        .detail-row .label {
+            font-weight: 600;
+            color: var(--text-color);
+            min-width: 120px;
+            margin-right: 1rem;
+        }
+
+        .detail-row .value {
+            color: var(--text-color);
+            opacity: 0.8;
+        }
+
+        .detail-row .skills-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .modal-actions .btn-primary,
+        .modal-actions .btn-secondary {
+            flex: 1;
+            padding: 0.75rem 1.5rem;
+            border-radius: 12px;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+        }
+
+        .modal-actions .btn-primary {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .modal-actions .btn-primary:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+        }
+
+        .modal-actions .btn-secondary {
+            background: rgba(139, 92, 246, 0.1);
+            color: var(--primary-color);
+            border: 1px solid rgba(139, 92, 246, 0.3);
+        }
+
+        .modal-actions .btn-secondary:hover {
+            background: rgba(139, 92, 246, 0.2);
+            transform: translateY(-2px);
+        }
+
+        @keyframes modalSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .modal-container {
+                margin: 16px;
+                max-height: calc(100vh - 32px);
+            }
+            
+            .modal-header,
+            .modal-body,
+            .modal-footer {
+                padding-left: 20px;
+                padding-right: 20px;
+            }
+            
+            .form-row {
+                grid-template-columns: 1fr;
+                gap: 12px;
+            }
+            
+            .modal-footer {
+                flex-direction: column-reverse;
+            }
+            
+            .btn-primary,
+            .btn-secondary {
+                width: 100%;
+                justify-content: center;
+            }
+            
+            .candidates-grid {
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+            }
+            
+            .candidate-actions {
+                flex-direction: column;
+            }
+            
+            .modal-actions {
+                flex-direction: column;
+            }
+            
+            .section-header h2 {
+                font-size: 2rem;
+            }
+        }
+    </style>
 </head>
 <body>
     <header>
@@ -89,13 +860,150 @@
                     <li>Automated interview scheduling</li>
                     <li>Analytics and reporting dashboard</li>                </ul>
                 <span class="feature-link">More details <ion-icon name="arrow-forward-outline"></ion-icon></span>
-            </a>
+            </a>        </section>
+
+        <!-- Approved Candidates Section -->
+        <section class="approved-candidates">
+            <div id="approvedCandidatesSection">
+                <!-- Approved candidates will be loaded here -->
+            </div>
         </section>
-    </main>    <!-- Dynamic Footer -->
+    </main><!-- Dynamic Footer -->
     <div id="footer-container"></div>
     
-    <!-- Scripts -->
+    <!-- Application Modal -->
+    <div id="applicationModal" class="modal-overlay">
+        <div class="modal-container">
+            <div class="modal-header">
+                <h2 id="modal-job-title">Apply for Position</h2>
+                <p id="modal-company-name" class="company-name"></p>
+                <button type="button" class="modal-close" onclick="closeApplicationModal()">&times;</button>
+            </div>
+            
+            <form id="applicationForm" class="modal-body">
+                <!-- Hidden fields for job information -->
+                <input type="hidden" id="jobId" name="jobId">
+                <input type="hidden" id="jobTitle" name="jobTitle">
+                <input type="hidden" id="companyName" name="companyName">
+                
+                <!-- Personal Information -->
+                <div class="form-section">
+                    <h3><ion-icon name="person-outline"></ion-icon> Personal Information</h3>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="fullName">Full Name *</label>
+                            <input type="text" id="fullName" name="fullName" required placeholder="Enter your full name">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="email">Email Address *</label>
+                            <input type="email" id="email" name="email" required placeholder="your.email@example.com">
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="phone">Phone Number *</label>
+                            <input type="tel" id="phone" name="phone" required placeholder="+1 (555) 123-4567">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="availability">Availability</label>
+                            <select id="availability" name="availability">
+                                <option value="Immediate">Immediate</option>
+                                <option value="2 weeks">2 weeks notice</option>
+                                <option value="1 month">1 month</option>
+                                <option value="2 months">2 months</option>
+                                <option value="Other">Other</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Professional Information -->
+                <div class="form-section">
+                    <h3><ion-icon name="briefcase-outline"></ion-icon> Professional Information</h3>
+                    
+                    <div class="form-group">
+                        <label for="expectedSalary">Expected Salary</label>
+                        <input type="text" id="expectedSalary" name="expectedSalary" placeholder="e.g., $80,000 - $100,000">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="portfolio">Portfolio/LinkedIn URL</label>
+                        <input type="url" id="portfolio" name="portfolio" placeholder="https://your-portfolio.com">
+                    </div>
+                </div>
+                
+                <!-- Resume Upload -->
+                <div class="form-section">
+                    <h3><ion-icon name="document-outline"></ion-icon> Resume & Cover Letter</h3>
+                    
+                    <div class="form-group">
+                        <label for="resume">Resume *</label>
+                        <div class="file-upload-area" id="resumeUploadArea">
+                            <input type="file" id="resume" name="resume" accept=".pdf,.doc,.docx" required>
+                            <div class="file-upload-content">
+                                <ion-icon name="cloud-upload-outline"></ion-icon>
+                                <p>Drop your resume here or <span class="upload-link">click to browse</span></p>
+                                <small>Supported formats: PDF, DOC, DOCX (Max 5MB)</small>
+                            </div>
+                            <div class="file-info" id="fileInfo" style="display: none;">
+                                <ion-icon name="document"></ion-icon>
+                                <span class="file-name"></span>
+                                <span class="file-size"></span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="coverLetter">Cover Letter</label>
+                        <textarea id="coverLetter" name="coverLetter" rows="5" 
+                                  placeholder="Tell us why you're interested in this position and what makes you a great fit..."></textarea>
+                        <small class="char-count">0/500 characters</small>
+                    </div>
+                </div>
+                
+                <!-- Consent -->
+                <div class="form-section">
+                    <div class="checkbox-group">
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="dataConsent" name="dataConsent" required>
+                            <span class="checkmark"></span>
+                            I consent to the processing of my personal data for recruitment purposes
+                        </label>
+                    </div>
+                </div>
+                
+                <div class="modal-footer">
+                    <button type="button" class="btn-secondary" onclick="closeApplicationModal()">
+                        <ion-icon name="close-outline"></ion-icon> Cancel
+                    </button>
+                    <button type="submit" class="btn-primary" id="submitApplication">
+                        <ion-icon name="paper-plane-outline"></ion-icon> Submit Application
+                    </button>
+                </div>
+            </form>
+            
+            <!-- Success Message -->
+            <div id="successMessage" class="success-message" style="display: none;">
+                <div class="success-content">
+                    <ion-icon name="checkmark-circle"></ion-icon>
+                    <h3>Application Submitted Successfully!</h3>
+                    <p>Thank you for your interest. We'll review your application and get back to you soon.</p>
+                    <button type="button" class="btn-primary" onclick="closeApplicationModal()">
+                        <ion-icon name="checkmark-outline"></ion-icon> Close
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+      <!-- Scripts -->
+    <script src="./client/js/dataManager.js"></script>
+    <script src="./client/js/approvedCandidates.js"></script>
     <script type="module" src="https://unpkg.com/ionicons@7.2.1/dist/ionicons/ionicons.esm.js"></script>
     <script nomodule src="https://unpkg.com/ionicons@7.2.1/dist/ionicons/ionicons.js"></script>
     <script src="./client/js/navigation.js"></script>
     <script src="./client/js/footer-loader.js"></script>
+    <script src="./client/js/application-modal.js"></script>

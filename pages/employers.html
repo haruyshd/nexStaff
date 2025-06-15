@@ -1,17 +1,20 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
+<head>    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Create Team - NexStaff</title>    <link rel="stylesheet" href="../client/css/landing.css">
+    <title>Employers - NexStaff</title>
+    <link rel="stylesheet" href="../client/css/landing.css">
     <link rel="icon" href="../client/img/logo.png" type="image/png">
     <link href="https://unpkg.com/ionicons@5.5.2/dist/css/ionicons.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    
     <!-- Add DataService script first -->
     <script src="../login/admin/js/dataService.js"></script>
-    <!-- Add employer profiles and team management -->
-    <script src="../login/admin/js/employerProfiles.js"></script>
-    <script src="../login/admin/js/teamManagement.js"></script>
-    <style>
+      <style>        /* Additional styles for employers page */
+        body {
+            padding-top: 80px; /* Account for fixed header */
+        }
+        
         .employers-section {
             max-width: 1200px;
             margin: 6rem auto 2rem;
@@ -31,240 +34,687 @@
             -webkit-background-clip: text;
             background-clip: text;
             -webkit-text-fill-color: transparent;
-        }
-
-        .intro-section p {
+        }        .intro-section p {
             font-size: 1.2rem;
             color: var(--text-color);
             opacity: 0.8;
             max-width: 800px;
-            margin: 0 auto;
-        }        /* Notification styles */
-        #notifications {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            z-index: 1000;
+            margin: 0 auto 2rem;
+        }
+
+        .cta-buttons {
             display: flex;
-            flex-direction: column;
-            gap: 10px;
-            max-width: 400px;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 2rem;
         }
 
-        .notification {
-            padding: 16px;
-            border-radius: 6px;
-            color: white;
-            font-size: 14px;
-            opacity: 0;
-            transform: translateX(100%);
-            animation: slideIn 0.3s forwards;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            transition: opacity 0.3s ease;
-        }
-
-        .notification-content {
-            display: flex;
-            align-items: flex-start;
-            justify-content: space-between;
-            gap: 12px;
-        }
-
-        .notification .message {
-            flex-grow: 1;
-            margin-right: 8px;
-            line-height: 1.4;
-        }
-
-        .notification .close-btn {
-            background: none;
+        .btn-become-employer,
+        .btn-learn-more {
+            padding: 1rem 2rem;
             border: none;
-            color: white;
-            font-size: 20px;
-            padding: 0;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: 600;
             cursor: pointer;
-            opacity: 0.8;
-            transition: opacity 0.2s;
-            line-height: 1;
-            width: 24px;
-            height: 24px;
+            transition: all 0.3s ease;
             display: flex;
             align-items: center;
+            gap: 0.5rem;
+            text-decoration: none;
+        }
+
+        .btn-become-employer {
+            background: var(--gradient-primary);
+            color: white;
+            box-shadow: 0 4px 15px rgba(146, 128, 253, 0.3);
+        }
+
+        .btn-become-employer:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(146, 128, 253, 0.4);
+        }
+
+        .btn-learn-more {
+            background: white;
+            color: var(--primary-color);
+            border: 2px solid var(--primary-color);
+        }
+
+        .btn-learn-more:hover {
+            background: var(--primary-color);
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        /* Tab Navigation */
+        .tab-navigation {
+            display: flex;
             justify-content: center;
-            border-radius: 50%;
+            margin-bottom: 2rem;
+            border-bottom: 2px solid #e2e8f0;
         }
 
-        .notification .close-btn:hover {
-            opacity: 1;
-            background-color: rgba(255,255,255,0.1);
+        .tab-btn {
+            background: none;
+            border: none;
+            padding: 1rem 2rem;
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text-color);
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s ease;
         }
 
-        .notification.success {
-            background-color: #4CAF50;
-            border-left: 4px solid #2E7D32;
+        .tab-btn:hover {
+            color: #007bff;
+            background: rgba(0, 123, 255, 0.05);
         }
 
-        .notification.error {
-            background-color: #f44336;
-            border-left: 4px solid #c62828;
+        .tab-btn.active {
+            color: #007bff;
+            border-bottom-color: #007bff;
+            background: rgba(0, 123, 255, 0.1);
         }
 
-        .notification.persistent {
-            animation: shake 0.5s ease-in-out;
+        /* Tab Content */
+        .tab-content {
+            display: none;
         }
 
-        @keyframes slideIn {
-            to {
-                opacity: 1;
-                transform: translateX(0);
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Section Headers */
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .section-header h2 {
+            margin: 0;
+            color: #1a202c;
+            font-size: 2rem;
+            font-weight: 700;
+        }        .search-filters {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .search-input,
+        .filter-select {
+            padding: 0.5rem 1rem;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            font-size: 1rem;
+        }        .clear-filters-btn,
+        .export-btn {
+            padding: 0.5rem 1rem;
+            background: #f3f4f6;
+            color: #6b7280;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.875rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.2s;
+        }
+
+        .clear-filters-btn:hover,
+        .export-btn:hover {
+            background: #e5e7eb;
+            color: #4b5563;
+        }
+
+        .export-btn {
+            background: #dbeafe;
+            color: #1e40af;
+            border-color: #93c5fd;
+        }
+
+        .export-btn:hover {
+            background: #bfdbfe;
+            color: #1d4ed8;
+        }        .employer-count {
+            font-size: 1rem;
+            font-weight: 400;
+            color: #6b7280;
+            margin-left: 0.5rem;
+        }
+
+        /* Modal Styles */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+            backdrop-filter: blur(4px);
+        }
+
+        .modal-overlay.show {
+            display: flex;
+            animation: modalFadeIn 0.3s ease-out;
+        }
+
+        @keyframes modalFadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 16px;
+            width: 90%;
+            max-width: 600px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+            animation: modalSlideIn 0.3s ease-out;
+        }
+
+        @keyframes modalSlideIn {
+            from { 
+                opacity: 0; 
+                transform: translateY(-20px) scale(0.95); 
+            }
+            to { 
+                opacity: 1; 
+                transform: translateY(0) scale(1); 
             }
         }
 
-        @keyframes shake {
-            0%, 100% { transform: translateX(0); }
-            25% { transform: translateX(-5px); }
-            75% { transform: translateX(5px); }
+        .modal-header {
+            padding: 2rem 2rem 1rem;
+            border-bottom: 1px solid #e2e8f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
 
-        /* Team form styles */
-        .team-form-container {
-            max-width: 800px;
-            margin: 2rem auto;
-            padding: 2rem;
-            background: white;
+        .modal-header h3 {
+            margin: 0;
+            color: #1a202c;
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: #6b7280;
+            cursor: pointer;
+            padding: 0.5rem;
             border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            transition: all 0.2s;
+        }
+
+        .close-btn:hover {
+            background: #f3f4f6;
+            color: #374151;
+        }
+
+        .modal-body {
+            padding: 2rem;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-bottom: 1rem;
         }
 
         .form-group {
-            margin-bottom: 1.5rem;
+            margin-bottom: 1rem;
         }
 
         .form-group label {
             display: block;
             margin-bottom: 0.5rem;
+            color: #374151;
             font-weight: 500;
-            color: #333;
         }
 
         .form-group input,
+        .form-group select,
         .form-group textarea {
             width: 100%;
             padding: 0.75rem;
-            border: 1px solid #ddd;
-            border-radius: 4px;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
             font-size: 1rem;
-            transition: border-color 0.3s ease;
+            transition: all 0.2s;
         }
 
         .form-group input:focus,
+        .form-group select:focus,
         .form-group textarea:focus {
             outline: none;
-            border-color: #007bff;
-            box-shadow: 0 0 0 2px rgba(0,123,255,0.25);
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(146, 128, 253, 0.1);
         }
 
-        .form-group input.error,
-        .form-group textarea.error {
-            border-color: #f44336;
+        .checkbox-group {
+            margin-bottom: 1.5rem;
         }
 
-        .submit-btn {
-            background: #007bff;
-            color: white;
+        .checkbox-label {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.75rem;
+            cursor: pointer;
+            margin-bottom: 0;
+        }
+
+        .checkbox-label input[type="checkbox"] {
+            width: auto;
+            margin: 0;
+        }
+
+        .checkbox-label a {
+            color: var(--primary-color);
+            text-decoration: none;
+        }
+
+        .checkbox-label a:hover {
+            text-decoration: underline;
+        }
+
+        .modal-footer {
+            padding: 1rem 2rem 2rem;
+            display: flex;
+            gap: 1rem;
+            justify-content: flex-end;
+        }
+
+        .btn-primary,
+        .btn-secondary {
+            padding: 0.75rem 1.5rem;
             border: none;
-            padding: 1rem 2rem;
-            border-radius: 4px;
+            border-radius: 8px;
             font-size: 1rem;
             font-weight: 500;
             cursor: pointer;
-            transition: background-color 0.3s ease;
-            width: 100%;
+            transition: all 0.2s;
         }
 
-        .submit-btn:hover {
+        .btn-primary {
+            background: var(--gradient-primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(146, 128, 253, 0.3);
+        }
+
+        .btn-secondary {
+            background: #f3f4f6;
+            color: #6b7280;
+        }
+
+        .btn-secondary:hover {
+            background: #e5e7eb;
+            color: #4b5563;
+        }
+
+        @media (max-width: 640px) {
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+            
+            .modal-content {
+                width: 95%;
+                margin: 1rem;
+            }
+            
+            .modal-header,
+            .modal-body,
+            .modal-footer {
+                padding: 1rem;
+            }
+            
+            .modal-footer {
+                flex-direction: column;
+            }
+        }/* Employers Grid */
+        .employers-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 2rem;
+            padding: 1rem 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .employer-card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            padding: 2rem;
+            margin-bottom: 2rem;
+            transition: all 0.3s ease;
+            border: 1px solid #e2e8f0;
+            animation: fadeInUp 0.4s ease-out;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .employer-card:hover {
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .employer-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        .company-info h3 {
+            margin: 0 0 0.5rem 0;
+            color: #1a202c;
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+
+        .industry {
+            background: #f3e8ff;
+            color: #8b5cf6;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+
+        .employer-status {
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .employer-status.active,
+        .employer-status.approved {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .employer-status.pending {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .employer-contact {
+            margin-bottom: 1.5rem;
+        }
+
+        .contact-info p {
+            margin: 0.5rem 0;
+            color: #4a5568;
+        }
+
+        .contact-info strong {
+            color: #2d3748;
+            font-weight: 600;
+        }
+
+        .contact-link {
+            color: #8b5cf6;
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+
+        .contact-link:hover {
+            color: #7c3aed;
+            text-decoration: underline;
+        }
+
+        .employer-description {
+            margin-bottom: 1.5rem;
+            padding: 1rem;
+            background: #f8fafc;
+            border-radius: 8px;
+            border-left: 4px solid #8b5cf6;
+        }
+
+        .employer-description h4 {
+            margin: 0 0 0.75rem 0;
+            color: #2d3748;
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+
+        .employer-description p {
+            margin: 0;
+            color: #4a5568;
+            line-height: 1.6;
+        }
+
+        .employer-actions {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .btn-view,
+        .btn-contact {
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            font-weight: 500;
+            text-decoration: none;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-view {
+            background: #8b5cf6;
+            color: white;
+        }
+
+        .btn-view:hover {
+            background: #7c3aed;
+            transform: translateY(-1px);
+        }
+
+        .btn-contact {
+            background: #e0e7ff;
+            color: #3730a3;
+        }
+
+        .btn-contact:hover {
+            background: #c7d2fe;
+            transform: translateY(-1px);
+        }        /* Loading and Empty States */
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+            background: #f8fafc;
+            border-radius: 12px;
+            border: 2px dashed #cbd5e0;
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        .empty-state h3 {
+            color: #4a5568;
+            margin-bottom: 1rem;
+        }
+
+        .empty-state p {
+            color: #718096;
+            margin-bottom: 1rem;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        .search-results-info {
+            margin-bottom: 1rem;
+            padding: 0.75rem 1rem;
+            background: #f0f9ff;
+            border: 1px solid #bae6fd;
+            border-radius: 8px;
+            color: #0c4a6e;
+            font-size: 0.9rem;
+            display: none;
+        }
+
+        .search-results-info.show {
+            display: block;
+            animation: slideDown 0.3s ease-out;
+        }
+
+        @keyframes slideDown {
+            from { 
+                opacity: 0; 
+                transform: translateY(-10px); 
+                max-height: 0;
+            }
+            to { 
+                opacity: 1; 
+                transform: translateY(0); 
+                max-height: 50px;
+            }
+        }
+
+        .error-state {
+            text-align: center;
+            padding: 4rem 2rem;
+            background: #fed7d7;
+            border-radius: 12px;
+            border: 2px dashed #feb2b2;
+        }
+
+        .error-state h3 {
+            color: #c53030;
+            margin-bottom: 1rem;
+        }
+
+        .error-state p {
+            color: #9b2c2c;
+            margin-bottom: 1rem;
+        }
+
+        .refresh-btn {
+            background: #3182ce;
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+        }
+
+        .refresh-btn:hover {
+            background: #2c5282;
+        }        /* Debug Panel - Make it toggleable and less intrusive */
+        .debug-panel {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 15px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            max-width: 300px;
+            z-index: 1000;
+            font-size: 12px;
+            display: none; /* Hidden by default */
+        }
+
+        .debug-panel.show {
+            display: block;
+        }
+
+        .debug-toggle {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            cursor: pointer;
+            font-size: 14px;
+            z-index: 1001;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+
+        .debug-toggle:hover {
             background: #0056b3;
         }
 
-        .submit-btn:disabled {
-            background: #ccc;
-            cursor: not-allowed;
+        .debug-panel h4 {
+            margin: 0 0 10px 0;
+            color: #333;
         }
 
-        .teams-list {
-            margin-top: 3rem;
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 2rem;
+        .debug-info {
+            background: #f5f5f5;
+            padding: 10px;
+            border-radius: 4px;
+            margin: 5px 0;
+            font-family: monospace;
         }
 
-        .team-card {
-            background: white;
-            border-radius: 16px;
-            padding: 1.5rem;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
-            transition: all 0.3s ease;
-        }
-
-        .team-card:hover {
-            transform: translateY(-5px);
-        }
-        
-        /* Button styles */
-        .btn {
-            display: inline-block;
-            font-weight: 400;
-            text-align: center;
-            white-space: nowrap;
-            vertical-align: middle;
-            user-select: none;
-            border: 1px solid transparent;
-            padding: 0.375rem 0.75rem;
-            font-size: 1rem;
-            line-height: 1.5;
-            border-radius: 0.25rem;
-            transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out, border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
-            cursor: pointer;
-        }
-        
-        .btn-primary {
-            color: #fff;
-            background-color: #007bff;
-            border-color: #007bff;
-        }
-        
-        .btn-primary:hover {
-            color: #fff;
-            background-color: #0069d9;
-            border-color: #0062cc;
-        }
-        
-        .btn-success {
-            color: #fff;
-            background-color: #28a745;
-            border-color: #28a745;
-        }
-        
-        .btn-success:hover {
-            color: #fff;
-            background-color: #218838;
-            border-color: #1e7e34;
-        }
-        
-        .team-actions {
+        .debug-buttons {
             display: flex;
-            justify-content: space-between;
-            margin-top: 15px;
-            gap: 10px;
+            gap: 5px;
+            margin-top: 10px;
         }
-        
-        .team-actions button {
-            flex: 1;
-        }
-    </style>
+
+        .debug-btn {
+            padding: 5px 10px;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 11px;
+        }    </style>
 </head>
 <body>
-    <header>        <nav>
+    <header>
+        <nav>
             <a href="../index.html" class="logo">
                 <img src="../client/img/logo.png" alt="NexStaff Logo" class="nav-logo">
                 <span>NexStaff</span>
@@ -284,173 +734,887 @@
         </nav>
     </header>
 
-    <main class="employers-section">
-        <div class="intro-section">
-            <h1>Create Your Team</h1>
-            <p>Build and manage your professional team. Define roles, set requirements, and streamline your recruitment process.</p>
-        </div>        <div class="team-form-container">
-            <form id="createTeamForm" onsubmit="return false;">
-                <div class="form-group">
-                    <label for="teamName">Team Name</label>
-                    <input type="text" id="teamName" name="teamName" required>
-                </div>
-
-                <div class="form-group">
-                    <label for="department">Department</label>
-                    <input type="text" id="department" name="department" required>
-                </div>
-
-                <div class="form-group">
-                    <label for="description">Team Description</label>
-                    <textarea id="description" name="description" required></textarea>
-                </div>
-
-                <div class="form-group">
-                    <label for="requirements">Requirements (comma-separated)</label>
-                    <textarea id="requirements" name="requirements" placeholder="e.g., JavaScript, React, 3+ years experience" required></textarea>
-                </div>
-
-                <div class="form-group">
-                    <label for="email">Contact Email</label>
-                    <input type="email" id="email" name="email" required>
-                </div>                <div class="form-group">
-                    <label for="phone">Contact Phone</label>
-                    <input type="tel" id="phone" name="phone" required>
-                </div>                <div class="form-group">
-                    <button type="submit" class="submit-btn">Create Team</button>
-                </div>
-            </form>
+    <main class="employers-section">        <div class="intro-section">
+            <h1>Employer Hub</h1>
+            <p>Connect with top employers or join as an employer to access talented candidates.</p>
+            <div class="cta-buttons">
+                <button class="btn-become-employer" onclick="openEmployerApplicationModal()">
+                    <i class="fas fa-plus"></i> Become an Employer
+                </button>
+                <button class="btn-learn-more" onclick="scrollToEmployers()">
+                    <i class="fas fa-arrow-down"></i> Browse Employers
+                </button>
+            </div>
         </div>
 
-        <div id="teamsList" class="teams-list">
-            <!-- Teams will be dynamically inserted here -->
+        <!-- Tab Navigation -->
+        <div class="tab-navigation">
+            <button class="tab-btn active" data-tab="approved-employers">Approved Employers</button>
+        </div>        <!-- Approved Employers Tab -->
+        <div id="approved-employers" class="tab-content active">
+            <div class="section-header">
+                <h2>Approved Employers <span id="employerCount" class="employer-count"></span></h2>                <div class="search-filters">
+                    <input type="search" 
+                           id="employerSearch" 
+                           placeholder="Search employers..." 
+                           class="search-input"
+                           aria-label="Search employers by company name, industry, or description">
+                    <select id="industryFilter" 
+                            class="filter-select"
+                            aria-label="Filter by industry">
+                        <option value="">All Industries</option>
+                        <option value="Technology">Technology</option>
+                        <option value="Healthcare">Healthcare</option>
+                        <option value="Finance">Finance</option>
+                        <option value="Manufacturing">Manufacturing</option>
+                        <option value="Education">Education</option>
+                        <option value="Retail">Retail</option>
+                        <option value="Construction">Construction</option>
+                        <option value="Media">Media</option>
+                        <option value="Legal">Legal</option>
+                        <option value="Consulting">Consulting</option>
+                    </select>                    <button id="clearFilters" 
+                            class="clear-filters-btn" 
+                            onclick="clearFilters()" 
+                            title="Clear all filters"
+                            aria-label="Clear all search filters">
+                        <i class="fas fa-times"></i> Clear
+                    </button>
+                    <button id="exportResults" 
+                            class="export-btn" 
+                            onclick="exportResults()" 
+                            title="Export filtered results"
+                            aria-label="Export current results to CSV">
+                        <i class="fas fa-download"></i> Export
+                    </button>
+                </div></div>
+            <div id="searchResultsInfo" class="search-results-info"></div>
+            <div id="approvedEmployersList" class="employers-grid">
+                <!-- Approved employers will be loaded here -->
+            </div>
         </div>    </main>
-    
-    <!-- Dynamic Footer -->
-    <div id="footer-container"></div>
-    
-    <style>
-        /* Teams list styles */
-        #teamsList {
-            margin-top: 30px;
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 20px;
-            padding: 20px;
-        }
-        .team-card {
-            background: white;
-            border-radius: 8px;
-            padding: 20px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            transition: transform 0.3s ease;
-        }
-        .team-card:hover {
-            transform: translateY(-5px);
-        }    </style>    <!-- Team management script with initialization -->
-    <script src="../login/admin/js/teamManagement.js"></script>
+
+    <!-- Debug Toggle Button -->
+    <button class="debug-toggle" onclick="toggleDebug()">🔧</button>
+
+    <!-- Debug Panel -->
+    <div class="debug-panel" id="debugPanel">
+        <h4>Debug Info</h4>
+        <div id="debug-log" class="debug-info">Initializing...</div>
+        <div class="debug-buttons">
+            <button class="debug-btn" onclick="refreshData()">Refresh</button>
+            <button class="debug-btn" onclick="clearData()">Clear</button>
+            <button class="debug-btn" onclick="addSample()">Add Sample</button>
+        </div>
+    </div>
+
     <script>
-        let teamManager = null;
+        // Debug logging
+        function debugLog(message) {
+            const timestamp = new Date().toLocaleTimeString();
+            const debugEl = document.getElementById('debug-log');
+            debugEl.innerHTML += `<br>[${timestamp}] ${message}`;
+            debugEl.scrollTop = debugEl.scrollHeight;
+            console.log(`[DEBUG] ${message}`);
+        }
 
-        // Initialize when the page loads
-        document.addEventListener('DOMContentLoaded', () => {
-            console.log('Initializing employers page...');
-            teamManager = new TeamManagement();
+        // Initialize sample employers
+        function initializeSampleEmployers() {
+            debugLog('Initializing sample employers...');
             
-            // Initialize form
-            initializeForm();
-            
-            // Initialize mobile menu
-            initializeMobileMenu();
-        });
+            const sampleEmployers = [
+                {
+                    companyName: 'TechCorp Solutions',
+                    contactPerson: 'John Smith',
+                    email: 'hr@techcorp.com',
+                    phone: '+1-555-0123',
+                    industry: 'Technology',
+                    companySize: '51-200',
+                    address: '123 Tech Street, Silicon Valley, CA',
+                    description: 'Leading technology company specializing in cloud solutions and AI development.',
+                    requirements: 'JavaScript, React, Node.js, 3+ years experience',
+                    website: 'https://techcorp.com',
+                    status: 'Active'
+                },
+                {
+                    companyName: 'HealthCare Plus',
+                    contactPerson: 'Dr. Sarah Johnson',
+                    email: 'careers@healthcareplus.com',
+                    phone: '+1-555-0456',
+                    industry: 'Healthcare',
+                    companySize: '201-1000',
+                    address: '456 Medical Center Blvd, Health City, NY',
+                    description: 'Comprehensive healthcare provider committed to patient care excellence.',
+                    requirements: 'Medical degree, 2+ years experience, state license',
+                    website: 'https://healthcareplus.com',
+                    status: 'Active'
+                },
+                {
+                    companyName: 'Finance Pro LLC',
+                    contactPerson: 'Jennifer Wilson',
+                    email: 'hr@financepro.com',
+                    phone: '+1-555-0321',
+                    industry: 'Finance',
+                    companySize: '11-50',
+                    address: '321 Wall Street, Financial District, NY',
+                    description: 'Professional financial services firm providing comprehensive investment solutions.',
+                    requirements: 'Finance degree, CFA preferred, 3+ years experience',
+                    website: 'https://financepro.com',
+                    status: 'Active'
+                }
+            ];
 
-        function initializeForm() {
-            const form = document.getElementById('createTeamForm');
-            if (!form) {
-                console.error('Create team form not found');
+            sampleEmployers.forEach((employer, index) => {
+                try {
+                    DataService.createEmployer(employer);
+                    debugLog(`✅ Created: ${employer.companyName}`);
+                } catch (error) {
+                    debugLog(`❌ Error creating ${employer.companyName}: ${error.message}`);
+                }
+            });
+        }        // Load employers
+        function loadEmployers() {
+            debugLog('Loading employers...');
+            const employers = getEmployersData();
+            displayEmployers(employers);
+        }
+
+        // Get employers data with filtering
+        function getEmployersData() {
+            try {
+                const employers = DataService.readEmployers();
+                debugLog(`Found ${employers.length} total employers`);
+                
+                const activeEmployers = employers.filter(emp => 
+                    emp.status === 'Active' || emp.status === 'active' || emp.status === 'Approved'
+                );
+                debugLog(`Found ${activeEmployers.length} active employers`);
+                return activeEmployers;
+            } catch (error) {
+                debugLog(`❌ Error getting employers: ${error.message}`);
+                return [];
+            }
+        }        // Display employers (works with both full list and filtered results)
+        function displayEmployers(employers) {
+            const container = document.getElementById('approvedEmployersList');
+            const countElement = document.getElementById('employerCount');
+            const searchResultsInfo = document.getElementById('searchResultsInfo');
+            
+            if (!container) {
+                debugLog('❌ Container not found');
                 return;
             }
 
-            // Remove any existing listeners
-            const newForm = form.cloneNode(true);
-            form.parentNode.replaceChild(newForm, form);
-            
-            // Add new submit handler
-            newForm.addEventListener('submit', handleTeamSubmit);
-            
-            // Add input listeners for validation
-            const inputs = newForm.querySelectorAll('input, textarea');
-            inputs.forEach(input => {
-                input.addEventListener('input', function() {
-                    this.classList.remove('error');
-                });
-            });
-            
-            console.log('Form initialized successfully');
-        }        function handleTeamSubmit(event) {
-            event.preventDefault();
-            event.stopPropagation();
-            console.log('Form submitted');
+            const totalCount = getEmployersData().length;
+            const searchTerm = document.getElementById('employerSearch')?.value || '';
+            const industryFilter = document.getElementById('industryFilter')?.value || '';
+            const hasFilters = searchTerm || industryFilter;
 
-            const formData = {
-                teamName: this.teamName.value.trim(),
-                department: this.department.value.trim(),
-                description: this.description.value.trim(),
-                requirements: this.requirements.value.trim(),
-                email: this.email.value.trim(),
-                phone: this.phone.value.trim()
-            };
-            
-            console.log('Form data:', formData);
-
-            // Check if editing existing team
-            const submitBtn = this.querySelector('.submit-btn');
-            const isEditing = submitBtn && submitBtn.dataset.editing;
-            
-            if (isEditing) {
-                formData.id = parseInt(submitBtn.dataset.editing);
-                // Update team logic would go here
-                // For simplicity, we'll just delete and recreate
-                const teams = teamManager.dataService.getTeams();
-                const filteredTeams = teams.filter(t => t.id != formData.id);
-                localStorage.setItem('teams', JSON.stringify(filteredTeams));
-                
-                if (teamManager.createTeam(formData)) {
-                    console.log('Team updated successfully:', formData);
-                    this.reset();
-                    submitBtn.textContent = 'Create Team';
-                    delete submitBtn.dataset.editing;
-                    return false;
-                }
-            } else {
-                // Create new team
-                if (teamManager.validateTeamData(formData)) {
-                    const team = teamManager.createTeam(formData);
-                    if (team) {
-                        console.log('Team created successfully:', team);
-                        this.reset();
-                        return false;
-                    }
+            // Update counter
+            if (countElement) {
+                if (employers.length === totalCount) {
+                    countElement.textContent = `(${employers.length})`;
+                } else {
+                    countElement.textContent = `(${employers.length} of ${totalCount})`;
                 }
             }
+
+            // Update search results info
+            if (searchResultsInfo) {
+                if (hasFilters && employers.length > 0) {
+                    let infoText = `Found ${employers.length} employer${employers.length === 1 ? '' : 's'}`;
+                    if (searchTerm) infoText += ` matching "${searchTerm}"`;
+                    if (industryFilter) infoText += ` in ${industryFilter}`;
+                    
+                    searchResultsInfo.textContent = infoText;
+                    searchResultsInfo.classList.add('show');
+                } else {
+                    searchResultsInfo.classList.remove('show');
+                }
+            }
+
+            if (employers.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <h3>${hasFilters ? 'No Matching Employers Found' : 'No Employers Available'}</h3>
+                        <p>${hasFilters ? 
+                            `No employers match your search criteria. Try adjusting your filters.` : 
+                            'There are currently no approved employers in the system.'
+                        }</p>
+                        ${hasFilters ? 
+                            '<button class="refresh-btn" onclick="clearFilters()"><i class="fas fa-times"></i> Clear Filters</button>' :
+                            '<button class="refresh-btn" onclick="addSample()"><i class="fas fa-plus"></i> Add Sample Data</button>'
+                        }
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = employers.map(employer => createEmployerCard(employer)).join('');
+            debugLog(`✅ Displayed ${employers.length} employers`);
+        }// Highlight search terms in text
+        function highlightSearchTerm(text, searchTerm) {
+            if (!searchTerm || !text) return text;
             
-            return false;
+            const regex = new RegExp(`(${searchTerm.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
+            return text.replace(regex, '<mark style="background: #fef3c7; padding: 0.1em 0.2em; border-radius: 3px;">$1</mark>');
         }
 
-        function initializeMobileMenu() {
-            const menuToggle = document.querySelector('.mobile-menu');
-            const navLinks = document.querySelector('.nav-links');
+        // Create employer card
+        function createEmployerCard(employer) {
+            const searchTerm = document.getElementById('employerSearch')?.value || '';
             
-            if (menuToggle && navLinks) {
-                menuToggle.addEventListener('click', () => {
-                    navLinks.classList.toggle('active');
+            // Apply highlighting if there's a search term
+            const companyName = highlightSearchTerm(employer.companyName || employer.company || 'Company Name', searchTerm);
+            const contactPerson = highlightSearchTerm(employer.contactPerson || 'Not specified', searchTerm);
+            const description = highlightSearchTerm(employer.description || '', searchTerm);
+            const industry = highlightSearchTerm(employer.industry || 'Industry Not Specified', searchTerm);
+            const address = highlightSearchTerm(employer.address || 'Address not specified', searchTerm);
+            const requirements = highlightSearchTerm(employer.requirements || '', searchTerm);
+
+            return `
+                <div class="employer-card" data-id="${employer.id}">                    <div class="employer-header">
+                        <div class="company-info">
+                            <h3>${companyName}</h3>
+                            <span class="industry">${industry}</span>
+                        </div>
+                        <span class="employer-status ${(employer.status || 'active').toLowerCase()}">${employer.status || 'Active'}</span>
+                    </div>
+                    
+                    <div class="employer-contact">
+                        <div class="contact-info">
+                            <p><strong>Contact Person:</strong> ${contactPerson}</p>
+                            <p><strong>Email:</strong> 
+                                ${employer.email ? 
+                                    `<a href="mailto:${employer.email}" class="contact-link">${employer.email}</a>` : 
+                                    'Not specified'
+                                }
+                            </p>
+                            <p><strong>Phone:</strong> 
+                                ${employer.phone ? 
+                                    `<a href="tel:${employer.phone}" class="contact-link">${employer.phone}</a>` : 
+                                    'Not specified'
+                                }
+                            </p>
+                            ${employer.website ? 
+                                `<p><strong>Website:</strong> 
+                                    <a href="${employer.website}" target="_blank" class="contact-link">${employer.website}</a>
+                                </p>` : 
+                                ''
+                            }
+                        </div>
+                    </div>
+                      ${employer.description ? `
+                        <div class="employer-description">
+                            <h4>About Company</h4>
+                            <p>${description}</p>
+                        </div>
+                    ` : ''}
+                      <div class="employer-actions">
+                        <button class="btn-view" onclick="viewEmployerDetails('${employer.companyName}', ${JSON.stringify(employer).replace(/"/g, '&quot;')})">
+                            <i class="fas fa-eye"></i> View Details
+                        </button>
+                        <button class="btn-contact" onclick="contactEmployer('${employer.email || ''}', '${employer.companyName}')">
+                            <i class="fas fa-envelope"></i> Contact
+                        </button>
+                    </div>
+                </div>
+            `;
+        }        // Button action functions
+        function viewEmployerDetails(companyName, employer) {
+            debugLog(`Viewing details for: ${companyName}`);
+            
+            // Create a modal or redirect to details page
+            const detailsModal = `
+                <div style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 10000; display: flex; align-items: center; justify-content: center;" onclick="this.remove()">
+                    <div style="background: white; padding: 2rem; border-radius: 12px; max-width: 600px; width: 90%; max-height: 80vh; overflow-y: auto;" onclick="event.stopPropagation()">
+                        <h2 style="color: #1a202c; margin-bottom: 1rem;">${employer.companyName}</h2>
+                        <div style="margin-bottom: 1rem;">
+                            <span style="background: #f3e8ff; color: #8b5cf6; padding: 0.25rem 0.75rem; border-radius: 20px; font-size: 0.875rem;">${employer.industry}</span>
+                        </div>
+                        <p><strong>Contact Person:</strong> ${employer.contactPerson}</p>
+                        <p><strong>Email:</strong> ${employer.email}</p>
+                        <p><strong>Phone:</strong> ${employer.phone}</p>
+                        <p><strong>Address:</strong> ${employer.address}</p>
+                        <p><strong>Company Size:</strong> ${employer.companySize}</p>
+                        <p><strong>Website:</strong> <a href="${employer.website}" target="_blank">${employer.website}</a></p>
+                        <p><strong>Description:</strong> ${employer.description}</p>
+                        <p><strong>Requirements:</strong> ${employer.requirements}</p>
+                        <div style="margin-top: 2rem; display: flex; gap: 1rem;">
+                            <button onclick="contactEmployer('${employer.email}', '${employer.companyName}')" style="background: #8b5cf6; color: white; border: none; padding: 0.75rem 1.5rem; border-radius: 8px; cursor: pointer;">Contact Now</button>
+                            <button onclick="this.closest('div[style*=\"position: fixed\"]').remove()" style="background: #e2e8f0; color: #4a5568; border: none; padding: 0.75rem 1.5rem; border-radius: 8px; cursor: pointer;">Close</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            document.body.insertAdjacentHTML('beforeend', detailsModal);
+        }
+
+        function contactEmployer(email, companyName) {
+            if (!email) {
+                alert('Contact information not available for this employer.');
+                return;
+            }
+            
+            debugLog(`Contacting employer: ${companyName} at ${email}`);
+            
+            const subject = encodeURIComponent(`Inquiry about opportunities at ${companyName}`);
+            const body = encodeURIComponent(`Dear ${companyName} Team,\n\nI am interested in learning more about career opportunities at your company.\n\nBest regards`);
+            
+            window.location.href = `mailto:${email}?subject=${subject}&body=${body}`;
+        }
+
+        // Debug functions
+        function toggleDebug() {
+            const debugPanel = document.getElementById('debugPanel');
+            debugPanel.classList.toggle('show');
+        }
+
+        function refreshData() {
+            debugLog('Refreshing data...');
+            loadEmployers();
+        }
+
+        function clearData() {
+            if (confirm('Clear all employer data?')) {
+                localStorage.removeItem('employers');
+                debugLog('🗑️ Cleared all data');
+                loadEmployers();
+            }
+        }
+
+        function addSample() {
+            initializeSampleEmployers();
+            loadEmployers();
+        }
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            debugLog('Page loaded, starting initialization...');
+            
+            if (typeof DataService === 'undefined') {
+                debugLog('❌ DataService not available');
+                document.getElementById('approvedEmployersList').innerHTML = `
+                    <div class="error-state">
+                        <h3>DataService Not Available</h3>
+                        <p>The data service could not be loaded. Please check the console for errors.</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            debugLog('✅ DataService available');
+            
+            // Initialize DataService
+            DataService.initializeSampleData();
+            
+            // Check if we need sample data
+            const existingEmployers = DataService.readEmployers();
+            if (existingEmployers.length === 0) {
+                debugLog('No existing employers, creating sample data...');
+                initializeSampleEmployers();
+            }
+              // Load employers
+            loadEmployers();
+              // Setup search and filter functionality
+            setupSearchAndFilter();
+            
+            // Setup employer application form
+            const employerForm = document.getElementById('employerApplicationForm');
+            if (employerForm) {
+                employerForm.addEventListener('submit', handleEmployerApplication);
+            }
+            
+            // Close modal on ESC key
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') {
+                    const modal = document.getElementById('employerApplicationModal');
+                    if (modal && modal.classList.contains('show')) {
+                        closeEmployerApplicationModal();
+                    }
+                }
+            });
+            
+            // Close modal when clicking outside
+            const modal = document.getElementById('employerApplicationModal');
+            if (modal) {
+                modal.addEventListener('click', function(e) {
+                    if (e.target === modal) {
+                        closeEmployerApplicationModal();
+                    }
                 });
             }
-        }    </script>
-    
+        });// Search and filter functionality
+        function setupSearchAndFilter() {
+            const searchInput = document.getElementById('employerSearch');
+            const industryFilter = document.getElementById('industryFilter');
+
+            // Debounced search for better performance
+            let searchTimeout;
+            if (searchInput) {
+                searchInput.addEventListener('input', function() {
+                    clearTimeout(searchTimeout);
+                    searchTimeout = setTimeout(filterEmployers, 300); // Wait 300ms after user stops typing
+                });
+                
+                // Clear search on escape
+                searchInput.addEventListener('keydown', function(e) {
+                    if (e.key === 'Escape') {
+                        searchInput.value = '';
+                        filterEmployers();
+                    }
+                });
+
+                // Focus search with Ctrl+F
+                document.addEventListener('keydown', function(e) {
+                    if ((e.ctrlKey || e.metaKey) && e.key === 'f') {
+                        e.preventDefault();
+                        searchInput.focus();
+                        searchInput.select();
+                    }
+                });
+            }
+            
+            if (industryFilter) {
+                industryFilter.addEventListener('change', filterEmployers);
+            }            // Show clear button when filters are active
+            const clearButton = document.getElementById('clearFilters');
+            const exportButton = document.getElementById('exportResults');
+            
+            if (clearButton || exportButton) {
+                const updateButtons = () => {
+                    const hasSearch = searchInput && searchInput.value.trim();
+                    const hasIndustry = industryFilter && industryFilter.value;
+                    const hasFilters = hasSearch || hasIndustry;
+                    
+                    if (clearButton) {
+                        clearButton.style.display = hasFilters ? 'flex' : 'none';
+                    }
+                    
+                    // Export button is always visible when there are employers
+                    if (exportButton) {
+                        const totalEmployers = getEmployersData().length;
+                        exportButton.style.display = totalEmployers > 0 ? 'flex' : 'none';
+                    }
+                };
+                
+                if (searchInput) searchInput.addEventListener('input', updateButtons);
+                if (industryFilter) industryFilter.addEventListener('change', updateButtons);
+                
+                // Initial state
+                setTimeout(updateButtons, 100); // Small delay to ensure data is loaded
+            }
+        }function filterEmployers() {
+            const searchTerm = document.getElementById('employerSearch')?.value.toLowerCase() || '';
+            const industryFilter = document.getElementById('industryFilter')?.value || '';
+
+            // Show loading state for better UX
+            const container = document.getElementById('approvedEmployersList');
+            if (container && (searchTerm || industryFilter)) {
+                container.style.opacity = '0.6';
+            }
+
+            // Get all active employers
+            const allEmployers = getEmployersData();
+            
+            const filteredEmployers = allEmployers.filter(employer => {
+                // Search functionality - check multiple fields
+                const matchesSearch = !searchTerm || 
+                    (employer.companyName && employer.companyName.toLowerCase().includes(searchTerm)) ||
+                    (employer.company && employer.company.toLowerCase().includes(searchTerm)) ||
+                    (employer.description && employer.description.toLowerCase().includes(searchTerm)) ||
+                    (employer.contactPerson && employer.contactPerson.toLowerCase().includes(searchTerm)) ||
+                    (employer.industry && employer.industry.toLowerCase().includes(searchTerm)) ||
+                    (employer.address && employer.address.toLowerCase().includes(searchTerm)) ||
+                    (employer.requirements && employer.requirements.toLowerCase().includes(searchTerm));
+                    
+                // Industry filter
+                const matchesIndustry = !industryFilter || employer.industry === industryFilter;
+                
+                return matchesSearch && matchesIndustry;
+            });
+
+            displayEmployers(filteredEmployers);
+            
+            // Remove loading state
+            if (container) {
+                container.style.opacity = '1';
+            }
+            
+            debugLog(`Filtered employers: ${filteredEmployers.length} of ${allEmployers.length} found (search: "${searchTerm}", industry: "${industryFilter}")`);
+        }        // Clear all filters
+        function clearFilters() {
+            const searchInput = document.getElementById('employerSearch');
+            const industryFilter = document.getElementById('industryFilter');
+            
+            if (searchInput) searchInput.value = '';
+            if (industryFilter) industryFilter.value = '';
+            
+            // Reload all employers
+            loadEmployers();
+            debugLog('Filters cleared');
+        }        // Export filtered results to CSV
+        function exportResults() {
+            const searchTerm = document.getElementById('employerSearch')?.value.toLowerCase() || '';
+            const industryFilter = document.getElementById('industryFilter')?.value || '';
+            
+            // Get filtered employers
+            const allEmployers = getEmployersData();
+            const filteredEmployers = allEmployers.filter(employer => {
+                const matchesSearch = !searchTerm || 
+                    (employer.companyName && employer.companyName.toLowerCase().includes(searchTerm)) ||
+                    (employer.company && employer.company.toLowerCase().includes(searchTerm)) ||
+                    (employer.description && employer.description.toLowerCase().includes(searchTerm)) ||
+                    (employer.contactPerson && employer.contactPerson.toLowerCase().includes(searchTerm)) ||
+                    (employer.industry && employer.industry.toLowerCase().includes(searchTerm)) ||
+                    (employer.address && employer.address.toLowerCase().includes(searchTerm)) ||
+                    (employer.requirements && employer.requirements.toLowerCase().includes(searchTerm));
+                    
+                const matchesIndustry = !industryFilter || employer.industry === industryFilter;
+                return matchesSearch && matchesIndustry;
+            });
+
+            if (filteredEmployers.length === 0) {
+                alert('No employers to export. Please adjust your filters.');
+                return;
+            }
+
+            // Create CSV content
+            const headers = ['Company Name', 'Industry', 'Contact Person', 'Email', 'Phone', 'Address', 'Website', 'Status', 'Description'];
+            const csvContent = [
+                headers.join(','),
+                ...filteredEmployers.map(employer => [
+                    `"${(employer.companyName || employer.company || '').replace(/"/g, '""')}"`,
+                    `"${(employer.industry || '').replace(/"/g, '""')}"`,
+                    `"${(employer.contactPerson || '').replace(/"/g, '""')}"`,
+                    `"${(employer.email || '').replace(/"/g, '""')}"`,
+                    `"${(employer.phone || '').replace(/"/g, '""')}"`,
+                    `"${(employer.address || '').replace(/"/g, '""')}"`,
+                    `"${(employer.website || '').replace(/"/g, '""')}"`,
+                    `"${(employer.status || '').replace(/"/g, '""')}"`,
+                    `"${(employer.description || '').replace(/"/g, '""')}"`
+                ].join(','))
+            ].join('\n');
+
+            // Download CSV file
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            const url = URL.createObjectURL(blob);
+            link.setAttribute('href', url);
+            
+            // Generate filename with current date and filters
+            let filename = 'nexstaff-employers';
+            if (searchTerm) filename += `-search-${searchTerm.replace(/[^a-z0-9]/gi, '')}`;
+            if (industryFilter) filename += `-${industryFilter.toLowerCase()}`;
+            filename += `-${new Date().toISOString().split('T')[0]}.csv`;
+            
+            link.setAttribute('download', filename);
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            
+            debugLog(`Exported ${filteredEmployers.length} employers to ${filename}`);
+        }
+
+        // Employer Application Modal Functions
+        function openEmployerApplicationModal() {
+            const modal = document.getElementById('employerApplicationModal');
+            modal.classList.add('show');
+            document.body.style.overflow = 'hidden';
+            debugLog('Opened employer application modal');
+        }
+
+        function closeEmployerApplicationModal() {
+            const modal = document.getElementById('employerApplicationModal');
+            modal.classList.remove('show');
+            document.body.style.overflow = 'auto';
+            
+            // Reset form
+            const form = document.getElementById('employerApplicationForm');
+            if (form) form.reset();
+            
+            debugLog('Closed employer application modal');
+        }
+
+        function scrollToEmployers() {
+            const employersSection = document.getElementById('approved-employers');
+            if (employersSection) {
+                employersSection.scrollIntoView({ behavior: 'smooth' });
+            }
+        }
+
+        // Handle employer application form submission
+        function handleEmployerApplication(event) {
+            event.preventDefault();
+            
+            const formData = new FormData(event.target);
+            const applicationData = {
+                id: Date.now() + Math.random(),
+                companyName: formData.get('companyName'),
+                industry: formData.get('industry'),
+                contactPerson: formData.get('contactPerson'),
+                position: formData.get('position'),
+                email: formData.get('email'),
+                phone: formData.get('phone'),
+                website: formData.get('website'),
+                companySize: formData.get('companySize'),
+                foundedYear: formData.get('foundedYear'),
+                address: formData.get('address'),
+                description: formData.get('description'),
+                hiringNeeds: formData.get('hiringNeeds'),
+                agreeTerms: formData.get('agreeTerms') === 'on',
+                emailUpdates: formData.get('emailUpdates') === 'on',
+                status: 'Pending', // Applications start as pending
+                applicationDate: new Date().toISOString(),
+                applicationType: 'employer_application'
+            };
+
+            try {
+                // Store the application using DataService
+                if (typeof DataService !== 'undefined') {
+                    // Store as employer application (pending review)
+                    const result = DataService.create('employer_applications', applicationData);
+                    
+                    if (result) {
+                        debugLog('Employer application submitted successfully');
+                        
+                        // Show success message
+                        showSuccessMessage('Application submitted successfully! We will review your application within 2-3 business days and contact you via email.');
+                        
+                        // Close modal
+                        closeEmployerApplicationModal();
+                        
+                        // Optional: Send notification to admin (if implemented)
+                        notifyAdmin('New employer application received', applicationData.companyName);
+                        
+                    } else {
+                        throw new Error('Failed to save application');
+                    }
+                } else {
+                    throw new Error('DataService not available');
+                }
+                
+            } catch (error) {
+                debugLog(`Error submitting application: ${error.message}`);
+                showErrorMessage('Sorry, there was an error submitting your application. Please try again or contact support.');
+            }
+        }
+
+        // Utility functions for notifications
+        function showSuccessMessage(message) {
+            const notification = createNotification(message, 'success');
+            document.body.appendChild(notification);
+            setTimeout(() => notification.remove(), 5000);
+        }
+
+        function showErrorMessage(message) {
+            const notification = createNotification(message, 'error');
+            document.body.appendChild(notification);
+            setTimeout(() => notification.remove(), 5000);
+        }
+
+        function createNotification(message, type) {
+            const notification = document.createElement('div');
+            notification.className = `notification ${type}`;
+            notification.innerHTML = `
+                <div class="notification-content">
+                    <i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-triangle'}"></i>
+                    <span>${message}</span>
+                    <button onclick="this.parentElement.parentElement.remove()" class="notification-close">&times;</button>
+                </div>
+            `;
+            
+            // Add notification styles
+            notification.style.cssText = `
+                position: fixed;
+                top: 100px;
+                right: 20px;
+                z-index: 10001;
+                max-width: 400px;
+                border-radius: 8px;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+                animation: slideInRight 0.3s ease-out;
+                background: ${type === 'success' ? '#10b981' : '#ef4444'};
+                color: white;
+                padding: 1rem;
+            `;
+            
+            return notification;
+        }
+
+        function notifyAdmin(title, details) {
+            // This could be expanded to send actual notifications to admin
+            debugLog(`Admin notification: ${title} - ${details}`);
+        }
+    </script>
+
+    <!-- Debug Toggle Button -->
+    <button class="debug-toggle" onclick="toggleDebug()">🔧</button>
+
+    <!-- Debug Panel -->
+    <div class="debug-panel" id="debugPanel">
+        <h4>Debug Info</h4>
+        <div id="debug-log" class="debug-info">Initializing...</div>
+        <div class="debug-buttons">
+            <button class="debug-btn" onclick="refreshData()">Refresh</button>
+            <button class="debug-btn" onclick="clearData()">Clear</button>
+            <button class="debug-btn" onclick="addSample()">Add Sample</button>
+        </div>
+    </div>    <!-- Dynamic Footer -->
+    <div id="footer-container"></div>
+
+    <!-- Employer Application Modal -->
+    <div class="modal-overlay" id="employerApplicationModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Become an Employer</h3>
+                <button type="button" class="close-btn" onclick="closeEmployerApplicationModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="employerApplicationForm">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="companyName">Company Name *</label>
+                            <input type="text" id="companyName" name="companyName" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="industry">Industry *</label>
+                            <select id="industry" name="industry" required>
+                                <option value="">Select Industry</option>
+                                <option value="Technology">Technology</option>
+                                <option value="Healthcare">Healthcare</option>
+                                <option value="Finance">Finance</option>
+                                <option value="Manufacturing">Manufacturing</option>
+                                <option value="Education">Education</option>
+                                <option value="Retail">Retail</option>
+                                <option value="Construction">Construction</option>
+                                <option value="Media">Media</option>
+                                <option value="Legal">Legal</option>
+                                <option value="Consulting">Consulting</option>
+                                <option value="Other">Other</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="contactPerson">Contact Person *</label>
+                            <input type="text" id="contactPerson" name="contactPerson" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="position">Your Position *</label>
+                            <input type="text" id="position" name="position" placeholder="e.g., HR Manager, CEO" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="email">Business Email *</label>
+                            <input type="email" id="email" name="email" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="phone">Phone Number *</label>
+                            <input type="tel" id="phone" name="phone" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="website">Company Website</label>
+                        <input type="url" id="website" name="website" placeholder="https://yourcompany.com">
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="companySize">Company Size *</label>
+                            <select id="companySize" name="companySize" required>
+                                <option value="">Select Size</option>
+                                <option value="1-10">1-10 employees</option>
+                                <option value="11-50">11-50 employees</option>
+                                <option value="51-200">51-200 employees</option>
+                                <option value="201-1000">201-1000 employees</option>
+                                <option value="1000+">1000+ employees</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="foundedYear">Founded Year</label>
+                            <input type="number" id="foundedYear" name="foundedYear" min="1800" max="2025" placeholder="2020">
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="address">Company Address *</label>
+                        <textarea id="address" name="address" rows="2" required placeholder="Full business address"></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="description">Company Description *</label>
+                        <textarea id="description" name="description" rows="4" required placeholder="Tell us about your company, what you do, and your mission..."></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="hiringNeeds">Current Hiring Needs</label>
+                        <textarea id="hiringNeeds" name="hiringNeeds" rows="3" placeholder="What positions are you looking to fill? What skills are you seeking?"></textarea>
+                    </div>
+                    
+                    <div class="form-group checkbox-group">
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="agreeTerms" name="agreeTerms" required>
+                            <span class="checkmark"></span>
+                            I agree to the <a href="#" target="_blank">Terms of Service</a> and <a href="#" target="_blank">Privacy Policy</a>
+                        </label>
+                    </div>
+                    
+                    <div class="form-group checkbox-group">
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="emailUpdates" name="emailUpdates">
+                            <span class="checkmark"></span>
+                            I would like to receive updates about new candidates and platform features
+                        </label>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn-secondary" onclick="closeEmployerApplicationModal()">Cancel</button>
+                <button type="submit" form="employerApplicationForm" class="btn-primary">Submit Application</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Mobile Menu Script -->
+    <script>
+        // Mobile menu toggle
+        document.addEventListener('DOMContentLoaded', function() {
+            const mobileMenu = document.querySelector('.mobile-menu');
+            const navLinks = document.querySelector('.nav-links');
+
+            if (mobileMenu && navLinks) {
+                mobileMenu.addEventListener('click', function() {
+                    navLinks.classList.toggle('show');
+                });
+
+                // Close mobile menu when clicking on a link
+                const navLinkItems = navLinks.querySelectorAll('a');
+                navLinkItems.forEach(link => {
+                    link.addEventListener('click', () => {
+                        navLinks.classList.remove('show');
+                    });
+                });
+
+                // Close mobile menu when clicking outside
+                document.addEventListener('click', function(event) {
+                    if (!mobileMenu.contains(event.target) && !navLinks.contains(event.target)) {
+                        navLinks.classList.remove('show');
+                    }
+                });
+            }        });
+    </script>
+
+    <!-- Footer Loader -->
+    <script src="../client/js/footer-loader.js"></script>
+
     <!-- Add ionicons for icon support -->
     <script type="module" src="https://unpkg.com/ionicons@7.2.1/dist/ionicons/ionicons.esm.js"></script>
     <script nomodule src="https://unpkg.com/ionicons@7.2.1/dist/ionicons/ionicons.js"></script>
-    <script src="../client/js/footer-loader.js"></script>
 </body>
 </html>

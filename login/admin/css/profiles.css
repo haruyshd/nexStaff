@@ -511,78 +511,241 @@
     box-shadow: var(--shadow-sm);
 }
 
-/* Responsive Design */
-@media (max-width: 1024px) {
-    .profiles-grid {
-        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-        gap: 1.5rem;
-        padding: 1.5rem;
+/* Candidate Approval System Styles */
+.candidate-filters {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 2rem;
+    flex-wrap: wrap;
+}
+
+.filter-btn {
+    padding: 0.75rem 1.5rem;
+    border: 2px solid var(--border);
+    background: var(--white);
+    color: var(--text-secondary);
+    border-radius: var(--radius-lg);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    font-weight: 500;
+    font-size: 0.95rem;
+}
+
+.filter-btn:hover {
+    border-color: var(--primary);
+    color: var(--primary);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+}
+
+.filter-btn.active {
+    background: var(--primary);
+    color: var(--white);
+    border-color: var(--primary);
+    box-shadow: var(--shadow-lg);
+}
+
+/* Approval Status Styles */
+.approval-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    border-radius: var(--radius-lg);
+    font-size: 0.85rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.approval-badge.pending {
+    background: rgba(251, 191, 36, 0.1);
+    color: #D97706;
+    border: 1px solid rgba(251, 191, 36, 0.3);
+}
+
+.approval-badge.approved {
+    background: rgba(16, 185, 129, 0.1);
+    color: #059669;
+    border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+.approval-badge.rejected {
+    background: rgba(239, 68, 68, 0.1);
+    color: #DC2626;
+    border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+/* Profile Card Status Styling */
+.profile-card.pending {
+    border-left: 4px solid var(--warning);
+}
+
+.profile-card.approved {
+    border-left: 4px solid var(--success);
+}
+
+.profile-card.rejected {
+    border-left: 4px solid var(--danger);
+    opacity: 0.8;
+}
+
+/* Profile Header Updates */
+.profile-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 1.5rem;
+}
+
+.profile-header > div:first-child {
+    flex: 1;
+}
+
+/* Action Buttons */
+.profile-actions {
+    display: flex;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+    margin-top: 1.5rem;
+}
+
+.profile-actions .btn {
+    flex: 1;
+    min-width: 120px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1rem;
+    border-radius: var(--radius-md);
+    font-weight: 500;
+    transition: all var(--transition-fast);
+    border: none;
+    cursor: pointer;
+}
+
+.profile-actions .btn:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lg);
+}
+
+.btn.btn-success {
+    background: var(--success);
+    color: var(--white);
+}
+
+.btn.btn-success:hover {
+    background: #059669;
+}
+
+.btn.btn-danger {
+    background: var(--danger);
+    color: var(--white);
+}
+
+.btn.btn-danger:hover {
+    background: #DC2626;
+}
+
+.btn.btn-warning {
+    background: var(--warning);
+    color: var(--white);
+}
+
+.btn.btn-warning:hover {
+    background: #D97706;
+}
+
+/* Notification Styles */
+.notification {
+    background: var(--white);
+    border-radius: var(--radius-lg);
+    padding: 1rem 1.5rem;
+    box-shadow: var(--shadow-xl);
+    border-left: 4px solid var(--info);
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    min-width: 300px;
+    max-width: 400px;
+    animation: slideInRight 0.3s ease-out;
+}
+
+.notification.success {
+    border-left-color: var(--success);
+    color: #059669;
+}
+
+.notification.warning {
+    border-left-color: var(--warning);
+    color: #D97706;
+}
+
+.notification.error {
+    border-left-color: var(--danger);
+    color: #DC2626;
+}
+
+@keyframes slideInRight {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
     }
 }
 
-@media (max-width: 768px) {
-    .profiles-grid {
-        grid-template-columns: 1fr;
-        gap: 1.5rem;
-        padding: 1rem;
-    }
-    
-    .profile-header {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 0.75rem;
-    }
-    
-    .skill-tags {
-        gap: 0.5rem;
-    }
-    
-    .profile-actions {
-        flex-direction: column;
-        gap: 0.5rem;
-    }
-    
-    .schedule-header {
-        flex-direction: column;
-        gap: 1rem;
-        align-items: flex-start;
-        padding: 1rem;
-    }
-    
-    .schedule-header h2 {
-        font-size: 1.75rem;
-    }
-    
-    .filters {
-        flex-direction: column;
-        gap: 0.75rem;
-        width: 100%;
-    }
-    
-    .filters select,
-    .search-box {
-        width: 100%;
-    }
+/* Candidate Detail Modal */
+.candidate-detail-modal {
+    max-width: 800px;
+    max-height: 80vh;
+    overflow-y: auto;
 }
 
-@media (max-width: 480px) {
-    .profiles-grid {
-        padding: 0.5rem;
-    }
-    
-    .profile-card {
-        padding: 1.5rem;
-    }
-    
-    .profile-header h3 {
-        font-size: 1.25rem;
-    }
-    
-    .schedule-container {
-        padding: 1rem;
-    }
-    
-    .schedule-card {
-        padding: 1rem;
-    }
+.candidate-detail-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 2rem;
 }
+
+.detail-section {
+    background: var(--light);
+    border-radius: var(--radius-lg);
+    padding: 1.5rem;
+}
+
+.detail-section h4 {
+    color: var(--primary);
+    margin-bottom: 1rem;
+    font-weight: 600;
+    border-bottom: 2px solid var(--primary-light);
+    padding-bottom: 0.5rem;
+}
+
+.detail-section .status {
+    padding: 0.25rem 0.75rem;
+    border-radius: var(--radius-sm);
+    font-size: 0.85rem;
+    font-weight: 600;
+    text-transform: capitalize;
+}
+
+.detail-section .status.pending {
+    background: rgba(251, 191, 36, 0.1);
+    color: #D97706;
+}
+
+.detail-section .status.approved {
+    background: rgba(16, 185, 129, 0.1);
+    color: #059669;
+}
+
+.detail-section .status.rejected {
+    background: rgba(239, 68, 68, 0.1);
+    color: #DC2626;
+}
+
+/* ...existing code... */

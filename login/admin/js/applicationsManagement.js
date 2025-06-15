@@ -5,9 +5,7 @@ const ApplicationsAPI = {
         this.setupEventListeners();
         this.setupDemoData(); // Add some sample data if empty
         this.refreshApplicationsList();
-    },
-
-    setupEventListeners() {
+    },    setupEventListeners() {
         // Status filter listener
         document.getElementById('applicationStatus')?.addEventListener('change', () => {
             this.refreshApplicationsList();
@@ -18,10 +16,24 @@ const ApplicationsAPI = {
             this.refreshApplicationsList();
         });
 
-        // Listen for new applications
+        // Listen for new applications from landing page
         document.addEventListener('applicationSubmitted', (e) => {
-            console.log('New application submitted:', e.detail);
+            console.log('New application submitted from landing page:', e.detail);
             this.refreshApplicationsList();
+        });
+
+        // Listen for application processed events
+        document.addEventListener('applicationProcessed', (e) => {
+            console.log('Application processed:', e.detail);
+            this.refreshApplicationsList();
+        });
+
+        // Listen for storage changes (cross-tab sync)
+        window.addEventListener('storage', (e) => {
+            if (e.key === 'nexstaff_applications') {
+                console.log('Applications updated in another tab');
+                this.refreshApplicationsList();
+            }
         });
     },
 
@@ -52,22 +64,30 @@ const ApplicationsAPI = {
                     resume: 'data:application/pdf;base64,V29ybGQ='
                 }
             ];
-            localStorage.setItem('jobApplications', JSON.stringify(demoApplications));
+            localStorage.setItem('nexstaff_applications', JSON.stringify(demoApplications));
             console.log('Demo applications data added');
         }
-    },
-
-    getApplications() {
+    },    getApplications() {
         try {
-            return JSON.parse(localStorage.getItem('jobApplications')) || [];
+            // First try to get from enhanced data manager
+            if (typeof nexStaffData !== 'undefined') {
+                return nexStaffData.getAllApplications();
+            }
+            // Fallback to localStorage
+            return JSON.parse(localStorage.getItem('nexstaff_applications')) || 
+                   JSON.parse(localStorage.getItem('jobApplications')) || [];
         } catch (error) {
             console.error('Error getting applications:', error);
             return [];
         }
-    },
-
-    addApplication(applicationData) {
+    },    addApplication(applicationData) {
         try {
+            // Try to add through enhanced data manager first
+            if (typeof nexStaffData !== 'undefined') {
+                return nexStaffData.addApplication(applicationData);
+            }
+            
+            // Fallback to localStorage
             const applications = this.getApplications();
             const newApplication = {
                 id: Date.now().toString(),
@@ -77,7 +97,7 @@ const ApplicationsAPI = {
             };
             
             applications.push(newApplication);
-            localStorage.setItem('jobApplications', JSON.stringify(applications));
+            localStorage.setItem('nexstaff_applications', JSON.stringify(applications));
             
             // Dispatch event for real-time updates
             document.dispatchEvent(new CustomEvent('applicationSubmitted', {
@@ -98,7 +118,7 @@ const ApplicationsAPI = {
             
             if (index !== -1) {
                 applications[index].status = newStatus;
-                localStorage.setItem('jobApplications', JSON.stringify(applications));
+                localStorage.setItem('nexstaff_applications', JSON.stringify(applications));
                 this.refreshApplicationsList();
                 return true;
             }

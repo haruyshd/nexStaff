@@ -290,16 +290,20 @@ const DataService = {
             console.error('Error getting employers:', error);
             return [];
         }
-    },
-
-    // Job Management
+    },    // Job Management
     addJob(job) {
         try {
-            const jobs = JSON.parse(localStorage.getItem('jobs')) || [];
+            const jobs = JSON.parse(localStorage.getItem('nexstaff_jobs')) || [];
             job.id = job.id || Date.now();
             job.createdAt = new Date().toISOString();
             jobs.push(job);
-            localStorage.setItem('jobs', JSON.stringify(jobs));
+            localStorage.setItem('nexstaff_jobs', JSON.stringify(jobs));
+            
+            // Dispatch event for real-time updates
+            document.dispatchEvent(new CustomEvent('jobAdded', {
+                detail: job
+            }));
+            
             this.notifySubscribers();
             return true;
         } catch (error) {
@@ -310,7 +314,7 @@ const DataService = {
 
     getJobs() {
         try {
-            return JSON.parse(localStorage.getItem('jobs')) || [];
+            return JSON.parse(localStorage.getItem('nexstaff_jobs')) || [];
         } catch (error) {
             console.error('Error getting jobs:', error);
             return [];
@@ -621,9 +625,7 @@ const DataService = {
                 }
             ];
             localStorage.setItem('candidates', JSON.stringify(sampleCandidates));
-        }
-
-        if (!localStorage.getItem('employers') || JSON.parse(localStorage.getItem('employers')).length === 0) {
+        }        if (!localStorage.getItem('employers') || JSON.parse(localStorage.getItem('employers')).length === 0) {
             const sampleEmployers = [
                 {
                     id: 1,
@@ -633,7 +635,8 @@ const DataService = {
                     phone: '+1-234-567-8905',
                     industry: 'Technology',
                     address: '123 Tech Street, Silicon Valley',
-                    status: 'Active'
+                    status: 'Active',
+                    createdAt: '2025-05-15T10:00:00Z'
                 },
                 {
                     id: 2,
@@ -643,7 +646,30 @@ const DataService = {
                     phone: '+1-234-567-8906',
                     industry: 'Healthcare',
                     address: '456 Medical Ave, Health City',
-                    status: 'Active'
+                    status: 'Pending',
+                    createdAt: '2025-06-10T14:30:00Z'
+                },
+                {
+                    id: 3,
+                    company: 'StartupXYZ',
+                    contactPerson: 'Alex Rodriguez',
+                    email: 'alex@startupxyz.com',
+                    phone: '+1-234-567-8907',
+                    industry: 'Technology',
+                    address: '789 Innovation Blvd, Tech Hub',
+                    status: 'Pending',
+                    createdAt: '2025-06-12T09:15:00Z',
+                    description: 'Innovative startup focused on mobile app development'
+                },
+                {
+                    id: 4,
+                    company: 'Finance Pro LLC',
+                    contactPerson: 'Jennifer Smith',
+                    email: 'jen@financepro.com',
+                    phone: '+1-234-567-8908',                    industry: 'Finance',
+                    address: '321 Finance Street, Money City',
+                    status: 'Active',
+                    createdAt: '2025-04-20T11:45:00Z'
                 }
             ];
             localStorage.setItem('employers', JSON.stringify(sampleEmployers));
@@ -805,10 +831,92 @@ const DataService = {
                 this.notifySubscribers();
                 return true;
             }
-            return false;
-        } catch (error) {
+            return false;        } catch (error) {
             console.error('Error declining application:', error);
             return false;
         }
     },
+
+    // Initialize sample data for testing
+    initializeSampleEmployers() {
+        const existingEmployers = this.getEmployers();
+        if (existingEmployers.length === 0) {
+            const sampleEmployers = [                {
+                    id: 1001,
+                    company: "TechCorp Solutions",
+                    companyName: "TechCorp Solutions",
+                    contactPerson: "John Smith",
+                    email: "john.smith@techcorp.com",
+                    phone: "(555) 123-4567",
+                    industry: "Technology",
+                    website: "www.techcorp.com",
+                    address: "123 Tech Street, Silicon Valley, CA 94000",
+                    companySize: "51-200",
+                    description: "Leading technology company specializing in cloud solutions and AI development. We're committed to innovation and creating cutting-edge software solutions for businesses worldwide.",
+                    requirements: "Strong programming skills in JavaScript, Python, or Java. Experience with cloud platforms (AWS, Azure). Bachelor's degree in Computer Science or related field. 2+ years of experience preferred.",
+                    status: "Pending",
+                    createdAt: new Date(Date.now() - 86400000).toISOString(), // 1 day ago
+                    notes: "New employer application pending review"
+                },                {
+                    id: 1002,
+                    company: "HealthFirst Medical",
+                    companyName: "HealthFirst Medical",
+                    contactPerson: "Dr. Sarah Johnson",
+                    email: "sarah.johnson@healthfirst.com",
+                    phone: "(555) 234-5678",
+                    industry: "Healthcare",
+                    website: "www.healthfirst.com",
+                    address: "456 Medical Center Drive, Houston, TX 77001",
+                    companySize: "201-1000",
+                    description: "Comprehensive healthcare provider offering state-of-the-art medical services. We are dedicated to providing exceptional patient care and advancing medical research.",
+                    requirements: "Medical degree and valid license. Board certification preferred. Experience in relevant specialty. Strong communication and patient care skills.",
+                    status: "Active",
+                    approvedAt: new Date(Date.now() - 172800000).toISOString(), // 2 days ago
+                    approvedBy: "Admin",
+                    notes: "Verified medical facility - approved"
+                },
+                {
+                    id: 1003,
+                    company: "Global Finance Inc",
+                    contactPerson: "Michael Brown",
+                    email: "m.brown@globalfinance.com",
+                    phone: "(555) 345-6789",
+                    industry: "Finance",
+                    website: "www.globalfinance.com",
+                    status: "Pending",
+                    createdAt: new Date(Date.now() - 43200000).toISOString(), // 12 hours ago
+                    notes: "Large financial institution - awaiting verification"
+                },
+                {
+                    id: 1004,
+                    company: "QuickBuild Construction",
+                    contactPerson: "Bob Wilson",
+                    email: "bob@quickbuild.com",
+                    phone: "(555) 456-7890",
+                    industry: "Manufacturing",
+                    status: "Rejected",
+                    rejectedAt: new Date(Date.now() - 259200000).toISOString(), // 3 days ago
+                    rejectedBy: "Admin",
+                    rejectionReason: "Incomplete documentation",
+                    notes: "Application rejected due to missing safety certifications"
+                },
+                {
+                    id: 1005,
+                    company: "EduTech Academy",
+                    contactPerson: "Lisa Davis",
+                    email: "lisa.davis@edutech.com",
+                    phone: "(555) 567-8901",
+                    industry: "Education",
+                    website: "www.edutech.com",
+                    status: "Active",
+                    approvedAt: new Date(Date.now() - 604800000).toISOString(), // 1 week ago
+                    approvedBy: "Admin",
+                    notes: "Educational institution - verified and approved"
+                }
+            ];
+
+            localStorage.setItem('employers', JSON.stringify(sampleEmployers));
+            console.log('Sample employer data initialized');
+        }
+    }
 };

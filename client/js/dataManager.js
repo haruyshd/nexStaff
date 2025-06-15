@@ -11,16 +11,50 @@ class NexStaffDataManager {
             employees: 'nexstaff_employees'
         };
         
+        this.subscribers = new Set();
         this.init();
-    }
-
-    init() {
+    }    init() {
         // Initialize with sample data if not exists
         this.initializeJobs();
         this.initializeCandidates();
         this.initializeEmployers();
         this.initializeApplications();
         this.initializeEmployees();
+        this.setupEventListeners();
+    }
+
+    // Event system for real-time updates
+    subscribe(callback) {
+        this.subscribers.add(callback);
+        return () => this.subscribers.delete(callback);
+    }
+
+    notifySubscribers(type, action, data) {
+        this.subscribers.forEach(callback => {
+            try {
+                callback({ type, action, data, timestamp: new Date().toISOString() });
+            } catch (error) {
+                console.error('Error in subscriber callback:', error);
+            }
+        });
+    }
+
+    setupEventListeners() {
+        // Listen for storage events from other tabs/windows
+        window.addEventListener('storage', (event) => {
+            if (Object.values(this.storageKeys).includes(event.key)) {
+                this.notifySubscribers('storage', 'changed', {
+                    key: event.key,
+                    oldValue: event.oldValue,
+                    newValue: event.newValue
+                });
+            }
+        });
+
+        // Listen for custom application submission events
+        document.addEventListener('applicationSubmitted', (event) => {
+            this.handleApplicationSubmission(event.detail);
+        });
     }
 
     initializeJobs() {
@@ -585,6 +619,181 @@ class NexStaffDataManager {
             return applications[index];
         }
         return null;
+    }
+
+    // Enhanced Application Management with Sync
+    submitJobApplication(applicationData) {
+        try {
+            const newApplication = {
+                id: `APP${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+                jobId: applicationData.jobId,
+                jobTitle: applicationData.jobTitle,
+                companyName: applicationData.companyName,
+                candidateName: applicationData.candidateName || applicationData.fullName,
+                fullName: applicationData.candidateName || applicationData.fullName,
+                email: applicationData.email,
+                phone: applicationData.phone,
+                coverLetter: applicationData.coverLetter || '',
+                resumeUrl: applicationData.resumeUrl || '',
+                resumeName: applicationData.resumeName || '',
+                expectedSalary: applicationData.expectedSalary || '',
+                availability: applicationData.availability || 'Immediate',
+                portfolioLinks: applicationData.portfolioLinks || [],
+                referenceContact: applicationData.referenceContact || '',
+                status: 'New',
+                priority: 'Medium',
+                submittedAt: new Date().toISOString(),
+                lastUpdated: new Date().toISOString(),
+                source: 'landing_page',
+                notes: ''
+            };
+
+            const application = this.addApplication(newApplication);
+            
+            // Create or update candidate profile
+            this.createOrUpdateCandidate(applicationData);
+            
+            // Notify subscribers
+            this.notifySubscribers('applications', 'create', application);
+            
+            return application;
+        } catch (error) {
+            console.error('Error submitting job application:', error);
+            return null;
+        }
+    }
+
+    // Handle application submission from landing page
+    handleApplicationSubmission(applicationData) {
+        console.log('Processing application submission:', applicationData);
+        
+        const application = this.submitJobApplication(applicationData);
+        
+        if (application) {
+            console.log('Application successfully processed:', application.id);
+            // Dispatch event for dashboard updates
+            document.dispatchEvent(new CustomEvent('applicationProcessed', { 
+                detail: application 
+            }));
+        }
+        
+        return application;
+    }
+
+    // Create or update candidate from application
+    createOrUpdateCandidate(applicationData) {
+        try {
+            const candidates = this.getCandidates();
+            let existingCandidate = candidates.find(c => c.email === applicationData.email);
+            
+            if (existingCandidate) {
+                // Update existing candidate
+                if (!existingCandidate.appliedJobs) {
+                    existingCandidate.appliedJobs = [];
+                }
+                
+                if (!existingCandidate.appliedJobs.find(job => job.jobId === applicationData.jobId)) {
+                    existingCandidate.appliedJobs.push({
+                        jobId: applicationData.jobId,
+                        jobTitle: applicationData.jobTitle,
+                        appliedAt: new Date().toISOString(),
+                        status: 'Applied'
+                    });
+                }
+                
+                existingCandidate.lastActive = new Date().toISOString().split('T')[0];
+                existingCandidate.phone = applicationData.phone || existingCandidate.phone;
+                
+                this.updateCandidate(existingCandidate.id, existingCandidate);
+                this.notifySubscribers('candidates', 'update', existingCandidate);
+                return existingCandidate.id;
+            } else {
+                // Create new candidate
+                const newCandidate = {
+                    name: applicationData.candidateName || applicationData.fullName,
+                    email: applicationData.email,
+                    phone: applicationData.phone,
+                    skills: [], // Can be extracted from cover letter later
+                    experience: applicationData.experience || '',
+                    education: '',
+                    resumeUrl: applicationData.resumeUrl || '',
+                    portfolioLinks: applicationData.portfolioLinks || [],
+                    appliedJobs: [{
+                        jobId: applicationData.jobId,
+                        jobTitle: applicationData.jobTitle,
+                        appliedAt: new Date().toISOString(),
+                        status: 'Applied'
+                    }],
+                    status: 'Available',
+                    registeredDate: new Date().toISOString().split('T')[0],
+                    lastActive: new Date().toISOString().split('T')[0],
+                    source: 'landing_page'
+                };
+                
+                const candidate = this.addCandidate(newCandidate);
+                this.notifySubscribers('candidates', 'create', candidate);
+                return candidate.id;
+            }
+        } catch (error) {
+            console.error('Error creating/updating candidate:', error);
+            return null;
+        }
+    }
+
+    // Get active jobs for public display
+    getActiveJobs() {
+        return this.getJobs().filter(job => 
+            job.status === 'Open' || job.status === 'Active'
+        );
+    }
+
+    // Analytics for admin dashboard
+    getJobAnalytics(jobId = null) {
+        const applications = this.getApplications();
+        
+        if (jobId) {
+            const jobApplications = applications.filter(app => app.jobId == jobId);
+            return {
+                totalApplications: jobApplications.length,
+                statusBreakdown: this.getStatusBreakdown(jobApplications),
+                recentApplications: jobApplications.slice(-5)
+            };
+        }
+        
+        return {
+            totalApplications: applications.length,
+            statusBreakdown: this.getStatusBreakdown(applications),
+            jobBreakdown: this.getJobApplicationBreakdown(applications),
+            recentApplications: applications.slice(-10)
+        };
+    }
+
+    getStatusBreakdown(applications) {
+        const breakdown = {};
+        applications.forEach(app => {
+            breakdown[app.status] = (breakdown[app.status] || 0) + 1;
+        });
+        return breakdown;
+    }
+
+    getJobApplicationBreakdown(applications) {
+        const breakdown = {};
+        applications.forEach(app => {
+            const key = `${app.jobTitle} (${app.companyName})`;
+            breakdown[key] = (breakdown[key] || 0) + 1;
+        });
+        return breakdown;
+    }
+
+    // Export/Import functionality
+    exportData() {
+        return {
+            jobs: this.getJobs(),
+            applications: this.getApplications(),
+            candidates: this.getCandidates(),
+            employers: this.getEmployers(),
+            exportedAt: new Date().toISOString()
+        };
     }
 
     // Helper Methods

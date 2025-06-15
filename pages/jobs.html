@@ -6,6 +6,7 @@
     <title>Jobs - NexStaff</title>    <link rel="stylesheet" href="../client/css/landing.css">
     <link rel="icon" href="../client/img/logo.png" type="image/png">
     <link href="https://unpkg.com/ionicons@5.5.2/dist/css/ionicons.min.css" rel="stylesheet">
+    <script src="../client/js/dataManager.js"></script>
     <style>
         body {
             padding-top: var(--nav-height);
@@ -63,6 +64,46 @@
         .job-card:hover {
             transform: translateY(-5px);
             box-shadow: 0 8px 25px rgba(146, 128, 253, 0.15);
+        }
+
+        .job-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 0.5rem;
+        }
+
+        .job-header h3 {
+            margin: 0;
+            flex: 1;
+        }
+
+        .job-status {
+            padding: 0.25rem 0.75rem;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .job-status.active {
+            background: #10B981;
+            color: white;
+        }
+
+        .job-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid rgba(146, 128, 253, 0.1);
+        }
+
+        .posted-date {
+            color: #666;
+            font-size: 0.85rem;
         }
 
         .job-card h3 {
@@ -263,6 +304,413 @@
             background: #f44336;
             color: white;
         }
+
+        /* Enhanced Application Modal Styles */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(5px);
+            z-index: 10000;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+            opacity: 1;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .modal-container {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 600px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            transform: scale(0.9);
+            transition: transform 0.3s ease;
+        }
+
+        .modal-overlay.active .modal-container {
+            transform: scale(1);
+        }
+
+        .modal-header {
+            padding: 24px 32px 16px;
+            border-bottom: 1px solid #e2e8f0;
+            position: relative;
+        }
+
+        .modal-header h2 {
+            margin: 0 0 8px 0;
+            color: #1a202c;
+            font-size: 24px;
+            font-weight: 600;
+        }
+
+        .company-name {
+            color: #8B5CF6;
+            font-size: 16px;
+            font-weight: 500;
+            margin: 0;
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            background: none;
+            border: none;
+            font-size: 24px;
+            color: #64748b;
+            cursor: pointer;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            transition: all 0.2s ease;
+        }
+
+        .modal-close:hover {
+            background: #f1f5f9;
+            color: #1a202c;
+        }
+
+        .modal-body {
+            padding: 24px 32px;
+        }
+
+        .form-section {
+            margin-bottom: 32px;
+        }
+
+        .form-section h3 {
+            color: #1a202c;
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .form-section h3 ion-icon {
+            color: #8B5CF6;
+            font-size: 20px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 6px;
+            color: #374151;
+            font-weight: 500;
+            font-size: 14px;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            font-size: 14px;
+            color: #1a202c;
+            background: white;
+            transition: all 0.2s ease;
+            box-sizing: border-box;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #8B5CF6;
+            box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        /* File Upload Styles */
+        .file-upload-area {
+            position: relative;
+            border: 2px dashed #d1d5db;
+            border-radius: 8px;
+            padding: 24px;
+            text-align: center;
+            background: #f8fafc;
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+
+        .file-upload-area:hover {
+            border-color: #8B5CF6;
+            background: #f3e8ff;
+        }
+
+        .file-upload-area input[type="file"] {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            cursor: pointer;
+        }
+
+        .file-upload-content ion-icon {
+            font-size: 32px;
+            color: #8B5CF6;
+            margin-bottom: 8px;
+        }
+
+        .file-upload-content p {
+            margin: 0 0 4px 0;
+            color: #4b5563;
+        }
+
+        .upload-link {
+            color: #8B5CF6;
+            font-weight: 500;
+        }
+
+        .file-upload-content small {
+            color: #6b7280;
+            font-size: 12px;
+        }
+
+        .file-info {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px;
+            background: #e0f2fe;
+            border-radius: 8px;
+            border: 1px solid #0ea5e9;
+        }
+
+        .file-info ion-icon {
+            color: #0ea5e9;
+            font-size: 20px;
+        }
+
+        .file-name {
+            flex: 1;
+            font-weight: 500;
+            color: #0c4a6e;
+        }
+
+        .file-size {
+            font-size: 12px;
+            color: #075985;
+        }
+
+        .char-count {
+            display: block;
+            text-align: right;
+            margin-top: 4px;
+            font-size: 12px;
+            color: #6b7280;
+        }
+
+        /* Checkbox Styles */
+        .checkbox-group {
+            margin-bottom: 16px;
+        }
+
+        .checkbox-label {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            cursor: pointer;
+            font-size: 14px;
+            color: #374151;
+            line-height: 1.5;
+        }
+
+        .checkbox-label input[type="checkbox"] {
+            display: none;
+        }
+
+        .checkmark {
+            width: 18px;
+            height: 18px;
+            border: 2px solid #d1d5db;
+            border-radius: 4px;
+            background: white;
+            position: relative;
+            flex-shrink: 0;
+            transition: all 0.2s ease;
+        }
+
+        .checkbox-label input[type="checkbox"]:checked + .checkmark {
+            background: #8B5CF6;
+            border-color: #8B5CF6;
+        }
+
+        .checkbox-label input[type="checkbox"]:checked + .checkmark::after {
+            content: '✓';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: white;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .modal-footer {
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+            padding: 24px 32px;
+            border-top: 1px solid #e2e8f0;
+            background: #f8fafc;
+            border-radius: 0 0 16px 16px;
+        }
+
+        .btn-primary,
+        .btn-secondary {
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-weight: 500;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            border: none;
+        }
+
+        .btn-primary {
+            background: #8B5CF6;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #7c3aed;
+            transform: translateY(-1px);
+        }
+
+        .btn-primary:disabled {
+            background: #9ca3af;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-secondary {
+            background: #f1f5f9;
+            color: #64748b;
+            border: 1px solid #e2e8f0;
+        }
+
+        .btn-secondary:hover {
+            background: #e2e8f0;
+            color: #475569;
+        }
+
+        /* Success Message */
+        .success-message {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: white;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .success-content {
+            text-align: center;
+            padding: 48px 32px;
+        }
+
+        .success-content ion-icon {
+            font-size: 64px;
+            color: #10b981;
+            margin-bottom: 16px;
+        }
+
+        .success-content h3 {
+            color: #1a202c;
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .success-content p {
+            color: #6b7280;
+            margin-bottom: 24px;
+            line-height: 1.5;
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            .modal-container {
+                margin: 16px;
+                max-height: calc(100vh - 32px);
+            }
+            
+            .modal-header,
+            .modal-body,
+            .modal-footer {
+                padding-left: 20px;
+                padding-right: 20px;
+            }
+            
+            .form-row {
+                grid-template-columns: 1fr;
+                gap: 12px;
+            }
+            
+            .modal-footer {
+                flex-direction: column-reverse;
+            }
+            
+            .btn-primary,
+            .btn-secondary {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+
+        #jobCount {
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
     </style>
 </head>
 <body>
@@ -343,48 +791,117 @@
                 <button type="submit" class="btn-primary">Submit Application</button>
             </form>
         </div>
-    </div>
-    <script>
-        // Sample job data
-        const jobs = [
-            {
-                title: 'Senior Full Stack Developer',
-                company: 'NexStaff Technologies',
-                type: 'Full-time',
-                location: 'Remote',
-                salary: '$120K - $150K',
-                description: 'Join our team to build next-generation staffing solutions.',
-                requirements: ['5+ years experience', 'React', 'Node.js', 'MongoDB']
-            },
-            {
-                title: 'UI/UX Designer',
-                company: 'NexStaff Creative',
-                type: 'Contract',
-                location: 'Hybrid',
-                salary: '$90K - $110K',
-                description: 'Create beautiful and intuitive user interfaces for our platforms.',
-                requirements: ['3+ years experience', 'Figma', 'Adobe Creative Suite', 'User Research']
-            },
-            {
-                title: 'Digital Marketing Specialist',
-                company: 'NexStaff Marketing',
-                type: 'Full-time',
-                location: 'On-site',
-                salary: '$60K - $80K',
-                description: 'Drive our digital marketing initiatives and growth.',
-                requirements: ['Digital Marketing', 'SEO', 'Content Strategy', 'Analytics']
+    </div>    <script>
+        // Load active jobs from the admin dashboard data
+        function loadActiveJobs() {
+            try {
+                // Try to get jobs from localStorage (same source as admin dashboard)
+                const allJobs = JSON.parse(localStorage.getItem('nexstaff_jobs')) || [];
+                
+                // Filter to only show ACTIVE jobs
+                const activeJobs = allJobs.filter(job => job.status === 'ACTIVE');
+                
+                // Transform admin job format to display format
+                return activeJobs.map(job => ({
+                    id: job.id,
+                    title: job.title,
+                    company: job.company,
+                    type: job.type,
+                    location: job.location,
+                    salary: job.salary,
+                    description: job.description,
+                    requirements: Array.isArray(job.requirements) ? job.requirements : 
+                                job.requirements ? job.requirements.split('\n').filter(req => req.trim()) : 
+                                ['Experience required'],
+                    category: job.category || 'General',
+                    postedDate: job.postedDate
+                }));
+            } catch (error) {
+                console.error('Error loading jobs:', error);
+                // Fallback to sample jobs if there's an error
+                return getFallbackJobs();
             }
-        ];
+        }
 
-        function displayJobs(jobsToDisplay = jobs) {
+        // Fallback sample jobs (only if no admin data is available)
+        function getFallbackJobs() {
+            return [
+                {
+                    id: 'SAMPLE001',
+                    title: 'Senior Full Stack Developer',
+                    company: 'NexStaff Technologies',
+                    type: 'Full-time',
+                    location: 'Remote',
+                    salary: '$120K - $150K',
+                    description: 'Join our team to build next-generation staffing solutions.',
+                    requirements: ['5+ years experience', 'React', 'Node.js', 'MongoDB'],
+                    category: 'Technology'
+                },
+                {
+                    id: 'SAMPLE002',
+                    title: 'UI/UX Designer',
+                    company: 'NexStaff Creative',
+                    type: 'Contract',
+                    location: 'Hybrid',
+                    salary: '$90K - $110K',
+                    description: 'Create beautiful and intuitive user interfaces for our platforms.',
+                    requirements: ['3+ years experience', 'Figma', 'Adobe Creative Suite', 'User Research'],
+                    category: 'Design'
+                },
+                {
+                    id: 'SAMPLE003',
+                    title: 'Digital Marketing Specialist',
+                    company: 'NexStaff Marketing',
+                    type: 'Full-time',
+                    location: 'On-site',
+                    salary: '$60K - $80K',
+                    description: 'Drive our digital marketing initiatives and growth.',
+                    requirements: ['Digital Marketing', 'SEO', 'Content Strategy', 'Analytics'],
+                    category: 'Marketing'
+                }
+            ];
+        }
+
+        // Load jobs when page loads
+        let jobs = loadActiveJobs();
+        
+        // Auto-refresh jobs every 30 seconds to get latest active jobs
+        setInterval(() => {
+            const updatedJobs = loadActiveJobs();
+            if (JSON.stringify(updatedJobs) !== JSON.stringify(jobs)) {
+                jobs = updatedJobs;
+                displayJobs();
+                console.log('Jobs refreshed - showing active jobs only');
+            }
+        }, 30000);        function displayJobs(jobsToDisplay = jobs) {
             const jobsList = document.getElementById('jobsList');
             jobsList.innerHTML = '';
+
+            if (jobsToDisplay.length === 0) {
+                jobsList.innerHTML = `
+                    <div style="grid-column: 1 / -1; text-align: center; padding: 3rem; color: #666;">
+                        <ion-icon name="briefcase-outline" style="font-size: 3rem; margin-bottom: 1rem;"></ion-icon>
+                        <h3>No Active Jobs Available</h3>
+                        <p>Check back later for new opportunities!</p>
+                    </div>
+                `;
+                return;
+            }
 
             jobsToDisplay.forEach(job => {
                 const jobCard = document.createElement('div');
                 jobCard.className = 'job-card';
+                
+                // Format posted date if available
+                const postedDate = job.postedDate ? 
+                    new Date(job.postedDate).toLocaleDateString() : 
+                    'Recently posted';
+                
                 jobCard.innerHTML = `
-                    <h3>${job.title}</h3>
+                    <div class="job-header">
+                        <h3>${job.title}</h3>
+                        <span class="job-status active">ACTIVE</span>
+                    </div>
                     <p class="company">${job.company}</p>
                     <div class="job-details">
                         <span><ion-icon name="business-outline"></ion-icon> ${job.type}</span>
@@ -395,25 +912,46 @@
                     <div class="requirements">
                         ${job.requirements.map(req => `<span class="tag">${req}</span>`).join('')}
                     </div>
-                    <button onclick="showJobApplication('${job.title}')" class="apply-btn">
-                        Apply Now
-                    </button>
+                    <div class="job-footer">
+                        <small class="posted-date">Posted: ${postedDate}</small>
+                        <button onclick="showJobApplication('${job.id}', '${job.title}', '${job.company}')" class="apply-btn">
+                            Apply Now
+                        </button>
+                    </div>
                 `;
                 jobsList.appendChild(jobCard);
             });
+            
+            // Update job count
+            updateJobCount(jobsToDisplay.length);
         }
 
-        // Function to show job application modal
-        function showJobApplication(jobTitle) {
+        function updateJobCount(count) {
+            // Add or update job count display
+            const existingCount = document.getElementById('jobCount');
+            const countText = `${count} Active Job${count !== 1 ? 's' : ''} Available`;
+            
+            if (existingCount) {
+                existingCount.textContent = countText;
+            } else {
+                const searchContainer = document.querySelector('.search-container');
+                const countDiv = document.createElement('div');
+                countDiv.id = 'jobCount';
+                countDiv.style.cssText = 'text-align: center; margin-top: 1rem; font-weight: 600; color: #666;';
+                countDiv.textContent = countText;
+                searchContainer.appendChild(countDiv);
+            }
+        }        // Function to show job application modal
+        function showJobApplication(jobId, jobTitle, companyName) {
             const modal = document.getElementById('applicationModal');
             const jobIdInput = document.getElementById('jobId');
             const jobTitleInput = document.getElementById('jobTitle');
             const companyNameInput = document.getElementById('companyName');
 
             // Set the job details in the modal
-            jobIdInput.value = jobTitle; // Assuming jobTitle is unique for each job
+            jobIdInput.value = jobId;
             jobTitleInput.value = jobTitle;
-            companyNameInput.value = 'NexStaff'; // Hardcoded for now
+            companyNameInput.value = companyName;
 
             modal.style.display = 'flex';
             document.body.style.overflow = 'hidden'; // Prevent scrolling
@@ -457,10 +995,10 @@
             });
 
             displayJobs(filteredJobs);
-        }
-
-        // Initialize jobs display
+        }        // Initialize jobs display
         displayJobs();
+        console.log(`Jobs page loaded: ${jobs.length} active jobs found`);
+        console.log('Active jobs:', jobs.map(job => `${job.title} (${job.status || 'ACTIVE'})`));
 
         // Mobile menu functionality
         const mobileMenuButton = document.querySelector('.mobile-menu');
@@ -481,14 +1019,158 @@
             }
         });        // Close modal when clicking on close button
         document.querySelector('.close').addEventListener('click', closeJobApplication);
-    </script>
-      <!-- Dynamic Footer -->
+        
+        // Listen for storage changes to update jobs in real-time
+        window.addEventListener('storage', function(e) {
+            if (e.key === 'nexstaff_jobs') {
+                console.log('Jobs data updated, refreshing active jobs...');
+                jobs = loadActiveJobs();
+                displayJobs();
+            }
+        });
+
+        // Also listen for custom events from admin dashboard
+        document.addEventListener('jobStatusChanged', function(e) {
+            console.log('Job status changed:', e.detail);
+            jobs = loadActiveJobs();
+            displayJobs();
+        });
+    </script>      <!-- Dynamic Footer -->
     <div id="footer-container"></div>
+    
+    <!-- Application Modal -->
+    <div id="applicationModal" class="modal-overlay">
+        <div class="modal-container">
+            <div class="modal-header">
+                <h2 id="modal-job-title">Apply for Position</h2>
+                <p id="modal-company-name" class="company-name"></p>
+                <button type="button" class="modal-close" onclick="closeApplicationModal()">&times;</button>
+            </div>
+            
+            <form id="applicationForm" class="modal-body">
+                <!-- Hidden fields for job information -->
+                <input type="hidden" id="jobId" name="jobId">
+                <input type="hidden" id="jobTitle" name="jobTitle">
+                <input type="hidden" id="companyName" name="companyName">
+                
+                <!-- Personal Information -->
+                <div class="form-section">
+                    <h3><ion-icon name="person-outline"></ion-icon> Personal Information</h3>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="fullName">Full Name *</label>
+                            <input type="text" id="fullName" name="fullName" required placeholder="Enter your full name">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="email">Email Address *</label>
+                            <input type="email" id="email" name="email" required placeholder="your.email@example.com">
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="phone">Phone Number *</label>
+                            <input type="tel" id="phone" name="phone" required placeholder="+1 (555) 123-4567">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="availability">Availability</label>
+                            <select id="availability" name="availability">
+                                <option value="Immediate">Immediate</option>
+                                <option value="2 weeks">2 weeks notice</option>
+                                <option value="1 month">1 month</option>
+                                <option value="2 months">2 months</option>
+                                <option value="Other">Other</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Professional Information -->
+                <div class="form-section">
+                    <h3><ion-icon name="briefcase-outline"></ion-icon> Professional Information</h3>
+                    
+                    <div class="form-group">
+                        <label for="expectedSalary">Expected Salary</label>
+                        <input type="text" id="expectedSalary" name="expectedSalary" placeholder="e.g., $80,000 - $100,000">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="portfolio">Portfolio/LinkedIn URL</label>
+                        <input type="url" id="portfolio" name="portfolio" placeholder="https://your-portfolio.com">
+                    </div>
+                </div>
+                
+                <!-- Resume Upload -->
+                <div class="form-section">
+                    <h3><ion-icon name="document-outline"></ion-icon> Resume & Cover Letter</h3>
+                    
+                    <div class="form-group">
+                        <label for="resume">Resume *</label>
+                        <div class="file-upload-area" id="resumeUploadArea">
+                            <input type="file" id="resume" name="resume" accept=".pdf,.doc,.docx" required>
+                            <div class="file-upload-content">
+                                <ion-icon name="cloud-upload-outline"></ion-icon>
+                                <p>Drop your resume here or <span class="upload-link">click to browse</span></p>
+                                <small>Supported formats: PDF, DOC, DOCX (Max 5MB)</small>
+                            </div>
+                            <div class="file-info" id="fileInfo" style="display: none;">
+                                <ion-icon name="document"></ion-icon>
+                                <span class="file-name"></span>
+                                <span class="file-size"></span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="coverLetter">Cover Letter</label>
+                        <textarea id="coverLetter" name="coverLetter" rows="5" 
+                                  placeholder="Tell us why you're interested in this position and what makes you a great fit..."></textarea>
+                        <small class="char-count">0/500 characters</small>
+                    </div>
+                </div>
+                
+                <!-- Consent -->
+                <div class="form-section">
+                    <div class="checkbox-group">
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="dataConsent" name="dataConsent" required>
+                            <span class="checkmark"></span>
+                            I consent to the processing of my personal data for recruitment purposes
+                        </label>
+                    </div>
+                </div>
+                
+                <div class="modal-footer">
+                    <button type="button" class="btn-secondary" onclick="closeApplicationModal()">
+                        <ion-icon name="close-outline"></ion-icon> Cancel
+                    </button>
+                    <button type="submit" class="btn-primary" id="submitApplication">
+                        <ion-icon name="paper-plane-outline"></ion-icon> Submit Application
+                    </button>
+                </div>
+            </form>
+            
+            <!-- Success Message -->
+            <div id="successMessage" class="success-message" style="display: none;">
+                <div class="success-content">
+                    <ion-icon name="checkmark-circle"></ion-icon>
+                    <h3>Application Submitted Successfully!</h3>
+                    <p>Thank you for your interest. We'll review your application and get back to you soon.</p>
+                    <button type="button" class="btn-primary" onclick="closeApplicationModal()">
+                        <ion-icon name="checkmark-outline"></ion-icon> Close
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
     
     <!-- Data Management Scripts -->
     <script src="../client/js/dataManager.js"></script>
     <script src="../client/js/jobs.js"></script>
-    <script src="../client/js/jobApplications.js"></script>
+    <script src="../client/js/application-modal.js"></script>
     
     <script type="module" src="https://unpkg.com/ionicons@7.2.1/dist/ionicons/ionicons.esm.js"></script>
     <script nomodule src="https://unpkg.com/ionicons@7.2.1/dist/ionicons/ionicons.js"></script>

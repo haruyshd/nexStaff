@@ -5,7 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>For Candidates - NexStaff</title>    <link rel="stylesheet" href="../client/css/landing.css">
     <link rel="icon" href="../client/img/logo.png" type="image/png">
-    <link href="https://unpkg.com/ionicons@5.5.2/dist/css/ionicons.min.css" rel="stylesheet">    <style>
+    <link href="https://unpkg.com/ionicons@5.5.2/dist/css/ionicons.min.css" rel="stylesheet">    <!-- Add scripts for admin integration and approval system -->
+    <script src="../login/admin/js/dataService.js"></script>
+    <script src="../login/admin/js/candidateProfiles.js"></script>
+    <script src="../client/js/availableCandidates.js"></script><style>
         .candidates-section {
             max-width: 1200px;
             margin: 2rem auto 2rem;
@@ -614,6 +617,511 @@
                 padding: 0 1rem;
             }
         }
+
+        /* Available Candidates Section */
+        .available-candidates-section {
+            padding: 4rem 2rem;
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            margin: 2rem 0;
+        }
+
+        .available-candidates-section .section-header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .available-candidates-section .section-header h2 {
+            font-size: 2.5rem;
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 1rem;
+            font-weight: 700;
+        }
+
+        .available-candidates-section .section-header p {
+            font-size: 1.2rem;
+            color: var(--text-color);
+            opacity: 0.8;
+        }
+
+        .candidate-filters {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-bottom: 3rem;
+            flex-wrap: wrap;
+        }
+
+        .candidate-filters .filter-btn {
+            padding: 0.75rem 1.5rem;
+            border: 2px solid #e2e8f0;
+            background: white;
+            color: var(--text-color);
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+
+        .candidate-filters .filter-btn:hover {
+            border-color: var(--primary-color);
+            color: var(--primary-color);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(139, 92, 246, 0.2);
+        }
+
+        .candidate-filters .filter-btn.active {
+            background: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+            box-shadow: 0 4px 15px rgba(139, 92, 246, 0.3);
+        }
+
+        #candidateCardsContainer {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 2rem;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .candidate-profile-card {
+            background: white;
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            border: 1px solid #e5e7eb;
+            position: relative;
+        }
+
+        .candidate-profile-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 30px rgba(139, 92, 246, 0.2);
+        }
+
+        .candidate-profile-card.approved {
+            border-left: 4px solid #10b981;
+        }
+
+        .candidate-profile-card.pending {
+            border-left: 4px solid #f59e0b;
+        }
+
+        .candidate-profile-card.rejected {
+            border-left: 4px solid #ef4444;
+            opacity: 0.8;
+        }
+
+        .profile-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .profile-avatar {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: var(--gradient-primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        .profile-info h3 {
+            font-size: 1.3rem;
+            margin-bottom: 0.25rem;
+            color: var(--text-color);
+            font-weight: 600;
+        }
+
+        .profile-role {
+            color: var(--primary-color);
+            font-weight: 600;
+            margin-bottom: 0.5rem !important;
+        }
+
+        .approval-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.4rem 1rem;
+            border-radius: 15px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .approval-status.approved {
+            background: rgba(16, 185, 129, 0.1);
+            color: #059669;
+        }
+
+        .approval-status.pending {
+            background: rgba(245, 158, 11, 0.1);
+            color: #d97706;
+        }
+
+        .approval-status.rejected {
+            background: rgba(239, 68, 68, 0.1);
+            color: #dc2626;
+        }
+
+        .profile-details {
+            margin-bottom: 1.5rem;
+        }
+
+        .detail-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 0.75rem;
+            color: var(--text-color);
+            opacity: 0.8;
+        }
+
+        .detail-item ion-icon {
+            font-size: 1.1rem;
+            color: var(--primary-color);
+        }
+
+        .skills-section h4 {
+            font-size: 1rem;
+            margin-bottom: 1rem;
+            color: var(--text-color);
+            font-weight: 600;
+        }
+
+        .skills-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .skill-tag {
+            background: rgba(139, 92, 246, 0.1);
+            color: var(--primary-color);
+            padding: 0.4rem 0.8rem;
+            border-radius: 15px;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+
+        .skills-more {
+            background: rgba(107, 114, 128, 0.1);
+            color: #6b7280;
+            padding: 0.4rem 0.8rem;
+            border-radius: 15px;
+            font-size: 0.85rem;
+        }
+
+        .profile-actions {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .profile-actions .btn-primary,
+        .profile-actions .btn-secondary,
+        .profile-actions .btn-disabled {
+            flex: 1;
+            padding: 0.75rem 1rem;
+            border-radius: 12px;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            font-size: 0.9rem;
+        }
+
+        .profile-actions .btn-primary {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .profile-actions .btn-primary:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+        }
+
+        .profile-actions .btn-secondary {
+            background: rgba(139, 92, 246, 0.1);
+            color: var(--primary-color);
+            border: 1px solid rgba(139, 92, 246, 0.3);
+        }
+
+        .profile-actions .btn-secondary:hover {
+            background: rgba(139, 92, 246, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .profile-actions .btn-disabled {
+            background: #f3f4f6;
+            color: #9ca3af;
+            cursor: not-allowed;
+        }
+
+        .no-candidates-message {
+            text-align: center;
+            padding: 4rem 2rem;
+            color: var(--text-color);
+        }
+
+        .no-candidates-message ion-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+
+        .no-candidates-message h3 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .no-candidates-message .btn-create-profile {
+            background: var(--primary-color);
+            color: white;
+            padding: 1rem 2rem;
+            border-radius: 25px;
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s ease;
+            margin-top: 1rem;
+        }
+
+        .no-candidates-message .btn-create-profile:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(139, 92, 246, 0.3);
+        }
+
+        /* Candidate Modal Styles */
+        .candidate-modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(5px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .candidate-modal {
+            background: white;
+            border-radius: 20px;
+            max-width: 700px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            animation: modalSlideIn 0.3s ease-out;
+        }
+
+        .candidate-modal .modal-header {
+            padding: 2rem 2rem 1rem;
+            border-bottom: 1px solid #e5e7eb;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .candidate-modal .modal-header h3 {
+            font-size: 1.5rem;
+            color: var(--text-color);
+            margin: 0;
+        }
+
+        .candidate-modal .close-btn {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #6b7280;
+            padding: 0.5rem;
+            border-radius: 8px;
+            transition: background 0.2s ease;
+        }
+
+        .candidate-modal .close-btn:hover {
+            background: #f3f4f6;
+        }
+
+        .candidate-modal .modal-body {
+            padding: 2rem;
+        }
+
+        .candidate-full-details .detail-section {
+            margin-bottom: 2rem;
+            background: #f8fafc;
+            border-radius: 12px;
+            padding: 1.5rem;
+        }
+
+        .detail-section h4 {
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+            font-weight: 600;
+            border-bottom: 2px solid rgba(139, 92, 246, 0.1);
+            padding-bottom: 0.5rem;
+        }
+
+        .detail-grid {
+            display: grid;
+            gap: 1rem;
+        }
+
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .detail-row .label {
+            font-weight: 600;
+            color: var(--text-color);
+        }
+
+        .detail-row .value {
+            color: var(--text-color);
+            opacity: 0.8;
+        }
+
+        .skills-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .applied-jobs-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .applied-jobs-list li {
+            padding: 0.5rem 0;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .applied-jobs-list li:last-child {
+            border-bottom: none;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+
+        .modal-actions .btn-primary,
+        .modal-actions .btn-secondary {
+            flex: 1;
+            padding: 0.75rem 1.5rem;
+            border-radius: 12px;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+        }
+
+        .modal-actions .btn-primary {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .modal-actions .btn-primary:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+        }
+
+        .modal-actions .btn-secondary {
+            background: rgba(139, 92, 246, 0.1);
+            color: var(--primary-color);
+            border: 1px solid rgba(139, 92, 246, 0.3);
+        }
+
+        .modal-actions .btn-secondary:hover {
+            background: rgba(139, 92, 246, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .modal-notice {
+            background: rgba(59, 130, 246, 0.1);
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            border-radius: 12px;
+            padding: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            color: #1d4ed8;
+            margin-top: 1rem;
+        }
+
+        .modal-notice ion-icon {
+            font-size: 1.2rem;
+        }
+
+        /* Status styling */
+        .value.approval-approved {
+            color: #059669;
+            font-weight: 600;
+        }
+
+        .value.approval-pending {
+            color: #d97706;
+            font-weight: 600;
+        }
+
+        .value.approval-rejected {
+            color: #dc2626;
+            font-weight: 600;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            #candidateCardsContainer {
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+            }
+            
+            .profile-actions {
+                flex-direction: column;
+            }
+            
+            .modal-actions {
+                flex-direction: column;
+            }
+            
+            .candidate-filters {
+                flex-direction: column;
+                align-items: center;
+            }
+        }
     </style>
 </head>
 <body>
@@ -686,10 +1194,20 @@
                         <li><ion-icon name="checkmark-outline"></ion-icon> Salary insights and negotiation guides</li>
                         <li><ion-icon name="checkmark-outline"></ion-icon> Career development resources</li>
                     </ul>
-                </div>
+                </div>            </div>
+        </section>
+
+        <!-- Available Candidates Section -->
+        <section class="available-candidates-section">
+            <div class="section-header">
+                <h2>Available Candidates</h2>
+                <p>Connect with talented professionals ready for new opportunities</p>
+            </div>
+            <div id="availableCandidatesContainer">
+                <!-- Available candidates will be loaded here -->
             </div>
         </section>
-    </main>    <!-- Profile Creation Modal -->
+    </main><!-- Profile Creation Modal -->
     <div id="profileModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
@@ -853,9 +1371,7 @@
                 resumeUpload.style.borderColor = '#d1d5db';
                 resumeUpload.style.background = '#f8f9fa';
                 resumeUpload.style.transform = 'scale(1)';
-            });
-
-            // Enhanced form submission with animation
+            });            // Enhanced form submission with admin dashboard integration
             profileForm.addEventListener('submit', (e) => {
                 e.preventDefault();
                 const formData = new FormData(profileForm);
@@ -866,17 +1382,58 @@
                 submitBtn.innerHTML = '<ion-icon name="hourglass-outline" style="margin-right: 0.5rem;"></ion-icon>Creating Profile...';
                 submitBtn.disabled = true;
                 submitBtn.style.opacity = '0.7';
+                  // Prepare candidate data for admin approval system
+                const candidateData = {
+                    name: formData.get('fullName'),
+                    email: formData.get('email'),
+                    phone: formData.get('phone'),
+                    experience: formData.get('experience') + ' years',
+                    skills: formData.get('skills').split(',').map(s => s.trim()),
+                    preferredRole: Array.from(formData.getAll('preferences')).join(', ') || 'Open to opportunities',
+                    appliedJobs: [],
+                    approvalStatus: 'pending', // New candidates need approval
+                    submissionDate: new Date().toISOString(),
+                    status: 'Available',
+                    source: 'Candidate Registration Page'
+                };
                 
-                // Simulate API call
-                setTimeout(() => {
-                    console.log('Profile Created:', Object.fromEntries(formData));
-                    
-                    // Show success state
-                    submitBtn.innerHTML = '<ion-icon name="checkmark-outline" style="margin-right: 0.5rem;"></ion-icon>Profile Created!';
-                    submitBtn.style.background = 'linear-gradient(135deg, #10b981, #059669)';
-                    
-                    // Show success message
-                    successMessage.classList.add('show');
+                // Save to admin approval system
+                try {
+                    // Use the CandidateProfilesAPI if available
+                    if (typeof CandidateProfilesAPI !== 'undefined') {
+                        const savedCandidate = CandidateProfilesAPI.addCandidate(candidateData);
+                        console.log('Candidate submitted for approval:', savedCandidate);
+                        
+                        // Show success state
+                        submitBtn.innerHTML = '<ion-icon name="checkmark-outline" style="margin-right: 0.5rem;"></ion-icon>Submitted for Review!';
+                        submitBtn.style.background = 'linear-gradient(135deg, #10b981, #059669)';
+                        
+                        // Update success message
+                        successMessage.innerHTML = `
+                            <ion-icon name="checkmark-circle-outline"></ion-icon>
+                            Profile submitted successfully! Your application is now pending admin approval. 
+                            You'll be notified once approved and visible on the platform.
+                        `;
+                        successMessage.classList.add('show');
+                        
+                    } else {
+                        // Fallback - save directly to localStorage with approval system
+                        const candidates = JSON.parse(localStorage.getItem('nexstaff_candidates')) || [];
+                        candidateData.id = Date.now();
+                        candidates.push(candidateData);
+                        localStorage.setItem('nexstaff_candidates', JSON.stringify(candidates));
+                        console.log('Candidate saved for approval:', candidateData);
+                        
+                        submitBtn.innerHTML = '<ion-icon name="checkmark-outline" style="margin-right: 0.5rem;"></ion-icon>Submitted for Review!';
+                        submitBtn.style.background = 'linear-gradient(135deg, #10b981, #059669)';
+                        
+                        successMessage.innerHTML = `
+                            <ion-icon name="checkmark-circle-outline"></ion-icon>
+                            Profile submitted successfully! Your application is now pending admin approval. 
+                            You'll be notified once approved and visible on the platform.
+                        `;
+                        successMessage.classList.add('show');
+                    }
                     
                     setTimeout(() => {
                         // Reset form and close modal
@@ -893,7 +1450,19 @@
                         submitBtn.style.opacity = '1';
                         submitBtn.style.background = '';
                     }, 2500);
-                }, 2000);
+                    
+                } catch (error) {
+                    console.error('Error saving candidate:', error);
+                    submitBtn.innerHTML = '<ion-icon name="close-outline" style="margin-right: 0.5rem;"></ion-icon>Error - Try Again';
+                    submitBtn.style.background = '#ef4444';
+                    
+                    setTimeout(() => {
+                        submitBtn.innerHTML = originalText;
+                        submitBtn.disabled = false;
+                        submitBtn.style.opacity = '1';
+                        submitBtn.style.background = '';
+                    }, 3000);
+                }
             });
 
             // Enhanced floating label behavior

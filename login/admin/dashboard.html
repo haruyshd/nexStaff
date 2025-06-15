@@ -6,9 +6,11 @@
     <link rel="icon" href="../client/img/logo.png" type="image/png">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    
-    <!-- Include Data Service -->
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css" rel="stylesheet"><!-- Include Data Service -->
+    <script src="../client/js/dataManager.js"></script>
     <script src="js/dataService.js"></script>
+    <script src="js/jobManagement.js"></script>
       <style>
         :root {
             /* Modern Color Palette */
@@ -355,10 +357,41 @@
 
         .section {
             display: none;
+        }        .section.active {
+            display: block;
+            animation: fadeIn 0.3s ease-in;
         }
 
-        .section.active {
-            display: block;
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Section titles */
+        .section-title {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin: 0;
+        }
+
+        /* Form controls improvements */
+        .form-control-sm {
+            font-size: 0.875rem;
+        }
+
+        .d-flex.gap-2 > * {
+            margin-right: 0.5rem;
+        }
+
+        .d-flex.gap-2 > *:last-child {
+            margin-right: 0;
         }
 
         /* Cards */
@@ -467,9 +500,7 @@
 
         .stat-change.negative {
             color: var(--danger);
-        }
-
-        /* Tables */
+        }        /* Tables */
         .table-container {
             overflow-x: auto;
         }
@@ -477,6 +508,7 @@
         .table {
             width: 100%;
             border-collapse: collapse;
+            margin-bottom: 0;
         }
 
         .table th,
@@ -484,6 +516,7 @@
             padding: 1rem;
             text-align: left;
             border-bottom: 1px solid var(--border);
+            vertical-align: middle;
         }
 
         .table th {
@@ -493,10 +526,74 @@
             font-size: 0.875rem;
             text-transform: uppercase;
             letter-spacing: 0.05em;
+            border-top: none;
         }
 
         .table tr:hover {
             background: rgba(99, 102, 241, 0.05);
+        }
+
+        /* Fix Bootstrap table conflicts */
+        .table-responsive {
+            border: none;
+            box-shadow: none;
+        }
+
+        .table-responsive .table {
+            margin-bottom: 0;
+        }
+
+        /* Jobs table specific styling */
+        #jobs-section .table td {
+            font-size: 0.875rem;
+        }
+
+        #jobs-section .badge {
+            font-size: 0.75rem;
+            padding: 0.25rem 0.5rem;
+        }        #jobs-section .btn-group .btn {
+            padding: 0.375rem 0.5rem;
+            font-size: 0.75rem;
+        }
+
+        #jobs-section .status-select {
+            font-size: 0.75rem;
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.25rem;
+        }
+
+        /* Responsive table improvements */
+        @media (max-width: 768px) {
+            .table-responsive {
+                border: none;
+            }
+            
+            #jobs-section .table th,
+            #jobs-section .table td {
+                padding: 0.5rem;
+                font-size: 0.8rem;
+            }
+            
+            #jobs-section .btn-group .btn {
+                padding: 0.25rem 0.375rem;
+                font-size: 0.7rem;
+            }
+        }
+
+        /* Loading state improvements */
+        .loading-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #3498db;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
 
         /* Buttons */
@@ -981,11 +1078,555 @@
             font-weight: 500;
             text-transform: uppercase;
         }
-        
-        .status-active, .status-open, .status-scheduled { background: #d4edda; color: #155724; }
+          .status-active, .status-open, .status-scheduled { background: #d4edda; color: #155724; }
         .status-inactive, .status-closed, .status-cancelled { background: #f8d7da; color: #721c24; }
         .status-pending, .status-reviewing, .status-on { background: #fff3cd; color: #856404; }
         .status-hired, .status-completed, .status-filled { background: #d1ecf1; color: #0c5460; }
+
+        /* Candidate Approval System Styles */
+        .candidate-filters {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .filter-btn {
+            padding: 0.75rem 1.5rem;
+            border: 2px solid var(--border);
+            background: var(--white);
+            color: var(--text-secondary);
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all var(--transition-fast);
+            font-weight: 500;
+            font-size: 0.95rem;
+        }
+
+        .filter-btn:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(139, 92, 246, 0.2);
+        }
+
+        .filter-btn.active {
+            background: var(--primary);
+            color: var(--white);
+            border-color: var(--primary);
+            box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
+        }
+
+        #candidateCards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 1.5rem;
+            margin-top: 1rem;
+        }
+
+        .profile-card {
+            background: var(--white);
+            border-radius: 16px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            border: 1px solid var(--border);
+            transition: all var(--transition-normal);
+        }
+
+        .profile-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(139, 92, 246, 0.15);
+        }
+
+        .profile-card.pending {
+            border-left: 4px solid var(--warning);
+        }
+
+        .profile-card.approved {
+            border-left: 4px solid var(--success);
+        }
+
+        .profile-card.rejected {
+            border-left: 4px solid var(--danger);
+            opacity: 0.8;
+        }
+
+        .profile-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1rem;
+        }
+
+        .profile-header h3 {
+            color: var(--text-primary);
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+
+        .approval-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            padding: 0.4rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .approval-badge.pending {
+            background: rgba(245, 158, 11, 0.1);
+            color: #D97706;
+            border: 1px solid rgba(245, 158, 11, 0.3);
+        }
+
+        .approval-badge.approved {
+            background: rgba(16, 185, 129, 0.1);
+            color: #059669;
+            border: 1px solid rgba(16, 185, 129, 0.3);
+        }
+
+        .approval-badge.rejected {
+            background: rgba(239, 68, 68, 0.1);
+            color: #DC2626;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+
+        .profile-content {
+            margin-bottom: 1.5rem;
+        }
+
+        .profile-content p {
+            margin-bottom: 0.5rem;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .profile-content strong {
+            color: var(--text-primary);
+            font-weight: 600;
+        }
+
+        .skills {
+            margin: 1rem 0;
+        }
+
+        .skill-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+        }
+
+        .tag {
+            background: rgba(139, 92, 246, 0.1);
+            color: var(--primary);
+            padding: 0.3rem 0.8rem;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .applied-jobs {
+            margin: 1rem 0;
+        }
+
+        .applied-jobs ul {
+            list-style: none;
+            padding: 0;
+            margin-top: 0.5rem;
+        }
+
+        .applied-jobs li {
+            padding: 0.3rem 0;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .profile-actions {
+            display: flex;
+            gap: 0.75rem;
+            flex-wrap: wrap;
+        }
+
+        .profile-actions .btn {
+            flex: 1;
+            min-width: 120px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1rem;
+            border-radius: 8px;
+            font-weight: 500;
+            font-size: 0.9rem;
+            transition: all var(--transition-fast);
+            border: none;
+            cursor: pointer;
+            text-decoration: none;
+        }
+
+        .btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .btn.btn-success {
+            background: var(--success);
+            color: var(--white);
+        }
+
+        .btn.btn-success:hover {
+            background: #059669;
+        }
+
+        .btn.btn-danger {
+            background: var(--danger);
+            color: var(--white);
+        }
+
+        .btn.btn-danger:hover {
+            background: #DC2626;
+        }
+
+        .btn.btn-warning {
+            background: var(--warning);
+            color: var(--white);
+        }        .btn.btn-warning:hover {
+            background: #D97706;
+        }
+
+        .btn.btn-secondary {
+            background: rgba(139, 92, 246, 0.1);
+            color: var(--primary);
+            border: 1px solid rgba(139, 92, 246, 0.3);
+        }
+
+        /* Enhanced styling for approve/reject buttons */
+        .btn-sm {
+            padding: 0.375rem 0.75rem;
+            font-size: 0.875rem;
+            line-height: 1.5;
+            border-radius: 0.375rem;
+            margin: 0 2px;
+            min-width: 36px;
+            transition: all var(--transition-fast);
+        }
+
+        .btn-sm:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        /* Specific styling for approve button */
+        .btn-sm.btn-success {
+            background: linear-gradient(135deg, var(--success), #059669);
+            border: none;
+            box-shadow: 0 2px 4px rgba(16, 185, 129, 0.3);
+        }
+
+        .btn-sm.btn-success:hover {
+            background: linear-gradient(135deg, #059669, #047857);
+            box-shadow: 0 4px 8px rgba(16, 185, 129, 0.4);
+        }
+
+        /* Specific styling for reject button */
+        .btn-sm.btn-warning {
+            background: linear-gradient(135deg, var(--warning), #D97706);
+            border: none;
+            box-shadow: 0 2px 4px rgba(245, 158, 11, 0.3);
+        }
+
+        .btn-sm.btn-warning:hover {
+            background: linear-gradient(135deg, #D97706, #B45309);
+            box-shadow: 0 4px 8px rgba(245, 158, 11, 0.4);
+        }        /* Action buttons container */
+        .action-buttons {
+            display: flex;
+            gap: 4px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .action-buttons .btn-sm {
+            margin: 1px;
+        }
+
+        /* Enhanced notification styles */
+        .admin-notification {
+            border-radius: var(--radius-md);
+            border: none;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+        }
+
+        .admin-notification.alert-success {
+            background: rgba(16, 185, 129, 0.95);
+            color: white;
+        }
+
+        .admin-notification.alert-danger {
+            background: rgba(239, 68, 68, 0.95);
+            color: white;
+        }
+
+        .admin-notification.alert-warning {
+            background: rgba(245, 158, 11, 0.95);
+            color: white;
+        }
+
+        .admin-notification.alert-info {
+            background: rgba(59, 130, 246, 0.95);
+            color: white;
+        }
+
+        .admin-notification .close {
+            color: inherit;
+            opacity: 0.8;
+        }
+
+        .admin-notification .close:hover {
+            opacity: 1;
+        }
+
+        /* Badge improvements */
+        .badge {
+            font-size: 0.75rem;
+            padding: 0.375rem 0.75rem;
+            border-radius: var(--radius-sm);
+            font-weight: 500;
+        }
+
+        .badge-info {
+            background: linear-gradient(135deg, var(--info), #2563EB);
+            color: white;
+        }
+
+        .badge-success {
+            background: linear-gradient(135deg, var(--success), #059669);
+            color: white;
+        }
+
+        .badge-warning {
+            background: linear-gradient(135deg, var(--warning), #D97706);
+            color: white;
+        }
+
+        .badge-danger {
+            background: linear-gradient(135deg, var(--danger), #DC2626);
+            color: white;
+        }
+
+        .btn.btn-secondary:hover {
+            background: rgba(139, 92, 246, 0.2);
+        }
+
+        /* Notification Styles */
+        .notification {
+            background: var(--white);
+            border-radius: 12px;
+            padding: 1rem 1.5rem;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            border-left: 4px solid var(--info);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            min-width: 300px;
+            max-width: 400px;
+            animation: slideInRight 0.3s ease-out;
+            margin-bottom: 0.5rem;
+        }
+
+        .notification.success {
+            border-left-color: var(--success);
+            color: #059669;
+        }
+
+        .notification.warning {
+            border-left-color: var(--warning);
+            color: #D97706;
+        }
+
+        .notification.error {
+            border-left-color: var(--danger);
+            color: #DC2626;
+        }
+
+        @keyframes slideInRight {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        /* Candidate Detail Modal */
+        .candidate-detail-modal {
+            max-width: 800px;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .candidate-detail-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .detail-section {
+            background: #F8FAFC;
+            border-radius: 12px;
+            padding: 1.5rem;
+        }
+
+        .detail-section h4 {
+            color: var(--primary);
+            margin-bottom: 1rem;
+            font-weight: 600;
+            border-bottom: 2px solid rgba(139, 92, 246, 0.1);
+            padding-bottom: 0.5rem;
+        }
+
+        .detail-section .status {
+            padding: 0.25rem 0.75rem;
+            border-radius: 12px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-transform: capitalize;
+        }
+
+        .detail-section .status.pending {
+            background: rgba(245, 158, 11, 0.1);
+            color: #D97706;
+        }
+
+        .detail-section .status.approved {
+            background: rgba(16, 185, 129, 0.1);
+            color: #059669;
+        }
+
+        .detail-section .status.rejected {
+            background: rgba(239, 68, 68, 0.1);
+            color: #DC2626;
+        }        /* Responsive Design */
+        @media (max-width: 768px) {
+            #candidateCards {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+            
+            .candidate-filters {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .profile-actions {
+                flex-direction: column;
+            }
+            
+            .profile-actions .btn {
+                min-width: auto;
+            }
+        }        /* Section Content Wrapper */
+        .section-content {
+            padding: 1rem;
+        }
+
+        /* Override any conflicting table styles for candidate profiles */
+        #candidateProfiles .table {
+            display: none;
+        }
+
+        /* Ensure candidate profiles display properly */
+        #candidateProfiles {
+            width: 100%;
+            max-width: none;
+        }        /* Fix any potential z-index issues */
+        .candidate-modal-overlay {
+            z-index: 10000;
+        }
+
+        /* Candidate Form Modal Styles */
+        .candidate-form-modal {
+            max-width: 600px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group.full-width {
+            grid-column: 1 / -1;
+        }
+
+        .form-group label {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--text-primary);
+        }
+
+        .form-group input,
+        .form-group select {
+            padding: 0.75rem;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 0.9rem;
+            transition: border-color 0.2s ease;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
+        }
+
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid var(--border);
+        }
+
+        /* Button styles for forms */
+        .btn.btn-info {
+            background: var(--info);
+            color: var(--white);
+        }
+
+        .btn.btn-info:hover {
+            background: #2563EB;
+        }
+
+        /* Responsive form */
+        @media (max-width: 768px) {
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .modal-footer {
+                flex-direction: column;
+            }
+        }
     </style>
 </head>
 <body>
@@ -1305,52 +1946,37 @@
                 </section>
 
                 <!-- Continue with other sections... -->                <section id="candidates-section" class="section">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
-                        <h2 style="font-size: 1.5rem; font-weight: 600;">Candidate Management</h2>
-                        <button class="btn btn-primary" id="addCandidateBtn">
-                            <i class="fas fa-user-plus"></i>
-                            Add Candidate
-                        </button>
-                    </div>
-
-                    <div class="card">
-                        <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
-                            <h3 class="card-title">All Candidates</h3>
+                    <div class="section-content">                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+                            <h2 style="font-size: 1.5rem; font-weight: 600;">Candidate Management</h2>
                             <div style="display: flex; gap: 1rem;">
-                                <input type="search" class="form-control" placeholder="Search candidates..." style="width: 250px;">
-                                <select class="form-control" style="width: 150px;">
-                                    <option>All Status</option>
-                                    <option>Available</option>
-                                    <option>Hired</option>
-                                    <option>Interviewing</option>
-                                </select>
+                                <button class="btn btn-success" onclick="CandidateProfilesAPI.createCandidate()">
+                                    <i class="fas fa-user-plus"></i>
+                                    Add Candidate
+                                </button>
+                                <button class="btn btn-primary" onclick="CandidateProfilesAPI.loadCandidateProfiles()">
+                                    <i class="fas fa-sync-alt"></i>
+                                    Refresh
+                                </button>
+                                <button class="btn btn-secondary" onclick="CandidateProfilesAPI.test()">
+                                    <i class="fas fa-flask"></i>
+                                    Test API
+                                </button>
+                                <button class="btn btn-info" onclick="CandidateProfilesAPI.testCreate()">
+                                    <i class="fas fa-bug"></i>
+                                    Test Create
+                                </button>
                             </div>
                         </div>
-                        <div class="card-body">
-                            <div class="table-container">
-                                <table class="table">
-                                    <thead>
-                                        <tr>
-                                            <th>Candidate ID</th>
-                                            <th>Name</th>
-                                            <th>Email</th>
-                                            <th>Phone</th>
-                                            <th>Skills</th>
-                                            <th>Experience</th>
-                                            <th>Status</th>
-                                            <th>Actions</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody id="candidatesTableBody">
-                                        <tr>
-                                            <td colspan="8" class="text-center">Loading candidates...</td>
-                                        </tr>
-                                    </tbody>
-                                </table>
+
+                        <!-- Candidate Profiles Container -->
+                        <div id="candidateProfiles">
+                            <div class="text-center" style="padding: 2rem;">
+                                <i class="fas fa-spinner fa-spin" style="font-size: 2rem; color: #8B5CF6;"></i>
+                                <p style="margin-top: 1rem;">Loading candidates...</p>
                             </div>
                         </div>
                     </div>
-                </section>                <section id="employers-section" class="section">
+                </section><section id="employers-section" class="section">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
                         <h2 style="font-size: 1.5rem; font-weight: 600;">Employer Management</h2>
                         <button class="btn btn-primary" id="addEmployerBtn">
@@ -1359,17 +1985,24 @@
                         </button>
                     </div>
 
-                    <div class="card">
-                        <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
+                    <div class="card">                        <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
                             <h3 class="card-title">All Employers</h3>
                             <div style="display: flex; gap: 1rem;">
-                                <input type="search" class="form-control" placeholder="Search employers..." style="width: 250px;">
-                                <select class="form-control" style="width: 150px;">
-                                    <option>All Industries</option>
-                                    <option>Technology</option>
-                                    <option>Healthcare</option>
-                                    <option>Finance</option>
-                                    <option>Manufacturing</option>
+                                <input type="search" class="form-control" id="employerSearch" placeholder="Search employers..." style="width: 250px;">
+                                <select class="form-control" id="industryFilter" style="width: 150px;">
+                                    <option value="">All Industries</option>
+                                    <option value="Technology">Technology</option>
+                                    <option value="Healthcare">Healthcare</option>
+                                    <option value="Finance">Finance</option>
+                                    <option value="Manufacturing">Manufacturing</option>
+                                    <option value="Education">Education</option>
+                                    <option value="Retail">Retail</option>
+                                </select>
+                                <select class="form-control" id="statusFilter" style="width: 120px;">
+                                    <option value="">All Status</option>
+                                    <option value="Pending">Pending</option>
+                                    <option value="Active">Active</option>
+                                    <option value="Rejected">Rejected</option>
                                 </select>
                             </div>
                         </div>
@@ -1445,11 +2078,11 @@
                                 </table>
                             </div>
                         </div>
-                    </div>
-                </section>                <section id="applications-section" class="section">
+                    </div>                </section>
+
+                <section id="applications-section" class="section">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
-                        <h2 style="font-size: 1.5rem; font-weight: 600;">Application Management</h2>
-                        <button class="btn btn-primary" id="addApplicationBtn">
+                        <h2 style="font-size: 1.5rem; font-weight: 600;">Application Management</h2>                        <button class="btn btn-primary" id="addApplicationBtn" onclick="crudManager.openCreateModal('application')">
                             <i class="fas fa-file-plus"></i>
                             New Application
                         </button>
@@ -1459,7 +2092,8 @@
                         <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
                             <h3 class="card-title">All Applications</h3>
                             <div style="display: flex; gap: 1rem;">
-                                <input type="search" class="form-control" placeholder="Search applications..." style="width: 250px;">                                <select class="form-control" style="width: 150px;">
+                                <input type="search" id="applicationsSearchInput" class="form-control" placeholder="Search applications..." style="width: 250px;">
+                                <select id="applicationsStatusFilter" class="form-control" style="width: 150px;">
                                     <option>All Status</option>
                                     <option>Pending</option>
                                     <option>Under Review</option>
@@ -1470,24 +2104,27 @@
                             </div>
                         </div>
                         <div class="card-body">
-                            <div class="table-container">
-                                <table class="table">
-                                    <thead>
+                            <div class="table-responsive">
+                                <table class="table table-hover">
+                                    <thead class="thead-light">
                                         <tr>
-                                            <th>
-                                                <input type="checkbox" id="selectAllApplications">
-                                            </th>
-                                            <th>Candidate</th>
-                                            <th>Job Position</th>
-                                            <th>Status</th>
-                                            <th>Application Date</th>
-                                            <th>Last Updated</th>
-                                            <th>Actions</th>
+                                            <th><input type="checkbox" id="selectAllApplications"></th>
+                                            <th style="min-width: 200px;">Candidate</th>
+                                            <th style="min-width: 150px;">Position</th>
+                                            <th style="min-width: 120px;">Status</th>
+                                            <th style="min-width: 120px;">Applied Date</th>
+                                            <th style="min-width: 120px;">Last Updated</th>
+                                            <th style="min-width: 200px;">Actions</th>
                                         </tr>
                                     </thead>
                                     <tbody id="applicationsTableBody">
                                         <tr>
-                                            <td colspan="7" class="text-center">Loading applications...</td>
+                                            <td colspan="7" class="text-center py-4">
+                                                <div class="spinner-border text-primary" role="status">
+                                                    <span class="sr-only">Loading...</span>
+                                                </div>
+                                                <div class="mt-2">Loading applications...</div>
+                                            </td>
                                         </tr>
                                     </tbody>
                                 </table>
@@ -1498,8 +2135,7 @@
 
                 <section id="jobs-section" class="section">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
-                        <h2 style="font-size: 1.5rem; font-weight: 600;">Job Management</h2>
-                        <button class="btn btn-primary" id="addJobBtn">
+                        <h2 style="font-size: 1.5rem; font-weight: 600;">Job Management</h2>                        <button class="btn btn-primary" id="addJobBtn" onclick="JobManagementAPI.openJobModal()">
                             <i class="fas fa-briefcase"></i>
                             Post Job
                         </button>
@@ -1507,10 +2143,9 @@
 
                     <div class="card">
                         <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
-                            <h3 class="card-title">All Job Postings</h3>
-                            <div style="display: flex; gap: 1rem;">
-                                <input type="search" class="form-control" placeholder="Search jobs..." style="width: 250px;">
-                                <select class="form-control" style="width: 150px;">
+                            <h3 class="card-title">All Job Postings</h3>                            <div style="display: flex; gap: 1rem;">
+                                <input type="search" id="jobsSearchInput" class="form-control" placeholder="Search jobs..." style="width: 250px;">
+                                <select id="jobsTypeFilter" class="form-control" style="width: 150px;">
                                     <option>All Types</option>
                                     <option>Full-time</option>
                                     <option>Part-time</option>
@@ -1518,25 +2153,29 @@
                                     <option>Internship</option>
                                 </select>
                             </div>
-                        </div>
-                        <div class="card-body">
-                            <div class="table-container">
-                                <table class="table">
-                                    <thead>
+                        </div>                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-hover">
+                                    <thead class="thead-light">
                                         <tr>
-                                            <th>Job ID</th>
-                                            <th>Title</th>
-                                            <th>Company</th>
-                                            <th>Location</th>
-                                            <th>Type</th>
-                                            <th>Salary</th>
-                                            <th>Status</th>
-                                            <th>Actions</th>
+                                            <th style="min-width: 100px;">Job ID</th>
+                                            <th style="min-width: 200px;">Title</th>
+                                            <th style="min-width: 150px;">Company</th>
+                                            <th style="min-width: 150px;">Location</th>
+                                            <th style="min-width: 120px;">Type</th>
+                                            <th style="min-width: 150px;">Salary</th>
+                                            <th style="min-width: 120px;">Status</th>
+                                            <th style="min-width: 120px;">Actions</th>
                                         </tr>
                                     </thead>
                                     <tbody id="jobsTableBody">
                                         <tr>
-                                            <td colspan="8" class="text-center">Loading jobs...</td>
+                                            <td colspan="8" class="text-center py-4">
+                                                <div class="spinner-border text-primary" role="status">
+                                                    <span class="sr-only">Loading...</span>
+                                                </div>
+                                                <div class="mt-2">Loading jobs...</div>
+                                            </td>
                                         </tr>
                                     </tbody>
                                 </table>
@@ -1800,18 +2439,16 @@
                         <div class="form-group">
                             <label for="candidateName">Candidate Name</label>
                             <input type="text" id="candidateName" name="candidateName" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="candidateEmail">Candidate Email</label>
-                            <input type="email" id="candidateEmail" name="candidateEmail" required>
+                        </div>                        <div class="form-group">
+                            <label for="applicationCandidateEmail">Candidate Email</label>
+                            <input type="email" id="applicationCandidateEmail" name="candidateEmail" required>
                         </div>
                         <div class="form-group">
                             <label for="jobTitle">Job Title</label>
                             <input type="text" id="jobTitle" name="jobTitle" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="companyName">Company</label>
-                            <input type="text" id="companyName" name="companyName" required>
+                        </div>                        <div class="form-group">
+                            <label for="applicationCompanyName">Company</label>
+                            <input type="text" id="applicationCompanyName" name="companyName" required>
                         </div>
                         <div class="form-group full-width">
                             <label for="coverLetter">Cover Letter</label>
@@ -1842,17 +2479,15 @@
                 <button type="submit" form="applicationsForm" class="btn btn-primary">Save Application</button>
             </div>
         </div>
-    </div>
-
-    <!-- Jobs Modal -->
+    </div>    <!-- Jobs Modal -->
     <div class="modal-overlay" id="jobsModal">
         <div class="modal-content large">
             <div class="modal-header">
                 <h3 id="jobsModalTitle">Add Job</h3>
-                <button type="button" class="close-btn" onclick="crudManagers.jobs.closeModal()">&times;</button>
+                <button type="button" class="close-btn" onclick="JobManagementAPI.closeJobModal()">&times;</button>
             </div>
             <div class="modal-body">
-                <form id="jobsForm">
+                <form id="jobsForm" onsubmit="JobManagementAPI.saveJobFromModal(event)">
                     <div class="form-grid">
                         <div class="form-group">
                             <label for="jobTitle">Job Title</label>
@@ -1879,15 +2514,15 @@
                         </div>
                         <div class="form-group">
                             <label for="salaryRange">Salary Range</label>
-                            <input type="text" id="salaryRange" name="salaryRange">
+                            <input type="text" id="salaryRange" name="salary" placeholder="e.g., $60,000 - $80,000">
                         </div>
-                        <div class="form-group">
+                        <div class="form-group full-width">
                             <label for="jobDescription">Job Description</label>
-                            <textarea id="jobDescription" name="description" rows="4"></textarea>
+                            <textarea id="jobDescription" name="description" rows="4" placeholder="Describe the role, responsibilities, and what you're looking for..."></textarea>
                         </div>
-                        <div class="form-group">
+                        <div class="form-group full-width">
                             <label for="jobRequirements">Job Requirements</label>
-                            <textarea id="jobRequirements" name="requirements" rows="4"></textarea>
+                            <textarea id="jobRequirements" name="requirements" rows="4" placeholder="List requirements, skills, and qualifications (one per line)..."></textarea>
                         </div>
                         <div class="form-group">
                             <label for="applicationDeadline">Application Deadline</label>
@@ -1896,17 +2531,17 @@
                         <div class="form-group">
                             <label for="jobStatus">Status</label>
                             <select id="jobStatus" name="status">
-                                <option value="">Select Status</option>
-                                <option value="Open">Open</option>
-                                <option value="Closed">Closed</option>
-                                <option value="Draft">Draft</option>
+                                <option value="ACTIVE">Active</option>
+                                <option value="DRAFT">Draft</option>
+                                <option value="ON HOLD">On Hold</option>
+                                <option value="CLOSED">Closed</option>
                             </select>
                         </div>
                     </div>
                 </form>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" onclick="crudManagers.jobs.closeModal()">Cancel</button>
+                <button type="button" class="btn btn-secondary" onclick="JobManagementAPI.closeJobModal()">Cancel</button>
                 <button type="submit" form="jobsForm" class="btn btn-primary">Save Job</button>
             </div>
         </div>
@@ -1968,10 +2603,14 @@
                 const userNameEl = document.querySelector('.user-name');
                 const userRoleEl = document.querySelector('.user-role');
                 const userAvatarEl = document.querySelector('.user-avatar');
-                
-                if (userNameEl) userNameEl.textContent = userData.name || 'Admin User';
+                  if (userNameEl) userNameEl.textContent = userData.name || 'Admin User';
                 if (userRoleEl) userRoleEl.textContent = userData.role === 'admin' ? 'Administrator' : userData.role;
                 if (userAvatarEl) userAvatarEl.textContent = (userData.name || 'Admin').charAt(0).toUpperCase();
+                
+                // Initialize sample data for testing
+                if (typeof DataService !== 'undefined' && DataService.initializeSampleEmployers) {
+                    DataService.initializeSampleEmployers();
+                }
                 
             } catch (e) {
                 console.error('Invalid user data, redirecting to login...');
@@ -1980,124 +2619,22 @@
                 window.location.href = '../login.html';
             }
         });
-    </script>
-
-    <script>
-        // Admin Dashboard JavaScript
-        class AdminDashboard {
-            constructor() {
-                this.currentSection = 'dashboard';
-                this.isMobile = window.innerWidth <= 768;
-                this.init();
-            }
-
-            init() {
-                this.setupEventListeners();
-                this.setupMobileHandling();
-                this.loadUserData();
-            }
-
-            setupEventListeners() {
-                // Navigation
-                document.querySelectorAll('.nav-link[data-section]').forEach(link => {
-                    link.addEventListener('click', (e) => {
-                        e.preventDefault();
-                        const section = e.currentTarget.dataset.section;
-                        this.switchSection(section);
-                    });
-                });
-
-                // Mobile menu toggle
-                const menuToggle = document.getElementById('menuToggle');
-                const overlay = document.getElementById('overlay');
-                
-                menuToggle?.addEventListener('click', () => this.toggleMobileMenu());
-                overlay?.addEventListener('click', () => this.closeMobileMenu());
-
-                // Logout
-                document.getElementById('logoutBtn')?.addEventListener('click', (e) => {
-                    e.preventDefault();
-                    this.logout();                });                // Window resize
-                window.addEventListener('resize', () => this.handleResize());
-            }
-
-            setupMobileHandling() {
-                if (this.isMobile) {
-                    document.getElementById('sidebar')?.classList.add('collapsed');
-                }
-            }
-
-            switchSection(sectionName) {
-                // Update navigation
-                document.querySelectorAll('.nav-link').forEach(link => {
-                    link.classList.remove('active');
-                });
-                document.querySelector(`[data-section="${sectionName}"]`)?.classList.add('active');
-
-                // Update content
-                document.querySelectorAll('.section').forEach(section => {
-                    section.classList.remove('active');
-                });
-                document.getElementById(`${sectionName}-section`)?.classList.add('active');
-
-                // Update page title
-                const titles = {
-                    dashboard: 'Dashboard',
-                    employees: 'Employees',
-                    candidates: 'Candidates',
-                    employers: 'Employers',
-                    schedule: 'Schedule',
-                    applications: 'Applications',
-                    jobs: 'Jobs',
-                    settings: 'Settings'
-                };
-                
-                document.getElementById('pageTitle').textContent = titles[sectionName] || 'Dashboard';
-                this.currentSection = sectionName;
-
-                // Close mobile menu if open
-                if (this.isMobile) {
-                    this.closeMobileMenu();
-                }
-
-                // Load section data
-                this.loadSectionData(sectionName);
-            }
-
-            toggleMobileMenu() {
-                const sidebar = document.getElementById('sidebar');
-                const overlay = document.getElementById('overlay');
-                
-                sidebar?.classList.toggle('open');
-                overlay?.classList.toggle('active');
-            }
-
-            closeMobileMenu() {
-                const sidebar = document.getElementById('sidebar');
-                const overlay = document.getElementById('overlay');
-                
-                sidebar?.classList.remove('open');
-                overlay?.classList.remove('active');
-            }
-
-            handleResize() {
-                this.isMobile = window.innerWidth <= 768;
-                
-                if (!this.isMobile) {
-                    this.closeMobileMenu();
-                }
-            }
-
-            loadUserData() {
-                // Load user data from localStorage or API
+    </script>    <script>
+        // Dashboard Analytics and User Management
+        const dashboardAnalytics = {
+            loadUserProfile() {
                 const userData = this.getUserFromStorage();
                 if (userData) {
-                    document.querySelector('.user-name').textContent = userData.name || 'Admin User';
-                    document.querySelector('.user-role').textContent = userData.role || 'Administrator';
-                    document.querySelector('.user-avatar').textContent = userData.name ? userData.name.charAt(0).toUpperCase() : 'A';
+                    const userName = document.querySelector('.user-name');
+                    const userRole = document.querySelector('.user-role');
+                    const userAvatar = document.querySelector('.user-avatar');
+                    
+                    if (userName) userName.textContent = userData.name || 'Admin User';
+                    if (userRole) userRole.textContent = userData.role || 'Administrator';
+                    if (userAvatar) userAvatar.textContent = userData.name ? userData.name.charAt(0).toUpperCase() : 'A';
                 }
-            }
-
+            },
+            
             getUserFromStorage() {
                 try {
                     const userStr = localStorage.getItem('nexstaff_user');
@@ -2107,74 +2644,7 @@
                     return null;
                 }
             }
-
-            loadSectionData(section) {
-                console.log(`Loading data for section: ${section}`);
-                
-                // Here you would typically load data from your API
-                switch(section) {
-                    case 'employees':
-                        this.loadEmployees();
-                        break;
-                    case 'candidates':
-                        this.loadCandidates();
-                        break;
-                    case 'employers':
-                        this.loadEmployers();
-                        break;
-                    case 'schedule':
-                        this.loadSchedule();
-                        break;
-                    case 'applications':
-                        this.loadApplications();
-                        break;
-                    case 'jobs':
-                        this.loadJobs();
-                        break;
-                    default:
-                        break;
-                }
-            }
-
-            loadEmployees() {
-                // Simulate loading employees data
-                console.log('Loading employees...');
-                // In a real app, you'd fetch from your API here
-            }
-
-            loadCandidates() {
-                console.log('Loading candidates...');
-            }
-
-            loadEmployers() {
-                console.log('Loading employers...');
-            }
-
-            loadSchedule() {
-                console.log('Loading schedule...');
-            }
-
-            loadApplications() {
-                console.log('Loading applications...');
-            }
-
-            loadJobs() {                console.log('Loading jobs...');
-            }
-
-            logout() {
-                // Clear authentication data
-                localStorage.removeItem('nexstaff_auth_token');
-                localStorage.removeItem('nexstaff_user');
-                localStorage.removeItem('nexstaff_remember');
-                
-                // Redirect to login
-                window.location.href = '../login.html';
-            }
-        }        // Initialize dashboard when DOM is loaded
-        let dashboard; // Global reference for onclick handlers
-        document.addEventListener('DOMContentLoaded', () => {
-            dashboard = new AdminDashboard();
-        });
+        };
 
         // Sample data and helper functions
         const sampleEmployees = [
@@ -2205,18 +2675,7 @@
                 this.currentEntityType = null;
                 this.initializeEventListeners();
                 this.loadAllData();
-            }
-
-            initializeEventListeners() {
-                // Navigation listeners
-                document.querySelectorAll('.nav-link').forEach(link => {
-                    link.addEventListener('click', (e) => {
-                        e.preventDefault();
-                        const section = e.currentTarget.dataset.section;
-                        this.showSection(section);
-                    });
-                });
-
+            }            initializeEventListeners() {
                 // Add button listeners
                 document.getElementById('addEmployeeBtn')?.addEventListener('click', () => this.openCreateModal('employee'));
                 document.getElementById('addCandidateBtn')?.addEventListener('click', () => this.openCreateModal('candidate'));
@@ -2230,34 +2689,7 @@
                 document.getElementById('cancelEntity')?.addEventListener('click', () => this.closeModal());
                 document.getElementById('confirmDelete')?.addEventListener('click', () => this.confirmDelete());
                 document.getElementById('cancelDelete')?.addEventListener('click', () => this.closeDeleteModal());
-            }
-
-            showSection(sectionName) {
-                // Hide all sections
-                document.querySelectorAll('.section').forEach(section => {
-                    section.classList.remove('active');
-                });
-
-                // Remove active class from nav links
-                document.querySelectorAll('.nav-link').forEach(link => {
-                    link.classList.remove('active');
-                });
-
-                // Show selected section
-                const targetSection = document.getElementById(`${sectionName}-section`);
-                if (targetSection) {
-                    targetSection.classList.add('active');
-                }
-
-                // Add active class to clicked nav link
-                const activeLink = document.querySelector(`[data-section="${sectionName}"]`);
-                if (activeLink) {
-                    activeLink.classList.add('active');
-                }
-
-                // Load data for the section
-                this.loadSectionData(sectionName);
-            }
+            }            // Removed showSection method - handled by AdminDashboard
 
             loadAllData() {
                 this.loadSectionData('employees');
@@ -2347,38 +2779,184 @@
                         </td>
                     </tr>
                 `).join('');
+            }            loadEmployers() {
+                console.log('Loading employers and applications...');
+                try {
+                    if (!this.dataService) {
+                        console.error('DataService not available for loading employers');
+                        return;
+                    }
+                    
+                    // Load existing approved employers
+                    const employers = this.dataService.readEmployers();
+                    console.log('Existing employers:', employers);
+                    
+                    // Load employer applications
+                    const applications = this.dataService.getAll('employer_applications') || [];
+                    console.log('Employer applications:', applications);
+                    
+                    // Combine employers and applications
+                    const allData = [
+                        ...employers,
+                        ...applications.map(app => ({
+                            ...app,
+                            id: app.id,
+                            company: app.companyName,
+                            companyName: app.companyName,
+                            contactPerson: app.contactPerson,
+                            email: app.email,
+                            phone: app.phone,
+                            industry: app.industry,
+                            status: app.status || 'Pending',
+                            website: app.website,
+                            address: app.address,
+                            description: app.description,
+                            companySize: app.companySize,
+                            hiringNeeds: app.hiringNeeds,
+                            applicationDate: app.applicationDate,
+                            applicationType: 'employer_application'
+                        }))
+                    ];
+                    
+                    console.log('Combined employers and applications:', allData);
+                    
+                    // Store all data for filtering
+                    this.allEmployers = allData;
+                    this.displayEmployers(allData);
+                    
+                    // Update dashboard stats
+                    this.updateEmployerStats(allData);
+                    
+                    // Add event listeners for filters
+                    this.setupEmployerFilters();
+                } catch (error) {
+                    console.error('Error loading employers:', error);
+                    const tbody = document.getElementById('employersTableBody');
+                    if (tbody) {
+                        tbody.innerHTML = '<tr><td colspan="8" class="text-center text-danger">Error loading employers</td></tr>';
+                    }
+                }
             }
 
-            loadEmployers() {
-                const employers = this.dataService.readEmployers();
+            updateEmployerStats(employers) {
+                // Update various stats displays
+                const totalCount = employers.length;
+                const activeCount = employers.filter(emp => emp.status === 'Active' || emp.status === 'Approved').length;
+                const pendingCount = employers.filter(emp => emp.status === 'Pending').length;
+                
+                // Update any stat elements
+                const employerCountEl = document.getElementById('employerCount');
+                if (employerCountEl) {
+                    employerCountEl.textContent = activeCount;
+                }
+                
+                // Update dashboard cards if they exist
+                const totalEmployersEl = document.getElementById('totalEmployers');
+                if (totalEmployersEl) {
+                    totalEmployersEl.textContent = totalCount;
+                }
+                
+                const pendingEmployersEl = document.getElementById('pendingEmployers');
+                if (pendingEmployersEl) {
+                    pendingEmployersEl.textContent = pendingCount;
+                }
+            }
+
+            displayEmployers(employers) {
                 const tbody = document.getElementById('employersTableBody');
                 if (!tbody) return;
+
+                if (employers.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="8" class="text-center text-muted">No employers found</td></tr>';
+                    return;
+                }
 
                 tbody.innerHTML = employers.map(employer => `
                     <tr>
                         <td>${employer.id || 'N/A'}</td>
-                        <td>${employer.company || 'N/A'}</td>
-                        <td>${employer.contactPerson || 'N/A'}</td>
-                        <td>${employer.email || 'N/A'}</td>
-                        <td>${employer.phone || 'N/A'}</td>
-                        <td>${employer.industry || 'N/A'}</td>
-                        <td><span class="badge badge-${employer.status === 'Active' ? 'success' : 'warning'}">${employer.status || 'Active'}</span></td>
                         <td>
-                            <button class="btn btn-sm btn-outline" onclick="crudManager.viewEntity('employer', ${employer.id})">
-                                <i class="fas fa-eye"></i>
-                            </button>
-                            <button class="btn btn-sm btn-primary" onclick="crudManager.editEntity('employer', ${employer.id})">
-                                <i class="fas fa-edit"></i>
-                            </button>
-                            <button class="btn btn-sm btn-danger" onclick="crudManager.deleteEntity('employer', ${employer.id})">
-                                <i class="fas fa-trash"></i>
-                            </button>
+                            <strong>${employer.company || 'N/A'}</strong>
+                            ${employer.website ? `<br><small class="text-muted">${employer.website}</small>` : ''}
+                        </td>
+                        <td>${employer.contactPerson || 'N/A'}</td>
+                        <td>
+                            <a href="mailto:${employer.email}" class="text-primary">${employer.email || 'N/A'}</a>
+                        </td>
+                        <td>
+                            ${employer.phone ? `<a href="tel:${employer.phone}" class="text-primary">${employer.phone}</a>` : 'N/A'}
+                        </td>
+                        <td>
+                            ${employer.industry ? `<span class="badge badge-info">${employer.industry}</span>` : 'N/A'}
+                        </td>
+                        <td>
+                            <span class="badge badge-${employer.status === 'Active' ? 'success' : (employer.status === 'Pending' ? 'warning' : employer.status === 'Rejected' ? 'danger' : 'secondary')}">${employer.status || 'Active'}</span>
+                        </td>
+                        <td>
+                            <div class="action-buttons">
+                                <button class="btn btn-sm btn-outline" onclick="crudManager.viewEntity('employer', ${employer.id})" title="View Details">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                                ${employer.status === 'Pending' ? `
+                                    <button class="btn btn-sm btn-success" onclick="adminDashboard.approveEmployer(${employer.id})" title="Approve Employer">
+                                        <i class="fas fa-check"></i>
+                                    </button>
+                                    <button class="btn btn-sm btn-warning" onclick="adminDashboard.rejectEmployer(${employer.id})" title="Reject Employer">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                ` : employer.status === 'Rejected' ? `
+                                    <button class="btn btn-sm btn-success" onclick="adminDashboard.reactivateEmployer(${employer.id})" title="Reactivate Employer">
+                                        <i class="fas fa-redo"></i>
+                                    </button>
+                                ` : ''}
+                                <button class="btn btn-sm btn-primary" onclick="crudManager.editEntity('employer', ${employer.id})" title="Edit Employer">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button class="btn btn-sm btn-danger" onclick="crudManager.deleteEntity('employer', ${employer.id})" title="Delete Employer">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
                         </td>
                     </tr>
                 `).join('');
             }
 
-            loadJobs() {
+            setupEmployerFilters() {
+                const searchInput = document.getElementById('employerSearch');
+                const industryFilter = document.getElementById('industryFilter');
+                const statusFilter = document.getElementById('statusFilter');
+
+                if (!searchInput || !industryFilter || !statusFilter) return;
+
+                const filterEmployers = () => {
+                    const searchTerm = searchInput.value.toLowerCase();
+                    const selectedIndustry = industryFilter.value;
+                    const selectedStatus = statusFilter.value;
+
+                    const filteredEmployers = this.allEmployers.filter(employer => {
+                        const matchesSearch = !searchTerm || 
+                            (employer.company && employer.company.toLowerCase().includes(searchTerm)) ||
+                            (employer.contactPerson && employer.contactPerson.toLowerCase().includes(searchTerm)) ||
+                            (employer.email && employer.email.toLowerCase().includes(searchTerm));
+
+                        const matchesIndustry = !selectedIndustry || employer.industry === selectedIndustry;
+                        const matchesStatus = !selectedStatus || employer.status === selectedStatus;
+
+                        return matchesSearch && matchesIndustry && matchesStatus;
+                    });
+
+                    this.displayEmployers(filteredEmployers);
+                };
+
+                searchInput.addEventListener('input', filterEmployers);
+                industryFilter.addEventListener('change', filterEmployers);
+                statusFilter.addEventListener('change', filterEmployers);
+            }loadJobs() {
+                // Use JobManagementAPI if available, otherwise fallback to dataService
+                if (window.JobManagementAPI) {
+                    window.JobManagementAPI.loadJobs();
+                    return;
+                }
+                
                 const jobs = this.dataService.readJobs();
                 const tbody = document.getElementById('jobsTableBody');
                 if (!tbody) return;
@@ -2391,7 +2969,7 @@
                         <td>${job.location || 'N/A'}</td>
                         <td>${job.type || 'N/A'}</td>
                         <td>${job.salary || 'N/A'}</td>
-                        <td><span class="badge badge-${job.status === 'Open' ? 'success' : 'warning'}">${job.status || 'Open'}</span></td>
+                        <td><span class="badge badge-${job.status === 'ACTIVE' ? 'success' : 'warning'}">${job.status || 'ACTIVE'}</span></td>
                         <td>
                             <button class="btn btn-sm btn-outline" onclick="crudManager.viewEntity('job', ${job.id})">
                                 <i class="fas fa-eye"></i>
@@ -2405,7 +2983,7 @@
                         </td>
                     </tr>
                 `).join('');
-            }            loadApplications() {
+            }loadApplications() {
                 const applications = this.dataService.readApplications();
                 const tbody = document.getElementById('applicationsTableBody');
                 if (!tbody) return;
@@ -3050,25 +3628,451 @@
                         }
                     } else {
                         alert('Error accepting application. Please try again.');
-                    }
-                } catch (error) {
+                    }                } catch (error) {
                     console.error('Error in confirmHire:', error);
                     alert('Error processing hire. Please try again.');
                 }
-            }        }        // Initialize CRUD Manager
-        let crudManager;
+            }
+
+            // Employer approval methods
+            approveEmployer(employerId) {
+                try {
+                    if (!confirm('Are you sure you want to approve this employer? They will be granted active status and full access to the platform.')) {
+                        return;
+                    }
+
+                    // First check if it's an existing employer
+                    let employer = this.dataService.getById('employers', employerId);
+                    let isApplication = false;
+                    
+                    // If not found in employers, check employer_applications
+                    if (!employer) {
+                        employer = this.dataService.getById('employer_applications', employerId);
+                        isApplication = true;
+                    }
+                    
+                    if (!employer) {
+                        this.showNotification('Employer not found.', 'error');
+                        return;
+                    }
+
+                    const approvedEmployer = {
+                        ...employer,
+                        id: employer.id,
+                        company: employer.companyName || employer.company,
+                        companyName: employer.companyName || employer.company,
+                        status: 'Active',
+                        approvedAt: new Date().toISOString(),
+                        approvedBy: 'Admin',
+                        notes: (employer.notes || '') + `\nApproved on ${new Date().toLocaleString()}`
+                    };
+                    
+                    if (isApplication) {
+                        // Remove from applications and add to employers
+                        this.dataService.delete('employer_applications', employerId);
+                        this.dataService.create('employers', approvedEmployer);
+                    } else {
+                        // Update existing employer
+                        this.dataService.update('employers', employerId, approvedEmployer);
+                    }
+                    
+                    this.loadEmployers(); // Refresh the table
+                    
+                    // Sync with employers page
+                    this.syncWithEmployersPage();
+                    
+                    // Send notification to employer (in real app)
+                    this.notifyEmployerApproval(employer);
+                    
+                    this.showNotification(`Employer "${employer.companyName || employer.company}" has been approved successfully!`, 'success');
+                    
+                    // Log the action
+                    console.log('Employer approved:', {
+                        id: employerId,
+                        company: employer.companyName || employer.company,
+                        approvedAt: approvedEmployer.approvedAt,
+                        wasApplication: isApplication
+                    });
+                      } catch (error) {
+                    console.error('Error approving employer:', error);
+                    this.showNotification('Error approving employer. Please try again.', 'error');
+                }
+            }
+
+            notifyEmployerApproval(employer) {
+                // In a real application, this would send an email notification
+                console.log(`Notification: Employer ${employer.companyName || employer.company} has been approved`);
+                
+                // Create a mock notification for demo purposes
+                const notification = {
+                    to: employer.email,
+                    subject: 'Welcome to NexStaff - Your Application Has Been Approved!',
+                    message: `Congratulations! Your company "${employer.companyName || employer.company}" has been approved to join the NexStaff platform. You now have access to our pool of qualified candidates.`
+                };
+                
+                // Store notification history (for demo)
+                const notifications = JSON.parse(localStorage.getItem('employer_notifications') || '[]');
+                notifications.push({
+                    ...notification,
+                    sentAt: new Date().toISOString(),
+                    type: 'approval'                });                localStorage.setItem('employer_notifications', JSON.stringify(notifications));
+            }
+
+            rejectEmployer(employerId) {
+                try {
+                    const reason = prompt('Please provide a reason for rejecting this employer (optional):');
+                    if (reason === null) return; // User cancelled
+                    
+                    if (!confirm('Are you sure you want to reject this employer? This will deny them access to the platform.')) {
+                        return;
+                    }
+
+                    // First check if it's an existing employer
+                    let employer = this.dataService.getById('employers', employerId);
+                    let isApplication = false;
+                    
+                    // If not found in employers, check employer_applications
+                    if (!employer) {
+                        employer = this.dataService.getById('employer_applications', employerId);
+                        isApplication = true;
+                    }
+                    
+                    if (!employer) {
+                        this.showNotification('Employer not found.', 'error');
+                        return;
+                    }
+
+                    const rejectedEmployer = {
+                        ...employer,
+                        status: 'Rejected',
+                        rejectedAt: new Date().toISOString(),
+                        rejectedBy: 'Admin',
+                        rejectionReason: reason || 'No reason provided',
+                        notes: (employer.notes || '') + `\nRejected on ${new Date().toLocaleString()}. Reason: ${reason || 'No reason provided'}`
+                    };
+                    
+                    if (isApplication) {
+                        // Update the application status to rejected
+                        this.dataService.update('employer_applications', employerId, rejectedEmployer);
+                    } else {
+                        // Update existing employer
+                        this.dataService.update('employers', employerId, rejectedEmployer);
+                    }
+                    
+                    this.loadEmployers(); // Refresh the table
+                    
+                    this.showNotification(`Employer "${employer.companyName || employer.company}" has been rejected.`, 'warning');
+                    
+                    // Log the action
+                    console.log('Employer rejected:', {
+                        id: employerId,
+                        company: employer.companyName || employer.company,
+                        rejectedAt: rejectedEmployer.rejectedAt,
+                        reason: reason,
+                        wasApplication: isApplication
+                    });
+                    
+                } catch (error) {
+                    console.error('Error rejecting employer:', error);
+                    this.showNotification('Error rejecting employer. Please try again.', 'error');
+                }
+            }
+
+            // New method to reactivate rejected employers
+            reactivateEmployer(employerId) {
+                try {
+                    if (!confirm('Are you sure you want to reactivate this employer? They will be granted active status again.')) {
+                        return;
+                    }
+
+                    const employer = this.dataService.getById('employers', employerId);
+                    if (!employer) {
+                        this.showNotification('Employer not found.', 'error');
+                        return;
+                    }
+
+                    const updatedEmployer = {
+                        ...employer,
+                        status: 'Active',
+                        reactivatedAt: new Date().toISOString(),
+                        reactivatedBy: 'Admin',
+                        notes: (employer.notes || '') + `\nReactivated on ${new Date().toLocaleString()}`
+                    };
+                    
+                    this.dataService.updateEmployer(updatedEmployer);
+                    this.loadEmployers(); // Refresh the table
+                    
+                    // Also update the employers.html page data
+                    this.syncWithEmployersPage();
+                    
+                    this.showNotification(`Employer "${employer.company}" has been reactivated successfully!`, 'success');
+                    
+                    // Log the action
+                    console.log('Employer reactivated:', {
+                        id: employerId,
+                        company: employer.company,
+                        reactivatedAt: updatedEmployer.reactivatedAt
+                    });
+                    
+                } catch (error) {
+                    console.error('Error reactivating employer:', error);
+                    this.showNotification('Error reactivating employer. Please try again.', 'error');
+                }
+            }
+
+            // Enhanced notification system
+            showNotification(message, type = 'info') {
+                // Remove any existing notifications
+                const existingNotifications = document.querySelectorAll('.admin-notification');
+                existingNotifications.forEach(notification => notification.remove());
+
+                // Create notification element
+                const notification = document.createElement('div');
+                notification.className = `admin-notification alert alert-${type === 'error' ? 'danger' : type} alert-dismissible fade show`;
+                notification.style.cssText = `
+                    position: fixed;
+                    top: 20px;
+                    right: 20px;
+                    z-index: 9999;
+                    min-width: 300px;
+                    max-width: 500px;
+                    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+                `;
+                
+                notification.innerHTML = `
+                    <div class="d-flex align-items-center">
+                        <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : type === 'warning' ? 'exclamation-triangle' : 'info-circle'} mr-2"></i>
+                        <span>${message}</span>
+                        <button type="button" class="close ml-auto" data-dismiss="alert">
+                            <span>&times;</span>
+                        </button>
+                    </div>
+                `;
+
+                document.body.appendChild(notification);
+
+                // Auto-remove after 5 seconds
+                setTimeout(() => {
+                    if (notification.parentNode) {
+                        notification.remove();
+                    }
+                }, 5000);
+            }
+
+            // Sync employer data with the employers.html page
+            syncWithEmployersPage() {
+                try {
+                    // Dispatch a custom event that the employers.html page can listen to
+                    document.dispatchEvent(new CustomEvent('employersUpdated', {
+                        detail: {
+                            timestamp: new Date().toISOString(),
+                            source: 'admin-dashboard'
+                        }
+                    }));
+                } catch (error) {
+                    console.error('Error syncing with employers page:', error);
+                }            }
+
+        }
+        
+        // Initialize Dashboard Systems
         document.addEventListener('DOMContentLoaded', () => {
+            console.log('Initializing NexStaff Admin Dashboard...');
+            
             // Initialize DataService
             if (typeof DataService !== 'undefined') {
                 window.DataService = DataService;
                 DataService.initializeSampleData();
                 DataService.initSync();
+                console.log('DataService initialized');
             }
             
-            // Initialize CRUD Manager
-            crudManager = new CRUDManager();
-            window.crudManager = crudManager; // Make it globally available
+            // Load user profile
+            dashboardAnalytics.loadUserProfile();
+            
+            // Initialize navigation immediately
+            initializeNavigation();
+              // Initialize CRUD Manager
+            const crudManager = new CRUDManager();
+            window.crudManager = crudManager;
+            window.adminDashboard = crudManager; // Alias for compatibility
+            console.log('CRUDManager initialized');
+              // Load initial data
+            crudManager.loadAllData();
+            
+            // Initialize CandidateProfilesAPI
+            if (typeof CandidateProfilesAPI !== 'undefined') {
+                console.log('Initializing CandidateProfilesAPI...');
+                // Don't auto-load, let it load when section is clicked
+            }
+            
+            console.log('Initial data loaded');
         });
+          // Simple, direct navigation system
+        function initializeNavigation() {
+            console.log('🚀 Setting up navigation...');
+            
+            // Debug: Check elements before setup
+            const navLinks = document.querySelectorAll('.nav-link[data-section]');
+            console.log(`🔍 Found ${navLinks.length} navigation links:`);
+            navLinks.forEach((link, index) => {
+                console.log(`  ${index + 1}. ${link.dataset.section} - ${link.textContent.trim()}`);
+            });
+            
+            // Navigation handler
+            document.querySelectorAll('.nav-link[data-section]').forEach(link => {
+                link.addEventListener('click', handleNavigation);
+                console.log(`🔗 Added listener to: ${link.dataset.section}`);
+            });
+            
+            // Logout handler
+            const logoutBtn = document.getElementById('logoutBtn');
+            if (logoutBtn) {
+                logoutBtn.addEventListener('click', handleLogout);
+                console.log('🚪 Logout handler added');
+            }
+            
+            // Mobile menu handlers
+            const menuToggle = document.getElementById('menuToggle');
+            const overlay = document.getElementById('overlay');
+            
+            if (menuToggle) {
+                menuToggle.addEventListener('click', toggleMobileMenu);
+                console.log('📱 Mobile menu toggle added');
+            }
+            
+            if (overlay) {
+                overlay.addEventListener('click', closeMobileMenu);
+                console.log('📱 Mobile overlay handler added');
+            }
+            
+            // Window resize handler
+            window.addEventListener('resize', handleResize);
+            
+            console.log('✅ Navigation setup complete');
+        }
+          function handleNavigation(e) {
+            e.preventDefault();
+            const section = e.currentTarget.dataset.section;
+            console.log(`🔄 Navigating to: ${section}`);
+            
+            // Debug: Check if elements exist
+            const allNavLinks = document.querySelectorAll('.nav-link');
+            const allSections = document.querySelectorAll('.section');
+            console.log(`📊 Found ${allNavLinks.length} nav links, ${allSections.length} sections`);
+            
+            // Update active navigation
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.classList.remove('active');
+            });
+            e.currentTarget.classList.add('active');
+            console.log(`✅ Updated navigation active state`);
+            
+            // Update content sections
+            document.querySelectorAll('.section').forEach(section => {
+                section.classList.remove('active');
+            });
+            
+            const targetSection = document.getElementById(`${section}-section`);
+            if (targetSection) {
+                targetSection.classList.add('active');
+                console.log(`✅ Activated section: ${section}-section`);
+                console.log(`📍 Section classes:`, targetSection.className);
+            } else {
+                console.error(`❌ Section not found: ${section}-section`);
+            }
+            
+            // Update page title
+            const titles = {
+                dashboard: 'Dashboard',
+                employees: 'Employees',
+                candidates: 'Candidates',
+                employers: 'Employers',
+                schedule: 'Schedule',
+                applications: 'Applications',
+                jobs: 'Jobs',
+                settings: 'Settings'
+            };
+            
+            const pageTitle = document.getElementById('pageTitle');
+            if (pageTitle) {
+                pageTitle.textContent = titles[section] || 'Dashboard';
+                console.log(`✅ Updated page title to: ${titles[section]}`);
+            }
+              // Load section data
+            if (window.crudManager) {
+                console.log(`📊 Loading data for section: ${section}`);
+                window.crudManager.loadSectionData(section);
+            } else {
+                console.warn(`⚠️ CRUDManager not available`);
+            }            // Special handling for candidates section
+            if (section === 'candidates') {
+                console.log(`👥 Handling candidates section...`);
+                
+                // Wait for API to be available
+                const initCandidatesAPI = () => {
+                    if (typeof CandidateProfilesAPI !== 'undefined') {
+                        console.log(`✅ CandidateProfilesAPI found, initializing...`);
+                        CandidateProfilesAPI.init();
+                        
+                        // Test if API is working
+                        console.log('🧪 Testing API access...');
+                        window.testCandidateAPI = function() {
+                            console.log('🔍 CandidateProfilesAPI available:', typeof CandidateProfilesAPI);
+                            console.log('🔍 createCandidate function:', typeof CandidateProfilesAPI.createCandidate);
+                            return CandidateProfilesAPI;
+                        };
+                        console.log('💡 Run testCandidateAPI() in console to test');
+                    } else {
+                        console.warn('⚠️ CandidateProfilesAPI not yet available, retrying...');
+                        setTimeout(initCandidatesAPI, 200);
+                    }
+                };
+                
+                setTimeout(initCandidatesAPI, 100);
+            }
+            
+            // Close mobile menu if open
+            closeMobileMenu();
+        }
+        
+        function handleLogout(e) {
+            e.preventDefault();
+            if (confirm('Are you sure you want to logout?')) {
+                localStorage.removeItem('nexstaff_user');
+                localStorage.removeItem('nexstaff_auth_token');
+                window.location.href = '../login.html';
+            }
+        }
+        
+        function toggleMobileMenu() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('overlay');
+            
+            if (sidebar) sidebar.classList.toggle('open');
+            if (overlay) overlay.classList.toggle('active');
+        }
+        
+        function closeMobileMenu() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('overlay');
+            
+            if (sidebar) sidebar.classList.remove('open');
+            if (overlay) overlay.classList.remove('active');
+        }
+        
+        function handleResize() {
+            const isMobile = window.innerWidth <= 768;
+            if (!isMobile) {
+                closeMobileMenu();
+            }
+        }
     </script>
+      <!-- jQuery and Bootstrap JS -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Candidate Profiles Management -->
+    <script src="js/candidateProfiles.js"></script>
 </body>
 </html>

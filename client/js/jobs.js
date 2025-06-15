@@ -4,16 +4,16 @@ document.addEventListener('DOMContentLoaded', () => {
     const searchInput = document.querySelector('#job-search');
     const locationSelect = document.querySelector('#location-filter');
     const typeSelect = document.querySelector('#type-filter');
-    const categorySelect = document.querySelector('#category-filter');
-
-    // Get jobs from centralized data manager
+    const categorySelect = document.querySelector('#category-filter');    // Get jobs from centralized data manager
     let jobs = [];
     
     // Initialize data manager if not already loaded
     if (typeof nexStaffData !== 'undefined') {
         jobs = nexStaffData.getJobsForClient();
+        console.log('Loaded jobs from data manager:', jobs.length);
     } else {
         // Fallback to local data if data manager not available
+        console.warn('Data manager not available, using fallback data');
         jobs = [
             {
                 id: 'JOB001',
@@ -49,7 +49,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 salary: '$90,000 - $110,000'
             }
         ];
-    }    // Render job cards
+    }// Render job cards
     function renderJobs(filteredJobs = jobs) {
         if (!jobsGrid) return;
         
@@ -248,34 +248,3 @@ function showNotification(message, type = 'info') {
         setTimeout(() => notification.remove(), 300);
     }, 3000);
 }
-    
-    jobTitleElement.textContent = jobTitle;
-    modal.style.display = 'block';
-}
-
-function closeApplicationModal() {
-    const modal = document.getElementById('application-modal');
-    modal.style.display = 'none';
-}
-
-// Handle application form submission
-document.getElementById('application-form')?.addEventListener('submit', (e) => {
-    e.preventDefault();
-    
-    // Get form data
-    const formData = new FormData(e.target);
-    const applicationData = {
-        name: formData.get('name'),
-        email: formData.get('email'),
-        phone: formData.get('phone'),
-        resume: formData.get('resume'),
-        coverLetter: formData.get('cover-letter')
-    };
-
-    // In production, this would send the data to an API
-    console.log('Application submitted:', applicationData);
-    
-    // Show success message
-    alert('Application submitted successfully!');
-    closeApplicationModal();
-});
