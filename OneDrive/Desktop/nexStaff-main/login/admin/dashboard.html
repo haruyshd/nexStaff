@@ -207,7 +207,7 @@
 
         .nav-link.active {
             color: var(--white);
-            background: var(--primary-gradient);
+            background: var(--primary);
             box-shadow: var(--shadow-lg);
             transform: translateX(4px);
         }
@@ -233,26 +233,14 @@
             letter-spacing: -0.01em;
         }
 
-        .nav-link:hover {
-            background: var(--primary-light);
-            color: var(--primary);
-        }
-
-        .nav-link.active {
-            background: var(--primary);
-            color: var(--white);
-        }
-
-        .nav-link i {
-            width: 20px;
-            font-size: 1.1rem;
-        }
-
         /* Main Content */
         .main-content {
             flex: 1;
             margin-left: var(--sidebar-width);
             transition: margin-left 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
         }
 
         .main-content.expanded {
@@ -349,16 +337,77 @@
 
         /* Content Area */
         .content {
+            flex: 1;
             padding: 2rem;
-            min-height: calc(100vh - var(--header-height));
+            width: 100%;
+            box-sizing: border-box;
         }
 
         .section {
             display: none;
+            animation: fadeIn 0.3s ease-in-out;
         }
 
         .section.active {
             display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Section Header Styling */
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--border-light);
+        }
+
+        .section-title {
+            font-size: 1.8rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin: 0;
+        }
+
+        /* Filter Controls */
+        .filter-controls {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .filter-controls .form-control {
+            width: auto;
+            min-width: 150px;
+        }
+
+        .filter-controls input[type="search"] {
+            min-width: 250px;
+        }
+
+        .filter-controls input[type="date"] {
+            min-width: 140px;
+        }
+
+        /* Responsive filters */
+        @media (max-width: 768px) {
+            .filter-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .filter-controls .form-control,
+            .filter-controls input[type="search"] {
+                max-width: none;
+                width: 100%;
+                min-width: auto;
+            }
         }
 
         /* Cards */
@@ -375,7 +424,9 @@
             border-bottom: 1px solid var(--border);
             display: flex;
             align-items: center;
-            justify-content: between;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 1rem;
         }
 
         .card-title {
@@ -442,7 +493,7 @@
             color: white;
         }
 
-        .stat-icon.primary { background: var(--primary); }
+        .stat-icon.primary { background: #007BFF; }
         .stat-icon.success { background: var(--success); }
         .stat-icon.warning { background: var(--warning); }
         .stat-icon.danger { background: var(--danger); }
@@ -574,12 +625,145 @@
             border-radius: 0.5rem;
             font-size: 0.875rem;
             transition: all 0.2s;
+            background: var(--white);
         }
 
         .form-control:focus {
             outline: none;
             border-color: var(--primary);
             box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+        }
+
+        .form-control:hover {
+            border-color: var(--primary-light);
+        }
+
+        .form-control.error {
+            border-color: var(--danger);
+            box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+        }
+
+        .form-control:disabled {
+            background-color: #F8FAFC;
+            border-color: #E2E8F0;
+            color: #94A3B8;
+            cursor: not-allowed;
+        }
+
+        /* Search Input Enhancements */
+        .search-input-wrapper {
+            position: relative;
+            display: inline-block;
+        }
+
+        .search-input-wrapper .form-control {
+            padding-left: 2.5rem;
+        }
+
+        .search-input-wrapper .clear-search:hover {
+            background-color: rgba(100, 116, 139, 0.1);
+        }
+
+        /* Error Message Styling */
+        .error-message {
+            color: var(--danger);
+            font-size: 0.75rem;
+            margin-top: 0.25rem;
+            display: block;
+            font-weight: 500;
+        }
+
+        /* Form Group Enhancements */
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--text-primary);
+            font-weight: 600;
+            font-size: 0.875rem;
+        }
+
+        .form-group label.required::after {
+            content: ' *';
+            color: var(--danger);
+        }
+
+        /* Select Dropdown Enhancements */
+        select.form-control {
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+            background-position: right 0.75rem center;
+            background-repeat: no-repeat;
+            background-size: 1.5em 1.5em;
+            padding-right: 2.5rem;
+            appearance: none;
+        }
+
+        select.form-control:focus {
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%238b5cf6' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+        }
+
+        /* Checkbox and Radio Enhancements */
+        input[type="checkbox"].form-control,
+        input[type="radio"].form-control {
+            width: auto;
+            margin-right: 0.5rem;
+        }
+
+        /* File Input Enhancements */
+        input[type="file"].form-control {
+            padding: 0.5rem;
+        }
+
+        input[type="file"].form-control::file-selector-button {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 0.375rem;
+            margin-right: 1rem;
+            cursor: pointer;
+            font-weight: 500;
+        }
+
+        input[type="file"].form-control::file-selector-button:hover {
+            background: var(--primary-dark);
+        }
+
+        /* Textarea Enhancements */
+        textarea.form-control {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        /* Input Group Styling */
+        .input-group {
+            display: flex;
+            align-items: stretch;
+        }
+
+        .input-group .form-control {
+            border-radius: 0;
+        }
+
+        .input-group .form-control:first-child {
+            border-top-left-radius: 0.5rem;
+            border-bottom-left-radius: 0.5rem;
+        }
+
+        .input-group .form-control:last-child {
+            border-top-right-radius: 0.5rem;
+            border-bottom-right-radius: 0.5rem;
+        }
+
+        .input-group-text {
+            background: #F8FAFC;
+            border: 1px solid var(--border);
+            padding: 0.75rem;
+            color: var(--text-secondary);
+            font-weight: 500;
         }
 
         /* Status Badges */
@@ -967,11 +1151,68 @@
         .action-buttons {
             display: flex;
             gap: 0.5rem;
+            align-items: center;
         }
         
         .btn-sm {
             padding: 0.25rem 0.5rem;
             font-size: 0.875rem;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-weight: 500;
+        }
+        
+        .btn-sm:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .btn-sm.btn-success {
+            background: linear-gradient(135deg, #10B981, #059669);
+            color: white;
+        }
+        
+        .btn-sm.btn-success:hover {
+            background: linear-gradient(135deg, #059669, #047857);
+        }
+        
+        .btn-sm.btn-danger {
+            background: linear-gradient(135deg, #EF4444, #DC2626);
+            color: white;
+        }
+        
+        .btn-sm.btn-danger:hover {
+            background: linear-gradient(135deg, #DC2626, #B91C1C);
+        }
+        
+        .btn-sm.btn-outline {
+            background: rgba(100, 116, 139, 0.1);
+            color: #64748B;
+            border: 1px solid rgba(100, 116, 139, 0.2);
+        }
+        
+        .btn-sm.btn-outline:hover {
+            background: rgba(100, 116, 139, 0.2);
+        }
+        
+        .btn-sm.btn-primary {
+            background: linear-gradient(135deg, #3B82F6, #2563EB);
+            color: white;
+        }
+        
+        .btn-sm.btn-primary:hover {
+            background: linear-gradient(135deg, #2563EB, #1D4ED8);
+        }
+        
+        .btn-sm.btn-secondary {
+            background: rgba(100, 116, 139, 0.1);
+            color: #64748B;
+        }
+        
+        .btn-sm.btn-secondary:hover {
+            background: rgba(100, 116, 139, 0.2);
         }
         
         .status-badge {
@@ -986,9 +1227,86 @@
         .status-inactive, .status-closed, .status-cancelled { background: #f8d7da; color: #721c24; }
         .status-pending, .status-reviewing, .status-on { background: #fff3cd; color: #856404; }
         .status-hired, .status-completed, .status-filled { background: #d1ecf1; color: #0c5460; }
+        
+        /* Application Status Badges */
+        .badge-success { background: #d4edda; color: #155724; }
+        .badge-warning { background: #fff3cd; color: #856404; }
+        .badge-info { background: #d1ecf1; color: #0c5460; }
+        .badge-primary { background: #cce5ff; color: #004085; }
+        .badge-danger { background: #f8d7da; color: #721c24; }
+        
+        /* Candidate info styling */
+        .candidate-info strong {
+            color: #0F172A;
+            font-weight: 600;
+        }
+        
+        .candidate-info small {
+            font-size: 0.75rem;
+            color: #64748B;
+        }
+        
+        /* Table cell styling */
+        .actions-cell {
+            white-space: nowrap;
+        }
+        
+        /* Responsive action buttons */
+        @media (max-width: 768px) {
+            .action-buttons {
+                flex-direction: column;
+                gap: 0.25rem;
+            }
+            
+            .btn-sm {
+                font-size: 0.75rem;
+                padding: 0.25rem 0.5rem;
+            }
+        }
     </style>
 </head>
 <body>
+    <!-- Live Server Reload Detection Script -->
+    <script>
+        // Add reload detection for debugging
+        let reloadCount = parseInt(localStorage.getItem('reloadCount') || '0');
+        reloadCount++;
+        localStorage.setItem('reloadCount', reloadCount.toString());
+        console.log(`🔄 Page loaded - Reload count: ${reloadCount}`);
+        
+        // Add visual indicator for reloads
+        const reloadIndicator = document.createElement('div');
+        reloadIndicator.id = 'reload-indicator';
+        reloadIndicator.style.cssText = `
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            background: #10B981;
+            color: white;
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-size: 12px;
+            z-index: 10000;
+            font-family: monospace;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        `;
+        reloadIndicator.textContent = `Reloads: ${reloadCount}`;
+        document.addEventListener('DOMContentLoaded', () => {
+            document.body.appendChild(reloadIndicator);
+            setTimeout(() => {
+                if (reloadIndicator.parentNode) {
+                    reloadIndicator.style.opacity = '0.5';
+                }
+            }, 3000);
+        });
+        
+        // Test Live Server connection
+        if (window.location.port === '5501') {
+            console.log('✅ Running on Live Server port 5501');
+        } else {
+            console.log('⚠️ Not running on expected Live Server port');
+        }
+    </script>
     <div class="admin-layout">
         <!-- Overlay for mobile -->
         <div class="overlay" id="overlay"></div>
@@ -1219,8 +1537,8 @@
 
                 <!-- Employees Section -->
                 <section id="employees-section" class="section">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
-                        <h2 style="font-size: 1.5rem; font-weight: 600;">Employee Management</h2>
+                    <div class="section-header">
+                        <h2 class="section-title">Employee Management</h2>
                         <button class="btn btn-primary" id="addEmployeeBtn">
                             <i class="fas fa-plus"></i>
                             Add Employee
@@ -1228,17 +1546,41 @@
                     </div>
 
                     <div class="card">
-                        <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
+                        <div class="card-header">
                             <h3 class="card-title">All Employees</h3>
-                            <div style="display: flex; gap: 1rem;">
-                                <input type="search" class="form-control" placeholder="Search employees..." style="width: 250px;">
-                                <select class="form-control" style="width: 150px;">
-                                    <option>All Departments</option>
+                            <div class="filter-controls">
+                                <input type="search" id="employeeSearch" class="form-control" placeholder="Search employees...">
+                                <select id="employeeDepartmentFilter" class="form-control">
+                                    <option value="">All Departments</option>
                                     <option>Technology</option>
                                     <option>Marketing</option>
                                     <option>Sales</option>
                                     <option>HR</option>
+                                    <option>Finance</option>
+                                    <option>Operations</option>
+                                    <option>Customer Service</option>
                                 </select>
+                                <select id="employeePositionFilter" class="form-control">
+                                    <option value="">All Positions</option>
+                                    <option>Manager</option>
+                                    <option>Developer</option>
+                                    <option>Analyst</option>
+                                    <option>Coordinator</option>
+                                    <option>Specialist</option>
+                                    <option>Senior</option>
+                                    <option>Junior</option>
+                                </select>
+                                <select id="employeeStatusFilter" class="form-control">
+                                    <option value="">All Status</option>
+                                    <option>Active</option>
+                                    <option>Inactive</option>
+                                    <option>On Leave</option>
+                                    <option>Terminated</option>
+                                </select>
+                                <input type="date" id="employeeHireDateFilter" class="form-control" title="Filter by hire date">
+                                <button class="btn btn-outline btn-sm" onclick="formControlManager.clearAllFilters('employees')" title="Clear all filters">
+                                    <i class="fas fa-times"></i> Clear
+                                </button>
                             </div>
                         </div>
                         <div class="card-body">
@@ -1304,9 +1646,9 @@
                     </div>
                 </section>
 
-                <!-- Continue with other sections... -->                <section id="candidates-section" class="section">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
-                        <h2 style="font-size: 1.5rem; font-weight: 600;">Candidate Management</h2>
+                <section id="candidates-section" class="section">
+                    <div class="section-header">
+                        <h2 class="section-title">Candidate Management</h2>
                         <button class="btn btn-primary" id="addCandidateBtn">
                             <i class="fas fa-user-plus"></i>
                             Add Candidate
@@ -1314,16 +1656,52 @@
                     </div>
 
                     <div class="card">
-                        <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
+                        <div class="card-header">
                             <h3 class="card-title">All Candidates</h3>
-                            <div style="display: flex; gap: 1rem;">
-                                <input type="search" class="form-control" placeholder="Search candidates..." style="width: 250px;">
-                                <select class="form-control" style="width: 150px;">
-                                    <option>All Status</option>
+                            <div class="filter-controls">
+                                <input type="search" id="candidateSearch" class="form-control" placeholder="Search candidates...">
+                                <select id="candidateStatusFilter" class="form-control">
+                                    <option value="">All Status</option>
                                     <option>Available</option>
-                                    <option>Hired</option>
+                                    <option>Applied</option>
                                     <option>Interviewing</option>
+                                    <option>Hired</option>
+                                    <option>Rejected</option>
+                                    <option>Blacklisted</option>
                                 </select>
+                                <select id="candidateSkillFilter" class="form-control">
+                                    <option value="">All Skills</option>
+                                    <option>JavaScript</option>
+                                    <option>Python</option>
+                                    <option>Java</option>
+                                    <option>React</option>
+                                    <option>Node.js</option>
+                                    <option>SQL</option>
+                                    <option>PHP</option>
+                                    <option>Marketing</option>
+                                    <option>Sales</option>
+                                    <option>Design</option>
+                                </select>
+                                <select id="candidateExperienceFilter" class="form-control">
+                                    <option value="">All Experience</option>
+                                    <option>Entry Level</option>
+                                    <option>1-2 years</option>
+                                    <option>3-5 years</option>
+                                    <option>5-10 years</option>
+                                    <option>10+ years</option>
+                                </select>
+                                <select id="candidateLocationFilter" class="form-control">
+                                    <option value="">All Locations</option>
+                                    <option>Remote</option>
+                                    <option>New York</option>
+                                    <option>California</option>
+                                    <option>Texas</option>
+                                    <option>Florida</option>
+                                    <option>Illinois</option>
+                                </select>
+                                <button class="btn btn-outline btn-sm" onclick="formControlManager.clearAllFilters('candidates')">
+                                    <i class="fas fa-times"></i> Clear
+                                </button>
                             </div>
                         </div>
                         <div class="card-body">
@@ -1350,9 +1728,11 @@
                             </div>
                         </div>
                     </div>
-                </section>                <section id="employers-section" class="section">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
-                        <h2 style="font-size: 1.5rem; font-weight: 600;">Employer Management</h2>
+                </section>
+
+                <section id="employers-section" class="section">
+                    <div class="section-header">
+                        <h2 class="section-title">Employer Management</h2>
                         <button class="btn btn-primary" id="addEmployerBtn">
                             <i class="fas fa-building"></i>
                             Add Employer
@@ -1360,17 +1740,48 @@
                     </div>
 
                     <div class="card">
-                        <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
+                        <div class="card-header">
                             <h3 class="card-title">All Employers</h3>
-                            <div style="display: flex; gap: 1rem;">
-                                <input type="search" class="form-control" placeholder="Search employers..." style="width: 250px;">
-                                <select class="form-control" style="width: 150px;">
-                                    <option>All Industries</option>
+                            <div class="filter-controls">
+                                <input type="search" id="employerSearch" class="form-control" placeholder="Search employers...">
+                                <select id="employerIndustryFilter" class="form-control">
+                                    <option value="">All Industries</option>
                                     <option>Technology</option>
                                     <option>Healthcare</option>
                                     <option>Finance</option>
+                                    <option>Education</option>
                                     <option>Manufacturing</option>
+                                    <option>Retail</option>
+                                    <option>Consulting</option>
+                                    <option>Non-Profit</option>
                                 </select>
+                                <select id="employerSizeFilter" class="form-control">
+                                    <option value="">All Company Sizes</option>
+                                    <option>Startup (1-10)</option>
+                                    <option>Small (11-50)</option>
+                                    <option>Medium (51-200)</option>
+                                    <option>Large (201-1000)</option>
+                                    <option>Enterprise (1000+)</option>
+                                </select>
+                                <select id="employerStatusFilter" class="form-control">
+                                    <option value="">All Status</option>
+                                    <option>Active</option>
+                                    <option>Inactive</option>
+                                    <option>Premium</option>
+                                    <option>Suspended</option>
+                                </select>
+                                <select id="employerLocationFilter" class="form-control">
+                                    <option value="">All Locations</option>
+                                    <option>New York</option>
+                                    <option>California</option>
+                                    <option>Texas</option>
+                                    <option>Florida</option>
+                                    <option>Illinois</option>
+                                    <option>Remote</option>
+                                </select>
+                                <button class="btn btn-outline btn-sm" onclick="formControlManager.clearAllFilters('employers')">
+                                    <i class="fas fa-times"></i> Clear
+                                </button>
                             </div>
                         </div>
                         <div class="card-body">
@@ -1400,8 +1811,8 @@
                 </section>
 
                 <section id="schedule-section" class="section">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
-                        <h2 style="font-size: 1.5rem; font-weight: 600;">Schedule Management</h2>
+                    <div class="section-header">
+                        <h2 class="section-title">Schedule Management</h2>
                         <button class="btn btn-primary" id="addScheduleBtn">
                             <i class="fas fa-calendar-plus"></i>
                             New Event
@@ -1409,17 +1820,43 @@
                     </div>
 
                     <div class="card">
-                        <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
+                        <div class="card-header">
                             <h3 class="card-title">All Scheduled Events</h3>
-                            <div style="display: flex; gap: 1rem;">
-                                <input type="search" class="form-control" placeholder="Search events..." style="width: 250px;">
-                                <select class="form-control" style="width: 150px;">
-                                    <option>All Types</option>
+                            <div class="filter-controls">
+                                <input type="search" id="scheduleSearch" class="form-control" placeholder="Search events...">
+                                <select id="scheduleTypeFilter" class="form-control">
+                                    <option value="">All Types</option>
                                     <option>Interview</option>
                                     <option>Meeting</option>
                                     <option>Training</option>
+                                    <option>Onboarding</option>
+                                    <option>Review</option>
+                                    <option>Team Building</option>
                                     <option>Other</option>
                                 </select>
+                                <select id="scheduleStatusFilter" class="form-control">
+                                    <option value="">All Status</option>
+                                    <option>Scheduled</option>
+                                    <option>Completed</option>
+                                    <option>Cancelled</option>
+                                    <option>Rescheduled</option>
+                                    <option>In Progress</option>
+                                </select>
+                                <select id="scheduleDepartmentFilter" class="form-control">
+                                    <option value="">All Departments</option>
+                                    <option>Technology</option>
+                                    <option>Marketing</option>
+                                    <option>Sales</option>
+                                    <option>HR</option>
+                                    <option>Finance</option>
+                                    <option>Operations</option>
+                                    <option>Customer Service</option>
+                                </select>
+                                <input type="date" id="scheduleFromDateFilter" class="form-control" title="Filter from date">
+                                <input type="date" id="scheduleToDateFilter" class="form-control" title="Filter to date">
+                                <button class="btn btn-outline btn-sm" onclick="formControlManager.clearAllFilters('schedule')">
+                                    <i class="fas fa-times"></i> Clear
+                                </button>
                             </div>
                         </div>
                         <div class="card-body">
@@ -1446,9 +1883,11 @@
                             </div>
                         </div>
                     </div>
-                </section>                <section id="applications-section" class="section">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
-                        <h2 style="font-size: 1.5rem; font-weight: 600;">Application Management</h2>
+                </section>
+
+                <section id="applications-section" class="section">
+                    <div class="section-header">
+                        <h2 class="section-title">Application Management</h2>
                         <button class="btn btn-primary" id="addApplicationBtn">
                             <i class="fas fa-file-plus"></i>
                             New Application
@@ -1456,17 +1895,40 @@
                     </div>
 
                     <div class="card">
-                        <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
+                        <div class="card-header">
                             <h3 class="card-title">All Applications</h3>
-                            <div style="display: flex; gap: 1rem;">
-                                <input type="search" class="form-control" placeholder="Search applications..." style="width: 250px;">                                <select class="form-control" style="width: 150px;">
-                                    <option>All Status</option>
+                            <div class="filter-controls">
+                                <input type="search" id="applicationSearch" class="form-control" placeholder="Search applications...">
+                                <select id="applicationStatusFilter" class="form-control">
+                                    <option value="">All Status</option>
                                     <option>Pending</option>
                                     <option>Under Review</option>
                                     <option>Interview</option>
                                     <option>Accepted</option>
                                     <option>Rejected</option>
                                 </select>
+                                <select id="applicationDepartmentFilter" class="form-control">
+                                    <option value="">All Departments</option>
+                                    <option>Technology</option>
+                                    <option>Marketing</option>
+                                    <option>Sales</option>
+                                    <option>HR</option>
+                                    <option>Finance</option>
+                                    <option>Operations</option>
+                                    <option>Customer Service</option>
+                                </select>
+                                <select id="applicationPriorityFilter" class="form-control">
+                                    <option value="">All Priority</option>
+                                    <option>High</option>
+                                    <option>Medium</option>
+                                    <option>Low</option>
+                                    <option>Urgent</option>
+                                </select>
+                                <input type="date" id="applicationDateFromFilter" class="form-control" placeholder="From Date" title="Filter from date">
+                                <input type="date" id="applicationDateToFilter" class="form-control" placeholder="To Date" title="Filter to date">
+                                <button class="btn btn-outline btn-sm" onclick="formControlManager.clearAllFilters('applications')">
+                                    <i class="fas fa-times"></i> Clear
+                                </button>
                             </div>
                         </div>
                         <div class="card-body">
@@ -1479,9 +1941,9 @@
                                             </th>
                                             <th>Candidate</th>
                                             <th>Job Position</th>
+                                            <th>Department</th>
                                             <th>Status</th>
                                             <th>Application Date</th>
-                                            <th>Last Updated</th>
                                             <th>Actions</th>
                                         </tr>
                                     </thead>
@@ -1497,8 +1959,8 @@
                 </section>
 
                 <section id="jobs-section" class="section">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
-                        <h2 style="font-size: 1.5rem; font-weight: 600;">Job Management</h2>
+                    <div class="section-header">
+                        <h2 class="section-title">Job Management</h2>
                         <button class="btn btn-primary" id="addJobBtn">
                             <i class="fas fa-briefcase"></i>
                             Post Job
@@ -1506,17 +1968,49 @@
                     </div>
 
                     <div class="card">
-                        <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
+                        <div class="card-header">
                             <h3 class="card-title">All Job Postings</h3>
-                            <div style="display: flex; gap: 1rem;">
-                                <input type="search" class="form-control" placeholder="Search jobs..." style="width: 250px;">
-                                <select class="form-control" style="width: 150px;">
-                                    <option>All Types</option>
+                            <div class="filter-controls">
+                                <input type="search" id="jobSearch" class="form-control" placeholder="Search jobs...">
+                                <select id="jobTypeFilter" class="form-control">
+                                    <option value="">All Types</option>
                                     <option>Full-time</option>
                                     <option>Part-time</option>
                                     <option>Contract</option>
                                     <option>Internship</option>
+                                    <option>Freelance</option>
+                                    <option>Remote</option>
                                 </select>
+                                <select id="jobDepartmentFilter" class="form-control">
+                                    <option value="">All Departments</option>
+                                    <option>Technology</option>
+                                    <option>Marketing</option>
+                                    <option>Sales</option>
+                                    <option>HR</option>
+                                    <option>Finance</option>
+                                    <option>Operations</option>
+                                    <option>Customer Service</option>
+                                </select>
+                                <select id="jobStatusFilter" class="form-control">
+                                    <option value="">All Status</option>
+                                    <option>Active</option>
+                                    <option>Closed</option>
+                                    <option>Draft</option>
+                                    <option>Expired</option>
+                                    <option>On Hold</option>
+                                </select>
+                                <select id="jobSalaryRangeFilter" class="form-control">
+                                    <option value="">All Salary Ranges</option>
+                                    <option>$30k - $50k</option>
+                                    <option>$50k - $70k</option>
+                                    <option>$70k - $100k</option>
+                                    <option>$100k - $150k</option>
+                                    <option>$150k+</option>
+                                </select>
+                                <input type="date" id="jobPostedDateFilter" class="form-control" title="Filter by posted date">
+                                <button class="btn btn-outline btn-sm" onclick="formControlManager.clearAllFilters('jobs')">
+                                    <i class="fas fa-times"></i> Clear
+                                </button>
                             </div>
                         </div>
                         <div class="card-body">
@@ -1546,8 +2040,8 @@
                 </section>
 
                 <section id="settings-section" class="section">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
-                        <h2 style="font-size: 1.5rem; font-weight: 600;">System Settings</h2>
+                    <div class="section-header">
+                        <h2 class="section-title">System Settings</h2>
                     </div>
 
                     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem;">
@@ -2123,7 +2617,7 @@
                         this.loadEmployers();
                         break;
                     case 'schedule':
-                        this.loadSchedule();
+                        this.loadSchedules();
                         break;
                     case 'applications':
                         this.loadApplications();
@@ -2134,31 +2628,6 @@
                     default:
                         break;
                 }
-            }
-
-            loadEmployees() {
-                // Simulate loading employees data
-                console.log('Loading employees...');
-                // In a real app, you'd fetch from your API here
-            }
-
-            loadCandidates() {
-                console.log('Loading candidates...');
-            }
-
-            loadEmployers() {
-                console.log('Loading employers...');
-            }
-
-            loadSchedule() {
-                console.log('Loading schedule...');
-            }
-
-            loadApplications() {
-                console.log('Loading applications...');
-            }
-
-            loadJobs() {                console.log('Loading jobs...');
             }
 
             logout() {
@@ -2200,7 +2669,12 @@
         // Initialize CRUD Management System
         class CRUDManager {
             constructor() {
+                console.log('Initializing CRUDManager...');
                 this.dataService = window.DataService || DataService;
+                console.log('DataService available:', !!this.dataService);
+                if (!this.dataService) {
+                    console.error('DataService not found! Data loading will fail.');
+                }
                 this.currentEntity = null;
                 this.currentEntityType = null;
                 this.initializeEventListeners();
@@ -2208,11 +2682,25 @@
             }
 
             initializeEventListeners() {
+                console.log('Initializing event listeners...');
+                
                 // Navigation listeners
-                document.querySelectorAll('.nav-link').forEach(link => {
+                const navLinks = document.querySelectorAll('.nav-link');
+                console.log('Found nav links:', navLinks.length);
+                
+                navLinks.forEach((link, index) => {
+                    console.log(`Nav link ${index}:`, link.dataset.section);
                     link.addEventListener('click', (e) => {
                         e.preventDefault();
                         const section = e.currentTarget.dataset.section;
+                        console.log('Clicked section:', section);
+                        
+                        // Handle logout separately
+                        if (e.currentTarget.id === 'logoutBtn') {
+                            this.handleLogout();
+                            return;
+                        }
+                        
                         this.showSection(section);
                     });
                 });
@@ -2230,33 +2718,66 @@
                 document.getElementById('cancelEntity')?.addEventListener('click', () => this.closeModal());
                 document.getElementById('confirmDelete')?.addEventListener('click', () => this.confirmDelete());
                 document.getElementById('cancelDelete')?.addEventListener('click', () => this.closeDeleteModal());
+                
+                console.log('Event listeners initialized successfully');
             }
 
             showSection(sectionName) {
+                console.log('🎯 showSection called with:', sectionName);
+                
+                if (!sectionName) {
+                    console.error('❌ No section name provided');
+                    return;
+                }
+                
                 // Hide all sections
-                document.querySelectorAll('.section').forEach(section => {
+                const allSections = document.querySelectorAll('.section');
+                console.log('📋 Found sections:', allSections.length);
+                allSections.forEach(section => {
                     section.classList.remove('active');
+                    console.log('🫥 Hiding section:', section.id);
                 });
 
                 // Remove active class from nav links
-                document.querySelectorAll('.nav-link').forEach(link => {
+                const allNavLinks = document.querySelectorAll('.nav-link');
+                allNavLinks.forEach(link => {
                     link.classList.remove('active');
                 });
 
                 // Show selected section
                 const targetSection = document.getElementById(`${sectionName}-section`);
+                console.log('🎯 Target section:', targetSection);
                 if (targetSection) {
                     targetSection.classList.add('active');
+                    console.log('✅ Showing section:', `${sectionName}-section`);
+                    
+                    // Scroll to top of content
+                    document.querySelector('.content')?.scrollTo(0, 0);
+                } else {
+                    console.error('❌ Section not found:', `${sectionName}-section`);
                 }
 
                 // Add active class to clicked nav link
                 const activeLink = document.querySelector(`[data-section="${sectionName}"]`);
+                console.log('🔗 Active link:', activeLink);
                 if (activeLink) {
                     activeLink.classList.add('active');
+                    console.log('✅ Setting active nav link for:', sectionName);
+                } else {
+                    console.error('❌ Nav link not found for section:', sectionName);
                 }
 
                 // Load data for the section
                 this.loadSectionData(sectionName);
+            }
+
+            // Add logout handler
+            handleLogout() {
+                if (confirm('Are you sure you want to logout?')) {
+                    // Clear any stored data if needed
+                    // Redirect to login page
+                    window.location.href = '../login.html';
+                }
             }
 
             loadAllData() {
@@ -2269,7 +2790,11 @@
             }
 
             loadSectionData(section) {
+                console.log('Loading data for section:', section);
                 switch(section) {
+                    case 'dashboard':
+                        this.loadDashboard();
+                        break;
                     case 'employees':
                         this.loadEmployees();
                         break;
@@ -2288,44 +2813,84 @@
                     case 'schedule':
                         this.loadSchedules();
                         break;
+                    case 'settings':
+                        this.loadSettings();
+                        break;
+                    default:
+                        console.warn('Unknown section:', section);
                 }
             }
 
-            loadEmployees() {
-                const employees = this.dataService.readEmployees();
-                const tbody = document.getElementById('employeesTableBody');
-                if (!tbody) return;
+            loadDashboard() {
+                console.log('Loading dashboard data...');
+                // Dashboard is static, no dynamic loading needed
+                // Could add analytics loading here if needed
+            }
 
-                tbody.innerHTML = employees.map(emp => `
-                    <tr>
-                        <td>${emp.id || 'N/A'}</td>
-                        <td>${emp.name || 'N/A'}</td>
-                        <td>${emp.email || 'N/A'}</td>
-                        <td>${emp.department || 'N/A'}</td>
-                        <td>${emp.position || 'N/A'}</td>
-                        <td>${emp.hireDate || 'N/A'}</td>
-                        <td><span class="badge badge-${emp.status === 'Active' ? 'success' : 'warning'}">${emp.status || 'Active'}</span></td>
-                        <td>
-                            <button class="btn btn-sm btn-outline" onclick="crudManager.viewEntity('employee', ${emp.id})">
-                                <i class="fas fa-eye"></i>
-                            </button>
-                            <button class="btn btn-sm btn-primary" onclick="crudManager.editEntity('employee', ${emp.id})">
-                                <i class="fas fa-edit"></i>
-                            </button>
-                            <button class="btn btn-sm btn-danger" onclick="crudManager.deleteEntity('employee', ${emp.id})">
-                                <i class="fas fa-trash"></i>
-                            </button>
-                        </td>
-                    </tr>
-                `).join('');
+            loadSettings() {
+                console.log('Loading settings...');
+                // Settings section is mostly static forms
+            }
+
+            loadEmployees() {
+                console.log('Loading employees...');
+                try {
+                    if (!this.dataService) {
+                        console.error('DataService not available for loading employees');
+                        return;
+                    }
+                    const employees = this.dataService.readEmployees();
+                    console.log('Employees data:', employees);
+                    const tbody = document.getElementById('employeesTableBody');
+                    if (!tbody) {
+                        console.error('employeesTableBody not found');
+                        return;
+                    }
+
+                    tbody.innerHTML = employees.map(emp => `
+                        <tr>
+                            <td>${emp.id || 'N/A'}</td>
+                            <td>${emp.name || 'N/A'}</td>
+                            <td>${emp.email || 'N/A'}</td>
+                            <td>${emp.department || 'N/A'}</td>
+                            <td>${emp.position || 'N/A'}</td>
+                            <td>${emp.hireDate || 'N/A'}</td>
+                            <td><span class="badge badge-${emp.status === 'Active' ? 'success' : 'warning'}">${emp.status || 'Active'}</span></td>
+                            <td>
+                                <button class="btn btn-sm btn-outline" onclick="crudManager.viewEntity('employee', ${emp.id})">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                                <button class="btn btn-sm btn-primary" onclick="crudManager.editEntity('employee', ${emp.id})">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button class="btn btn-sm btn-danger" onclick="crudManager.deleteEntity('employee', ${emp.id})">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    `).join('');
+                    console.log('Employees table populated');
+                } catch (error) {
+                    console.error('Error loading employees:', error);
+                }
             }
 
             loadCandidates() {
-                const candidates = this.dataService.readCandidates();
-                const tbody = document.getElementById('candidatesTableBody');
-                if (!tbody) return;
+                console.log('Loading candidates...');
+                try {
+                    if (!this.dataService) {
+                        console.error('DataService not available for loading candidates');
+                        return;
+                    }
+                    const candidates = this.dataService.readCandidates();
+                    console.log('Candidates data:', candidates);
+                    const tbody = document.getElementById('candidatesTableBody');
+                    if (!tbody) {
+                        console.error('candidatesTableBody not found');
+                        return;
+                    }
 
-                tbody.innerHTML = candidates.map(candidate => `
+                    tbody.innerHTML = candidates.map(candidate => `
                     <tr>
                         <td>${candidate.id || 'N/A'}</td>
                         <td>${candidate.name || 'N/A'}</td>
@@ -2347,43 +2912,71 @@
                         </td>
                     </tr>
                 `).join('');
+                    console.log('Candidates table populated');
+                } catch (error) {
+                    console.error('Error loading candidates:', error);
+                }
             }
 
             loadEmployers() {
-                const employers = this.dataService.readEmployers();
-                const tbody = document.getElementById('employersTableBody');
-                if (!tbody) return;
+                console.log('Loading employers...');
+                try {
+                    if (!this.dataService) {
+                        console.error('DataService not available for loading employers');
+                        return;
+                    }
+                    const employers = this.dataService.readEmployers();
+                    console.log('Employers data:', employers);
+                    const tbody = document.getElementById('employersTableBody');
+                    if (!tbody) {
+                        console.error('employersTableBody not found');
+                        return;
+                    }
 
-                tbody.innerHTML = employers.map(employer => `
-                    <tr>
-                        <td>${employer.id || 'N/A'}</td>
-                        <td>${employer.company || 'N/A'}</td>
-                        <td>${employer.contactPerson || 'N/A'}</td>
-                        <td>${employer.email || 'N/A'}</td>
-                        <td>${employer.phone || 'N/A'}</td>
-                        <td>${employer.industry || 'N/A'}</td>
-                        <td><span class="badge badge-${employer.status === 'Active' ? 'success' : 'warning'}">${employer.status || 'Active'}</span></td>
-                        <td>
-                            <button class="btn btn-sm btn-outline" onclick="crudManager.viewEntity('employer', ${employer.id})">
-                                <i class="fas fa-eye"></i>
-                            </button>
-                            <button class="btn btn-sm btn-primary" onclick="crudManager.editEntity('employer', ${employer.id})">
-                                <i class="fas fa-edit"></i>
-                            </button>
-                            <button class="btn btn-sm btn-danger" onclick="crudManager.deleteEntity('employer', ${employer.id})">
-                                <i class="fas fa-trash"></i>
-                            </button>
-                        </td>
-                    </tr>
-                `).join('');
+                    tbody.innerHTML = employers.map(employer => `
+                        <tr>
+                            <td>${employer.id || 'N/A'}</td>
+                            <td>${employer.company || 'N/A'}</td>
+                            <td>${employer.contactPerson || 'N/A'}</td>
+                            <td>${employer.email || 'N/A'}</td>
+                            <td>${employer.phone || 'N/A'}</td>
+                            <td>${employer.industry || 'N/A'}</td>
+                            <td><span class="badge badge-${employer.status === 'Active' ? 'success' : 'warning'}">${employer.status || 'Active'}</span></td>
+                            <td>
+                                <button class="btn btn-sm btn-outline" onclick="crudManager.viewEntity('employer', ${employer.id})">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                                <button class="btn btn-sm btn-primary" onclick="crudManager.editEntity('employer', ${employer.id})">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button class="btn btn-sm btn-danger" onclick="crudManager.deleteEntity('employer', ${employer.id})">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    `).join('');
+                    console.log('Employers table populated');
+                } catch (error) {
+                    console.error('Error loading employers:', error);
+                }
             }
 
             loadJobs() {
-                const jobs = this.dataService.readJobs();
-                const tbody = document.getElementById('jobsTableBody');
-                if (!tbody) return;
+                console.log('Loading jobs...');
+                try {
+                    if (!this.dataService) {
+                        console.error('DataService not available for loading jobs');
+                        return;
+                    }
+                    const jobs = this.dataService.readJobs();
+                    console.log('Jobs data:', jobs);
+                    const tbody = document.getElementById('jobsTableBody');
+                    if (!tbody) {
+                        console.error('jobsTableBody not found');
+                        return;
+                    }
 
-                tbody.innerHTML = jobs.map(job => `
+                    tbody.innerHTML = jobs.map(job => `
                     <tr>
                         <td>${job.id || 'N/A'}</td>
                         <td>${job.title || 'N/A'}</td>
@@ -2405,10 +2998,26 @@
                         </td>
                     </tr>
                 `).join('');
-            }            loadApplications() {
-                const applications = this.dataService.readApplications();
-                const tbody = document.getElementById('applicationsTableBody');
-                if (!tbody) return;
+                    console.log('Jobs table populated');
+                } catch (error) {
+                    console.error('Error loading jobs:', error);
+                }
+            }
+
+            loadApplications() {
+                console.log('Loading applications...');
+                try {
+                    if (!this.dataService) {
+                        console.error('DataService not available for loading applications');
+                        return;
+                    }
+                    const applications = this.dataService.readApplications();
+                    console.log('Applications data:', applications);
+                    const tbody = document.getElementById('applicationsTableBody');
+                    if (!tbody) {
+                        console.error('applicationsTableBody not found');
+                        return;
+                    }
 
                 tbody.innerHTML = applications.map(app => {
                     const status = app.status || 'Pending';
@@ -2437,9 +3046,9 @@
                                 </div>
                             </td>
                             <td>${app.jobPosition || app.jobTitle || 'N/A'}</td>
-                            <td><span class="status-badge status-${status.replace(' ', '-')}">${status}</span></td>
+                            <td>${app.department || 'General'}</td>
+                            <td><span class="badge badge-${statusClass}">${status}</span></td>
                             <td>${app.applicationDate || app.createdAt ? new Date(app.applicationDate || app.createdAt).toLocaleDateString() : 'N/A'}</td>
-                            <td>${app.lastUpdated ? new Date(app.lastUpdated).toLocaleDateString() : 'N/A'}</td>
                             <td class="actions-cell">
                                 <div class="action-buttons">
                                     ${hireBtns}
@@ -2457,35 +3066,53 @@
                         </tr>
                     `;
                 }).join('');
+                    console.log('Applications table populated');
+                } catch (error) {
+                    console.error('Error loading applications:', error);
+                }
             }
 
             loadSchedules() {
-                const schedules = this.dataService.readSchedules();
-                const tbody = document.getElementById('schedulesTableBody');
-                if (!tbody) return;
+                console.log('Loading schedules...');
+                try {
+                    if (!this.dataService) {
+                        console.error('DataService not available for loading schedules');
+                        return;
+                    }
+                    const schedules = this.dataService.readSchedules();
+                    console.log('Schedules data:', schedules);
+                    const tbody = document.getElementById('schedulesTableBody');
+                    if (!tbody) {
+                        console.error('schedulesTableBody not found');
+                        return;
+                    }
 
-                tbody.innerHTML = schedules.map(schedule => `
-                    <tr>
-                        <td>${schedule.id || 'N/A'}</td>
-                        <td>${schedule.title || 'N/A'}</td>
-                        <td>${schedule.date || 'N/A'}</td>
-                        <td>${schedule.time || 'N/A'}</td>
-                        <td>${schedule.type || 'N/A'}</td>
-                        <td>${schedule.participants || 'N/A'}</td>
-                        <td><span class="badge badge-${schedule.status === 'Scheduled' ? 'success' : 'warning'}">${schedule.status || 'Scheduled'}</span></td>
-                        <td>
-                            <button class="btn btn-sm btn-outline" onclick="crudManager.viewEntity('schedule', ${schedule.id})">
-                                <i class="fas fa-eye"></i>
-                            </button>
-                            <button class="btn btn-sm btn-primary" onclick="crudManager.editEntity('schedule', ${schedule.id})">
-                                <i class="fas fa-edit"></i>
-                            </button>
-                            <button class="btn btn-sm btn-danger" onclick="crudManager.deleteEntity('schedule', ${schedule.id})">
-                                <i class="fas fa-trash"></i>
-                            </button>
-                        </td>
-                    </tr>
-                `).join('');
+                    tbody.innerHTML = schedules.map(schedule => `
+                        <tr>
+                            <td>${schedule.id || 'N/A'}</td>
+                            <td>${schedule.title || 'N/A'}</td>
+                            <td>${schedule.date || 'N/A'}</td>
+                            <td>${schedule.time || 'N/A'}</td>
+                            <td>${schedule.type || 'N/A'}</td>
+                            <td>${schedule.participants || 'N/A'}</td>
+                            <td><span class="badge badge-${schedule.status === 'Scheduled' ? 'success' : 'warning'}">${schedule.status || 'Scheduled'}</span></td>
+                            <td>
+                                <button class="btn btn-sm btn-outline" onclick="crudManager.viewEntity('schedule', ${schedule.id})">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                                <button class="btn btn-sm btn-primary" onclick="crudManager.editEntity('schedule', ${schedule.id})">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button class="btn btn-sm btn-danger" onclick="crudManager.deleteEntity('schedule', ${schedule.id})">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    `).join('');
+                    console.log('Schedules table populated');
+                } catch (error) {
+                    console.error('Error loading schedules:', error);
+                }
             }
 
             openCreateModal(entityType) {
@@ -3055,19 +3682,670 @@
                     console.error('Error in confirmHire:', error);
                     alert('Error processing hire. Please try again.');
                 }
-            }        }        // Initialize CRUD Manager
+            }
+        }
+
+        // Form Control Manager - Makes all form-control elements functional
+        class FormControlManager {
+            constructor() {
+                this.searchFilters = new Map();
+                this.init();
+            }
+
+            init() {
+                this.initializeSearchInputs();
+                this.initializeDropdownFilters();
+                this.initializeFormValidation();
+                this.initializeAutoComplete();
+                this.addFilterResetButtons();
+                console.log('FormControlManager initialized - All form controls are now functional');
+            }
+
+            // Initialize all search inputs
+            initializeSearchInputs() {
+                const searchInputs = document.querySelectorAll('input[type="search"].form-control');
+                
+                searchInputs.forEach(input => {
+                    const tableSection = this.getTableSection(input);
+                    
+                    // Add real-time search functionality
+                    input.addEventListener('input', (e) => {
+                        this.applyAllFilters(tableSection);
+                    });
+
+                    // Add search icon and clear button
+                    this.enhanceSearchInput(input);
+                });
+            }
+
+            // Initialize dropdown filters
+            initializeDropdownFilters() {
+                const filterDropdowns = document.querySelectorAll('select.form-control');
+                const dateFilters = document.querySelectorAll('input[type="date"].form-control');
+                
+                // Handle select dropdown filters
+                filterDropdowns.forEach(dropdown => {
+                    const tableSection = this.getTableSection(dropdown);
+                    
+                    // Add change event for filtering
+                    dropdown.addEventListener('change', (e) => {
+                        this.applyAllFilters(tableSection);
+                    });
+
+                    // Populate dropdown options based on data
+                    this.populateDropdownOptions(dropdown, tableSection);
+                });
+
+                // Handle date filters
+                dateFilters.forEach(dateInput => {
+                    const tableSection = this.getTableSection(dateInput);
+                    
+                    dateInput.addEventListener('change', (e) => {
+                        this.applyAllFilters(tableSection);
+                    });
+                });
+            }
+
+            // Apply all active filters to a table section
+            applyAllFilters(tableSection) {
+                if (!tableSection) return;
+
+                const tableBody = document.querySelector(`#${tableSection}TableBody`);
+                if (!tableBody) return;
+
+                const rows = tableBody.querySelectorAll('tr');
+                let visibleCount = 0;
+
+                // Get all active filters for this section
+                const activeFilters = this.getActiveFilters(tableSection);
+                const searchTerm = this.getSearchTerm(tableSection);
+
+                rows.forEach(row => {
+                    const cells = row.querySelectorAll('td');
+                    if (cells.length === 0) return; // Skip header or empty rows
+
+                    let shouldShow = true;
+
+                    // Apply search filter
+                    if (searchTerm) {
+                        const rowText = Array.from(cells).map(cell => cell.textContent.toLowerCase()).join(' ');
+                        shouldShow = shouldShow && rowText.includes(searchTerm.toLowerCase());
+                    }
+
+                    // Apply dropdown filters
+                    activeFilters.dropdowns.forEach(filter => {
+                        if (filter.value && shouldShow) {
+                            const cellText = cells[filter.columnIndex]?.textContent.toLowerCase() || '';
+                            const badgeText = cells[filter.columnIndex]?.querySelector('.badge, .status-badge')?.textContent.toLowerCase() || '';
+                            const textToCheck = badgeText || cellText;
+                            shouldShow = shouldShow && textToCheck.includes(filter.value.toLowerCase());
+                        }
+                    });
+
+                    // Apply date filters
+                    activeFilters.dates.forEach(filter => {
+                        if (filter.value && shouldShow) {
+                            const cellDate = this.parseDate(cells[filter.columnIndex]?.textContent);
+                            const filterDate = new Date(filter.value);
+                            
+                            if (filter.type === 'from') {
+                                shouldShow = shouldShow && cellDate >= filterDate;
+                            } else if (filter.type === 'to') {
+                                shouldShow = shouldShow && cellDate <= filterDate;
+                            } else {
+                                // Exact date match
+                                shouldShow = shouldShow && cellDate.toDateString() === filterDate.toDateString();
+                            }
+                        }
+                    });
+
+                    row.style.display = shouldShow ? '' : 'none';
+                    if (shouldShow) visibleCount++;
+                });
+
+                this.updateResultCount(tableSection, visibleCount);
+            }
+
+            // Get active filters for a table section
+            getActiveFilters(tableSection) {
+                const sectionContainer = document.querySelector(`#${tableSection}-section`);
+                if (!sectionContainer) return { dropdowns: [], dates: [] };
+
+                const dropdownFilters = [];
+                const dateFilters = [];
+
+                // Get dropdown filters
+                const dropdowns = sectionContainer.querySelectorAll('select.form-control');
+                dropdowns.forEach(dropdown => {
+                    if (dropdown.value) {
+                        dropdownFilters.push({
+                            element: dropdown,
+                            value: dropdown.value,
+                            columnIndex: this.getFilterColumnIndex(dropdown)
+                        });
+                    }
+                });
+
+                // Get date filters
+                const dateInputs = sectionContainer.querySelectorAll('input[type="date"].form-control');
+                dateInputs.forEach(dateInput => {
+                    if (dateInput.value) {
+                        let filterType = 'exact';
+                        if (dateInput.id.includes('From') || dateInput.id.includes('from')) {
+                            filterType = 'from';
+                        } else if (dateInput.id.includes('To') || dateInput.id.includes('to')) {
+                            filterType = 'to';
+                        }
+
+                        dateFilters.push({
+                            element: dateInput,
+                            value: dateInput.value,
+                            type: filterType,
+                            columnIndex: this.getDateColumnIndex(dateInput)
+                        });
+                    }
+                });
+
+                return { dropdowns: dropdownFilters, dates: dateFilters };
+            }
+
+            // Get search term for a table section
+            getSearchTerm(tableSection) {
+                const searchInput = document.querySelector(`#${tableSection}Search`);
+                return searchInput ? searchInput.value.trim() : '';
+            }
+
+            // Parse date from various formats
+            parseDate(dateString) {
+                if (!dateString) return new Date(0);
+                
+                // Handle various date formats
+                const cleanDate = dateString.trim();
+                if (cleanDate === 'N/A' || cleanDate === '') return new Date(0);
+                
+                return new Date(cleanDate);
+            }
+
+            // Get column index for date filtering
+            getDateColumnIndex(dateInput) {
+                const inputId = dateInput.id.toLowerCase();
+                
+                // Employee hire date
+                if (inputId.includes('employeehire')) return 5;
+                
+                // Application dates
+                if (inputId.includes('application')) return 5;
+                
+                // Schedule dates
+                if (inputId.includes('schedule')) return 3;
+                
+                // Job posted date
+                if (inputId.includes('jobposted')) return 6;
+                
+                return 5; // Default
+            }
+
+            // Initialize form validation
+            initializeFormValidation() {
+                const forms = document.querySelectorAll('form');
+                
+                forms.forEach(form => {
+                    const inputs = form.querySelectorAll('.form-control');
+                    
+                    inputs.forEach(input => {
+                        // Real-time validation
+                        input.addEventListener('blur', () => this.validateField(input));
+                        input.addEventListener('input', () => this.clearFieldError(input));
+                    });
+
+                    // Form submission validation
+                    form.addEventListener('submit', (e) => {
+                        if (!this.validateForm(form)) {
+                            e.preventDefault();
+                        }
+                    });
+                });
+            }
+
+            // Initialize autocomplete functionality
+            initializeAutoComplete() {
+                const textInputs = document.querySelectorAll('input[type="text"].form-control');
+                
+                textInputs.forEach(input => {
+                    if (input.dataset.autocomplete) {
+                        this.setupAutoComplete(input);
+                    }
+                });
+            }
+
+            // Get the table section for a form control
+            getTableSection(element) {
+                const section = element.closest('.section');
+                if (section) {
+                    return section.id.replace('-section', '');
+                }
+                return null;
+            }
+
+            // Perform search in table
+            performSearch(tableSection, searchTerm) {
+                if (!tableSection) return;
+
+                const tableBody = document.querySelector(`#${tableSection}TableBody`);
+                if (!tableBody) return;
+
+                const rows = tableBody.querySelectorAll('tr');
+                let visibleCount = 0;
+
+                rows.forEach(row => {
+                    const text = row.textContent.toLowerCase();
+                    const shouldShow = searchTerm === '' || text.includes(searchTerm);
+                    
+                    row.style.display = shouldShow ? '' : 'none';
+                    if (shouldShow) visibleCount++;
+                });
+
+                // Update result count
+                this.updateResultCount(tableSection, visibleCount);
+            }
+
+            // Perform dropdown filtering
+            performFilter(tableSection, dropdown, filterValue) {
+                if (!tableSection) return;
+
+                const tableBody = document.querySelector(`#${tableSection}TableBody`);
+                if (!tableBody) return;
+
+                const rows = tableBody.querySelectorAll('tr');
+                let visibleCount = 0;
+                const columnIndex = this.getFilterColumnIndex(dropdown);
+
+                rows.forEach(row => {
+                    const cells = row.querySelectorAll('td');
+                    if (cells.length === 0) return; // Skip loading rows
+
+                    let shouldShow = true;
+                    
+                    if (filterValue && filterValue !== 'All' && filterValue.toLowerCase() !== 'all') {
+                        const cellText = cells[columnIndex]?.textContent.toLowerCase() || '';
+                        shouldShow = cellText.includes(filterValue.toLowerCase());
+                    }
+
+                    row.style.display = shouldShow ? '' : 'none';
+                    if (shouldShow) visibleCount++;
+                });
+
+                this.updateResultCount(tableSection, visibleCount);
+            }
+
+            // Get the column index for filtering
+            getFilterColumnIndex(dropdown) {
+                const dropdownId = dropdown.id.toLowerCase();
+                
+                // Employee filters
+                if (dropdownId.includes('employeedepartment')) return 3;
+                if (dropdownId.includes('employeeposition')) return 4;
+                if (dropdownId.includes('employeestatus')) return 6;
+                
+                // Candidate filters
+                if (dropdownId.includes('candidatestatus')) return 6;
+                if (dropdownId.includes('candidateskill')) return 4;
+                if (dropdownId.includes('candidateexperience')) return 5;
+                if (dropdownId.includes('candidatelocation')) return 3;
+                
+                // Application filters
+                if (dropdownId.includes('applicationstatus')) return 4;
+                if (dropdownId.includes('applicationdepartment')) return 3;
+                if (dropdownId.includes('applicationpriority')) return 2;
+                
+                // Employer filters
+                if (dropdownId.includes('employerindustry')) return 2;
+                if (dropdownId.includes('employersize')) return 3;
+                if (dropdownId.includes('employerstatus')) return 4;
+                if (dropdownId.includes('employerlocation')) return 5;
+                
+                // Job filters
+                if (dropdownId.includes('jobtype')) return 4;
+                if (dropdownId.includes('jobdepartment')) return 2;
+                if (dropdownId.includes('jobstatus')) return 5;
+                if (dropdownId.includes('jobsalary')) return 6;
+                
+                // Schedule filters
+                if (dropdownId.includes('scheduletype')) return 2;
+                if (dropdownId.includes('schedulestatus')) return 4;
+                if (dropdownId.includes('scheduledepartment')) return 5;
+                
+                // Legacy support
+                const text = dropdown.parentElement.textContent.toLowerCase();
+                if (text.includes('department')) return 3;
+                if (text.includes('status')) return 4;
+                if (text.includes('type')) return 5;
+                
+                return 2; // Default to third column
+            }
+
+            // Populate dropdown options dynamically
+            populateDropdownOptions(dropdown, tableSection) {
+                if (!tableSection) return;
+
+                const tableBody = document.querySelector(`#${tableSection}TableBody`);
+                if (!tableBody) return;
+
+                const columnIndex = this.getFilterColumnIndex(dropdown);
+                const options = new Set();
+                const rows = tableBody.querySelectorAll('tr');
+
+                rows.forEach(row => {
+                    const cells = row.querySelectorAll('td');
+                    if (cells.length > columnIndex) {
+                        const cellText = cells[columnIndex].textContent.trim();
+                        if (cellText && cellText !== 'N/A' && cellText !== 'Loading...') {
+                            // Extract text from badges if present
+                            const badge = cells[columnIndex].querySelector('.badge, .status-badge');
+                            const optionText = badge ? badge.textContent.trim() : cellText;
+                            options.add(optionText);
+                        }
+                    }
+                });
+
+                // Preserve existing "All" options
+                const allOption = dropdown.querySelector('option[value=""], option[value="All"]');
+                dropdown.innerHTML = '';
+                
+                if (allOption) {
+                    dropdown.appendChild(allOption.cloneNode(true));
+                }
+
+                // Add dynamic options
+                options.forEach(option => {
+                    const optionElement = document.createElement('option');
+                    optionElement.value = option;
+                    optionElement.textContent = option;
+                    dropdown.appendChild(optionElement);
+                });
+            }
+
+            // Enhance search input with icons
+            enhanceSearchInput(input) {
+                const wrapper = document.createElement('div');
+                wrapper.className = 'search-input-wrapper';
+                wrapper.style.cssText = 'position: relative; display: inline-block; width: 100%;';
+                
+                input.parentNode.insertBefore(wrapper, input);
+                wrapper.appendChild(input);
+
+                // Add search icon
+                const searchIcon = document.createElement('span');
+                searchIcon.innerHTML = '<i class="fas fa-search"></i>';
+                searchIcon.style.cssText = `
+                    position: absolute;
+                    left: 12px;
+                    top: 50%;
+                    transform: translateY(-50%);
+                    color: #64748B;
+                    pointer-events: none;
+                `;
+                wrapper.appendChild(searchIcon);
+
+                // Add padding to input for icon
+                input.style.paddingLeft = '2.5rem';
+
+                // Add clear button when there's text
+                input.addEventListener('input', () => {
+                    let clearBtn = wrapper.querySelector('.clear-search');
+                    
+                    if (input.value && !clearBtn) {
+                        clearBtn = document.createElement('button');
+                        clearBtn.className = 'clear-search';
+                        clearBtn.innerHTML = '<i class="fas fa-times"></i>';
+                        clearBtn.style.cssText = `
+                            position: absolute;
+                            right: 12px;
+                            top: 50%;
+                            transform: translateY(-50%);
+                            background: none;
+                            border: none;
+                            color: #64748B;
+                            cursor: pointer;
+                            padding: 4px;
+                            border-radius: 4px;
+                        `;
+                        clearBtn.addEventListener('click', () => {
+                            input.value = '';
+                            input.dispatchEvent(new Event('input'));
+                            clearBtn.remove();
+                        });
+                        wrapper.appendChild(clearBtn);
+                    } else if (!input.value && clearBtn) {
+                        clearBtn.remove();
+                    }
+                });
+            }
+
+            // Validate individual field
+            validateField(input) {
+                this.clearFieldError(input);
+                
+                const value = input.value.trim();
+                const isRequired = input.hasAttribute('required');
+                let isValid = true;
+                let errorMessage = '';
+
+                // Required field validation
+                if (isRequired && !value) {
+                    isValid = false;
+                    errorMessage = 'This field is required';
+                }
+
+                // Email validation
+                if (input.type === 'email' && value) {
+                    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                    if (!emailRegex.test(value)) {
+                        isValid = false;
+                        errorMessage = 'Please enter a valid email address';
+                    }
+                }
+
+                // Phone validation
+                if (input.type === 'tel' && value) {
+                    const phoneRegex = /^[\+]?[0-9\s\-\(\)]{10,}$/;
+                    if (!phoneRegex.test(value)) {
+                        isValid = false;
+                        errorMessage = 'Please enter a valid phone number';
+                    }
+                }
+
+                // Password validation
+                if (input.type === 'password' && value) {
+                    if (value.length < 6) {
+                        isValid = false;
+                        errorMessage = 'Password must be at least 6 characters long';
+                    }
+                }
+
+                if (!isValid) {
+                    this.showFieldError(input, errorMessage);
+                }
+
+                return isValid;
+            }
+
+            // Validate entire form
+            validateForm(form) {
+                const inputs = form.querySelectorAll('.form-control');
+                let isFormValid = true;
+
+                inputs.forEach(input => {
+                    if (!this.validateField(input)) {
+                        isFormValid = false;
+                    }
+                });
+
+                return isFormValid;
+            }
+
+            // Show field error
+            showFieldError(input, message) {
+                input.classList.add('error');
+                
+                let errorDiv = input.parentNode.querySelector('.error-message');
+                if (!errorDiv) {
+                    errorDiv = document.createElement('div');
+                    errorDiv.className = 'error-message';
+                    errorDiv.style.cssText = `
+                        color: #EF4444;
+                        font-size: 0.75rem;
+                        margin-top: 0.25rem;
+                        display: block;
+                    `;
+                    input.parentNode.appendChild(errorDiv);
+                }
+                
+                errorDiv.textContent = message;
+            }
+
+            // Clear field error
+            clearFieldError(input) {
+                input.classList.remove('error');
+                const errorDiv = input.parentNode.querySelector('.error-message');
+                if (errorDiv) {
+                    errorDiv.remove();
+                }
+            }
+
+            // Update result count
+            updateResultCount(tableSection, count) {
+                let countElement = document.querySelector(`#${tableSection}-count`);
+                
+                if (!countElement) {
+                    const header = document.querySelector(`#${tableSection}-section .card-header`);
+                    if (header) {
+                        countElement = document.createElement('span');
+                        countElement.id = `${tableSection}-count`;
+                        countElement.style.cssText = `
+                            color: #64748B;
+                            font-size: 0.875rem;
+                            margin-left: 1rem;
+                        `;
+                        header.querySelector('h3').appendChild(countElement);
+                    }
+                }
+
+                if (countElement) {
+                    const total = document.querySelectorAll(`#${tableSection}TableBody tr`).length;
+                    countElement.textContent = ` (${count} of ${total})`;
+                }
+            }
+
+            // Setup autocomplete
+            setupAutoComplete(input) {
+                // This can be extended for specific autocomplete needs
+                input.addEventListener('input', () => {
+                    // Add autocomplete logic here based on data source
+                });
+            }
+
+            // Clear all filters for a specific table section
+            clearAllFilters(tableSection) {
+                const sectionContainer = document.querySelector(`#${tableSection}-section`);
+                if (!sectionContainer) return;
+
+                // Clear search input
+                const searchInput = sectionContainer.querySelector('input[type="search"]');
+                if (searchInput) {
+                    searchInput.value = '';
+                }
+
+                // Clear all dropdown filters
+                const dropdowns = sectionContainer.querySelectorAll('select.form-control');
+                dropdowns.forEach(dropdown => {
+                    dropdown.selectedIndex = 0; // Reset to first option (usually "All...")
+                });
+
+                // Clear all date filters
+                const dateInputs = sectionContainer.querySelectorAll('input[type="date"].form-control');
+                dateInputs.forEach(dateInput => {
+                    dateInput.value = '';
+                });
+
+                // Reapply filters (which will now show all items)
+                this.applyAllFilters(tableSection);
+            }
+
+            // Add filter reset buttons to all sections
+            addFilterResetButtons() {
+                const sections = ['employees', 'candidates', 'employers', 'jobs', 'applications', 'schedule'];
+                
+                sections.forEach(section => {
+                    const sectionContainer = document.querySelector(`#${section}-section`);
+                    if (sectionContainer) {
+                        const filterContainer = sectionContainer.querySelector('.card-header > div');
+                        if (filterContainer && !filterContainer.querySelector('.clear-filters-btn')) {
+                            const clearBtn = document.createElement('button');
+                            clearBtn.className = 'btn btn-outline btn-sm clear-filters-btn';
+                            clearBtn.innerHTML = '<i class="fas fa-times"></i> Clear';
+                            clearBtn.title = 'Clear all filters';
+                            clearBtn.onclick = () => this.clearAllFilters(section);
+                            filterContainer.appendChild(clearBtn);
+                        }
+                    }
+                });
+            }
+        }        // Initialize CRUD Manager
         let crudManager;
+        let formControlManager;
         document.addEventListener('DOMContentLoaded', () => {
+            console.log('DOM Content Loaded - Initializing dashboard...');
+            
             // Initialize DataService
-            if (typeof DataService !== 'undefined') {
-                window.DataService = DataService;
-                DataService.initializeSampleData();
-                DataService.initSync();
+            try {
+                if (typeof DataService !== 'undefined') {
+                    window.DataService = DataService;
+                    DataService.initializeSampleData();
+                    DataService.initSync();
+                    console.log('DataService initialized successfully');
+                } else {
+                    console.error('DataService not found!');
+                }
+            } catch (error) {
+                console.error('Error initializing DataService:', error);
+            }
+            
+            // Initialize Form Control Manager
+            try {
+                formControlManager = new FormControlManager();
+                window.formControlManager = formControlManager;
+                console.log('FormControlManager initialized');
+            } catch (error) {
+                console.error('Error initializing FormControlManager:', error);
             }
             
             // Initialize CRUD Manager
-            crudManager = new CRUDManager();
-            window.crudManager = crudManager; // Make it globally available
+            try {
+                crudManager = new CRUDManager();
+                window.crudManager = crudManager;
+                console.log('CRUDManager initialized');
+                
+                // Debug: Check if all sections exist
+                const expectedSections = ['dashboard', 'employees', 'candidates', 'employers', 'schedule', 'applications', 'jobs', 'settings'];
+                expectedSections.forEach(section => {
+                    const element = document.getElementById(`${section}-section`);
+                    if (element) {
+                        console.log(`✅ Section found: ${section}-section`);
+                    } else {
+                        console.error(`❌ Section missing: ${section}-section`);
+                    }
+                });
+                
+                // Ensure dashboard section is shown by default
+                setTimeout(() => {
+                    crudManager.showSection('dashboard');
+                    console.log('Dashboard section activated');
+                }, 100);
+                
+            } catch (error) {
+                console.error('Error initializing CRUDManager:', error);
+            }
         });
     </script>
 </body>

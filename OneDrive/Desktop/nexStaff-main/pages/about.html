@@ -299,6 +299,12 @@
             border-radius: 2px;
         }
 
+        .team-subtitle {
+            font-size: 1.2rem;
+            color: var(--text-secondary);
+            margin-bottom: 2rem;
+        }
+
         .team-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
@@ -487,6 +493,19 @@
 
         .submit-btn:active {
             transform: translateY(0);
+        }
+
+        .submit-btn ion-icon {
+            margin-right: 0.5rem;
+        }
+
+        .submit-btn.loading {
+            background: var(--text-secondary);
+            cursor: not-allowed;
+        }
+
+        .submit-btn.success {
+            background: var(--success, #10B981);
         }
 
         @media (max-width: 768px) {
@@ -751,7 +770,7 @@
         </section>        <!-- Team Section -->
         <section class="our-team">
             <h2>Meet Our Team</h2>
-            <p style="font-size: 1.2rem; color: var(--text-secondary); margin-bottom: 2rem;">The passionate professionals behind NexStaff's success</p>
+            <p class="team-subtitle">The passionate professionals behind NexStaff's success</p>
             <div class="team-grid">
                 <div class="team-member">
                     <img src="../login/admin/img/lee.png" alt="Team Member - Lee">
@@ -833,11 +852,13 @@
                     const submitBtn = contactForm.querySelector('.submit-btn');
                     const originalText = submitBtn.innerHTML;
                     
-                    submitBtn.innerHTML = '<ion-icon name="hourglass-outline" style="margin-right: 0.5rem;"></ion-icon>Sending...';
+                    submitBtn.innerHTML = '<ion-icon name="hourglass-outline"></ion-icon>Sending...';
+                    submitBtn.classList.add('loading');
                     submitBtn.disabled = true;
                     
                     setTimeout(() => {
-                        submitBtn.innerHTML = '<ion-icon name="checkmark-outline" style="margin-right: 0.5rem;"></ion-icon>Message Sent!';
+                        submitBtn.innerHTML = '<ion-icon name="checkmark-outline"></ion-icon>Message Sent!';
+                        submitBtn.classList.add('success');
                         submitBtn.style.background = 'var(--success-color)';
                         
                         setTimeout(() => {

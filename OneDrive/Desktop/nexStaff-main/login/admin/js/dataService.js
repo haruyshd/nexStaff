@@ -685,6 +685,7 @@ const DataService = {
                     email: 'alice.brown@email.com',
                     phone: '+1-234-567-8903',
                     jobPosition: 'Senior Software Engineer',
+                    department: 'Technology',
                     applicationDate: '2025-06-01',
                     status: 'Pending',
                     lastUpdated: '2025-06-01',
@@ -696,6 +697,7 @@ const DataService = {
                     email: 'bob.wilson@email.com',
                     phone: '+1-234-567-8904',
                     jobPosition: 'Marketing Specialist',
+                    department: 'Marketing',
                     applicationDate: '2025-06-02',
                     status: 'Interview',
                     lastUpdated: '2025-06-10',
@@ -707,10 +709,23 @@ const DataService = {
                     email: 'emily.rodriguez@email.com',
                     phone: '+1-234-567-8910',
                     jobPosition: 'UX Designer',
+                    department: 'Design',
                     applicationDate: '2025-06-05',
                     status: 'Under Review',
                     lastUpdated: '2025-06-12',
                     notes: 'Creative portfolio, good design principles'
+                },
+                {
+                    id: 4,
+                    candidateName: 'David Chen',
+                    email: 'david.chen@email.com',
+                    phone: '+1-234-567-8911',
+                    jobPosition: 'Data Analyst',
+                    department: 'Analytics',
+                    applicationDate: '2025-06-08',
+                    status: 'Pending',
+                    lastUpdated: '2025-06-08',
+                    notes: 'Strong analytical skills, SQL expertise'
                 }
             ];
             localStorage.setItem('applications', JSON.stringify(sampleApplications));
