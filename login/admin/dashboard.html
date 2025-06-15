@@ -2612,56 +2612,8 @@
     </div>
 
     <!-- Quick Actions Modals -->
-    <!-- Add Employee Modal -->
-    <div id="addEmployeeModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3>Add New Employee</h3>
-                <button type="button" class="close-btn" onclick="closeAddEmployeeModal()">&times;</button>
-            </div>
-            <div class="modal-body">
-                <form id="addEmployeeForm">
-                    <div class="form-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
-                        <div class="form-group">
-                            <label for="empName">Full Name</label>
-                            <input type="text" id="empName" name="empName" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="empEmail">Email</label>
-                            <input type="email" id="empEmail" name="empEmail" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="empPhone">Phone</label>
-                            <input type="tel" id="empPhone" name="empPhone" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="empDepartment">Department</label>
-                            <select id="empDepartment" name="empDepartment" required>
-                                <option value="">Select Department</option>
-                                <option value="Human Resources">Human Resources</option>
-                                <option value="Technology">Technology</option>
-                                <option value="Marketing">Marketing</option>
-                                <option value="Finance">Finance</option>
-                                <option value="Operations">Operations</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label for="empPosition">Position</label>
-                            <input type="text" id="empPosition" name="empPosition" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="empStartDate">Start Date</label>
-                            <input type="date" id="empStartDate" name="empStartDate" required>
-                        </div>
-                    </div>
-                </form>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" onclick="closeAddEmployeeModal()">Cancel</button>
-                <button type="submit" form="addEmployeeForm" class="btn btn-primary">Add Employee</button>
-            </div>
-        </div>
-    </div>
+    <!-- Note: Employee modal has been consolidated with the main entity modal system -->
+    <!-- Modal now handled by the CRUD Manager system -->
 
     <!-- Post Job Modal -->
     <div id="postJobModal" class="modal">
@@ -2870,13 +2822,33 @@
                 this.initializeEventListeners();
                 this.loadAllData();
             }            initializeEventListeners() {
-                // Add button listeners
-                document.getElementById('employeeSectionAddBtn')?.addEventListener('click', () => this.openCreateModal('employee'));
-                document.getElementById('addCandidateBtn')?.addEventListener('click', () => this.openCreateModal('candidate'));
-                document.getElementById('addEmployerBtn')?.addEventListener('click', () => this.openCreateModal('employer'));
-                document.getElementById('addJobBtn')?.addEventListener('click', () => this.openCreateModal('job'));
-                document.getElementById('addApplicationBtn')?.addEventListener('click', () => this.openCreateModal('application'));
-                document.getElementById('addScheduleBtn')?.addEventListener('click', () => this.openCreateModal('schedule'));
+                // Remove existing listeners to prevent duplicates
+                const removeOldListeners = (id, eventType) => {
+                    const element = document.getElementById(id);
+                    if (element) {
+                        const newElement = element.cloneNode(true);
+                        element.parentNode.replaceChild(newElement, element);
+                        return newElement;
+                    }
+                    return null;
+                };
+                
+                // Add button listeners with clean elements
+                const elementsToInitialize = [
+                    { id: 'employeeSectionAddBtn', type: 'employee' },
+                    { id: 'addCandidateBtn', type: 'candidate' },
+                    { id: 'addEmployerBtn', type: 'employer' },
+                    { id: 'addJobBtn', type: 'job' },
+                    { id: 'addApplicationBtn', type: 'application' },
+                    { id: 'addScheduleBtn', type: 'schedule' }
+                ];
+                
+                elementsToInitialize.forEach(item => {
+                    const element = document.getElementById(item.id);
+                    if (element) {
+                        element.onclick = () => this.openCreateModal(item.type);
+                    }
+                });
 
                 // Modal listeners
                 document.getElementById('saveEntity')?.addEventListener('click', () => this.saveEntity());
@@ -3514,6 +3486,11 @@
                     input.disabled = false;
                 });
                 document.getElementById('saveEntity').style.display = 'inline-block';
+                
+                // If this modal was opened from quick actions, restore the original section
+                if (window.currentSectionBeforeAction) {
+                    restoreSection();
+                }
             }            closeDeleteModal() {
                 document.getElementById('deleteModal').style.display = 'none';
             }            // Application Accept/Decline Methods
@@ -4322,7 +4299,13 @@
             // Perform the specific action without switching sections
             switch(action) {
                 case 'addEmployee':
-                    showAddEmployeeModal(); 
+                    // Use the same modal as the employees tab
+                    if (typeof crudManager !== 'undefined' && crudManager.openCreateModal) {
+                        crudManager.openCreateModal('employee');
+                    } else {
+                        console.error('CRUD Manager not available');
+                        alert('Employee management feature is not available');
+                    }
                     break;
                 case 'registerCandidate':
                     if (typeof CandidateProfilesAPI !== 'undefined' && CandidateProfilesAPI.createCandidate) {
@@ -4333,10 +4316,20 @@
                     }
                     break;
                 case 'postJob':
-                    showAddJobModal();
+                    // Use the CRUD manager for job posting too
+                    if (typeof crudManager !== 'undefined' && crudManager.openCreateModal) {
+                        crudManager.openCreateModal('job');
+                    } else {
+                        showAddJobModal();
+                    }
                     break;
                 case 'scheduleInterview':
-                    showScheduleModal();
+                    // Use the CRUD manager for scheduling too
+                    if (typeof crudManager !== 'undefined' && crudManager.openCreateModal) {
+                        crudManager.openCreateModal('schedule');
+                    } else {
+                        showScheduleModal();
+                    }
                     break;
                 default:
                     console.error('Unknown action:', action);
@@ -4547,42 +4540,10 @@
         }
         
         // Quick Action Button Functions
-        // Track modal state to prevent duplicate opens
+        // Track modal state 
         window.modalState = {
-            employeeModalOpen: false
+            modalOpen: false
         };
-        
-        function showAddEmployeeModal() {
-            // Prevent double modal opening
-            if (window.modalState.employeeModalOpen) {
-                console.log('Employee modal already open, ignoring duplicate call');
-                return;
-            }
-            
-            const modal = document.getElementById('addEmployeeModal');
-            if (modal) {
-                // Store current section before showing modal
-                if (!window.currentSectionBeforeAction) {
-                    window.currentSectionBeforeAction = getCurrentSection();
-                }
-                modal.classList.add('active');
-                window.modalState.employeeModalOpen = true;
-                
-                // Reset form
-                document.getElementById('addEmployeeForm').reset();
-            }
-        }
-        
-        function closeAddEmployeeModal() {
-            const modal = document.getElementById('addEmployeeModal');
-            if (modal) {
-                modal.classList.remove('active');
-                // Reset modal state
-                window.modalState.employeeModalOpen = false;
-                // Restore original section
-                restoreSection();
-            }
-        }
         
         function showAddJobModal() {
             const modal = document.getElementById('postJobModal');
@@ -4668,7 +4629,11 @@
                     // Here you would typically send the data to your backend
                     // For now, we'll just show a success message
                     alert('Employee added successfully!');
-                    closeAddEmployeeModal(); // This already restores the original section
+                    if (typeof crudManager !== 'undefined') {
+                        crudManager.closeModal(); // Let CRUD manager handle closing
+                    } else {
+                        restoreSection(); // Directly restore section
+                    }
                 };
                 console.log('Employee form handler attached');
             }
