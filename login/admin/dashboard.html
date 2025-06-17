@@ -6,15 +6,16 @@
     <link rel="icon" href="../client/img/logo.png" type="image/png">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <!-- Bootstrap CSS -->    <link href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Supabase JS Library -->
+    <!-- Bootstrap CSS -->    <link href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css" rel="stylesheet">    <!-- Supabase JS Library -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
-    <!-- Custom Supabase client -->
+    <!-- Custom Supabase clients -->
     <script src="../client/js/supabaseClient.js"></script>
-    <!-- Include Data Service -->
+    <script src="js/supabaseClient.js"></script>    <!-- Include Data Service -->
     <script src="../client/js/dataManager.js"></script>
     <script src="js/dataService.js"></script>
     <script src="js/jobManagement.js"></script>
+    <script src="js/employeeManagement.js"></script>
+    <script src="js/supabaseTest.js"></script>
       <style>
         :root {
             /* Modern Color Palette */
@@ -2825,7 +2826,25 @@
                 this.currentEntityType = null;
                 this.initializeEventListeners();
                 this.loadAllData();
-            }            initializeEventListeners() {
+                // Initialize caches asynchronously
+                this.initializeCaches();
+            }
+
+            async initializeCaches() {
+                try {
+                    await this.dataService.cacheEmployees();
+                    await this.dataService.cacheCandidates();
+                    await this.dataService.cacheEmployers();
+                    await this.dataService.cacheJobs();
+                    await this.dataService.cacheApplications();
+                    await this.dataService.cacheSchedules();
+                    console.log('All caches initialized');
+                } catch (error) {
+                    console.error('Error initializing caches:', error);
+                }
+            }
+
+            initializeEventListeners() {
                 // Remove existing listeners to prevent duplicates
                 const removeOldListeners = (id, eventType) => {
                     const element = document.getElementById(id);
@@ -2894,32 +2913,42 @@
             }
 
             loadEmployees() {
-                const employees = this.dataService.readEmployees();
-                const tbody = document.getElementById('employeesTableBody');
-                if (!tbody) return;
+                // Load employees asynchronously
+                this.dataService.getEmployees().then(employees => {
+                    const tbody = document.getElementById('employeesTableBody');
+                    if (!tbody) return;
+                    
+                    // Cache the employees for synchronous access
+                    this.dataService._cachedEmployees = employees;
 
-                tbody.innerHTML = employees.map(emp => `
-                    <tr>
-                        <td>${emp.id || 'N/A'}</td>
-                        <td>${emp.name || 'N/A'}</td>
-                        <td>${emp.email || 'N/A'}</td>
-                        <td>${emp.department || 'N/A'}</td>
-                        <td>${emp.position || 'N/A'}</td>
-                        <td>${emp.hireDate || 'N/A'}</td>
-                        <td><span class="badge badge-${emp.status === 'Active' ? 'success' : 'warning'}">${emp.status || 'Active'}</span></td>
-                        <td>
-                            <button class="btn btn-sm btn-outline" onclick="crudManager.viewEntity('employee', ${emp.id})">
-                                <i class="fas fa-eye"></i>
-                            </button>
-                            <button class="btn btn-sm btn-primary" onclick="crudManager.editEntity('employee', ${emp.id})">
-                                <i class="fas fa-edit"></i>
-                            </button>
-                            <button class="btn btn-sm btn-danger" onclick="crudManager.deleteEntity('employee', ${emp.id})">
-                                <i class="fas fa-trash"></i>
-                            </button>
-                        </td>
-                    </tr>
-                `).join('');
+                    tbody.innerHTML = employees.map(emp => `
+                        <tr>
+                            <td>${emp.name || emp.fullName || 'N/A'}</td>
+                            <td>${emp.email || 'N/A'}</td>
+                            <td>${emp.phone || 'N/A'}</td>
+                            <td>${emp.department || 'N/A'}</td>
+                            <td>${emp.position || emp.role || 'N/A'}</td>
+                            <td>${emp.status || 'Active'}</td>
+                            <td>
+                                <button class="btn btn-sm btn-outline" onclick="crudManager.viewEntity('employee', ${emp.id})" title="View">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                                <button class="btn btn-sm btn-primary" onclick="crudManager.editEntity('employee', ${emp.id})" title="Edit">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button class="btn btn-sm btn-danger" onclick="crudManager.deleteEntity('employee', ${emp.id})" title="Delete">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    `).join('');
+                }).catch(error => {
+                    console.error('Error loading employees:', error);
+                    const tbody = document.getElementById('employeesTableBody');
+                    if (tbody) {
+                        tbody.innerHTML = '<tr><td colspan="7">Error loading employees</td></tr>';
+                    }
+                });
             }
 
             loadCandidates() {
@@ -2949,7 +2978,9 @@
                         </td>
                     </tr>
                 `).join('');
-            }            loadEmployers() {
+            }
+
+            loadEmployers() {
                 console.log('Loading employers and applications...');
                 try {
                     if (!this.dataService) {
@@ -3399,88 +3430,96 @@
                 }
             }
 
-            saveEntity() {
+            async saveEntity() {
                 const form = document.getElementById('entityForm');
                 const formData = new FormData(form);
                 const data = Object.fromEntries(formData.entries());
 
-                if (this.currentEntity) {
-                    // Update existing entity
-                    data.id = this.currentEntity.id;
-                    switch(this.currentEntityType) {
-                        case 'employee':
-                            this.dataService.updateEmployee(data);
-                            break;
-                        case 'candidate':
-                            this.dataService.updateCandidate(data);
-                            break;
-                        case 'employer':
-                            this.dataService.updateEmployer(data);
-                            break;
-                        case 'job':
-                            this.dataService.updateJob(data);
-                            break;
-                        case 'application':
-                            this.dataService.updateApplication(data);
-                            break;
-                        case 'schedule':
-                            this.dataService.updateSchedule(data);
-                            break;
+                try {
+                    if (this.currentEntity) {
+                        // Update existing entity
+                        data.id = this.currentEntity.id;
+                        switch(this.currentEntityType) {
+                            case 'employee':
+                                await this.dataService.updateEmployee(data);
+                                break;
+                            case 'candidate':
+                                await this.dataService.updateCandidate(data);
+                                break;
+                            case 'employer':
+                                await this.dataService.updateEmployer(data);
+                                break;
+                            case 'job':
+                                await this.dataService.updateJob(data);
+                                break;
+                            case 'application':
+                                await this.dataService.updateApplication(data);
+                                break;
+                            case 'schedule':
+                                await this.dataService.updateSchedule(data);
+                                break;
+                        }
+                    } else {
+                        // Create new entity
+                        switch(this.currentEntityType) {
+                            case 'employee':
+                                await this.dataService.addEmployee(data);
+                                break;
+                            case 'candidate':
+                                await this.dataService.addCandidate(data);
+                                break;
+                            case 'employer':
+                                await this.dataService.addEmployer(data);
+                                break;
+                            case 'job':
+                                await this.dataService.addJob(data);
+                                break;
+                            case 'application':
+                                await this.dataService.addApplication(data);
+                                break;
+                            case 'schedule':
+                                await this.dataService.addSchedule(data);
+                                break;
+                        }
                     }
-                } else {
-                    // Create new entity
-                    switch(this.currentEntityType) {
-                        case 'employee':
-                            this.dataService.createEmployee(data);
-                            break;
-                        case 'candidate':
-                            this.dataService.createCandidate(data);
-                            break;
-                        case 'employer':
-                            this.dataService.createEmployer(data);
-                            break;
-                        case 'job':
-                            this.dataService.createJob(data);
-                            break;
-                        case 'application':
-                            this.dataService.createApplication(data);
-                            break;
-                        case 'schedule':
-                            this.dataService.createSchedule(data);
-                            break;
-                    }
+
+                    this.closeModal();
+                    this.loadSectionData(this.currentEntityType === 'schedule' ? 'schedule' : this.currentEntityType + 's');
+                } catch (error) {
+                    console.error('Error saving entity:', error);
+                    alert('Error saving entity. Please try again.');
                 }
-
-                this.closeModal();
-                this.loadSectionData(this.currentEntityType === 'schedule' ? 'schedule' : this.currentEntityType + 's');
-            }
-
-            confirmDelete() {
+            }            async confirmDelete() {
                 const id = this.currentEntity.id;
                 
-                switch(this.currentEntityType) {
-                    case 'employee':
-                        this.dataService.deleteEmployee(id);
-                        break;
-                    case 'candidate':
-                        this.dataService.deleteCandidate(id);
-                        break;
-                    case 'employer':
-                        this.dataService.deleteEmployer(id);
-                        break;
-                    case 'job':
-                        this.dataService.deleteJob(id);
-                        break;
-                    case 'application':
-                        this.dataService.deleteApplication(id);
-                        break;
-                    case 'schedule':
-                        this.dataService.deleteSchedule(id);
-                        break;
-                }
+                try {
+                    switch(this.currentEntityType) {
+                        case 'employee':
+                            await this.dataService.deleteEmployee(id);
+                            break;
+                        case 'candidate':
+                            await this.dataService.deleteCandidate(id);
+                            break;
+                        case 'employer':
+                            await this.dataService.deleteEmployer(id);
+                            break;
+                        case 'job':
+                            await this.dataService.deleteJob(id);
+                            break;
+                        case 'application':
+                            await this.dataService.deleteApplication(id);
+                            break;
+                        case 'schedule':
+                            await this.dataService.deleteSchedule(id);
+                            break;
+                    }
 
-                this.closeDeleteModal();
-                this.loadSectionData(this.currentEntityType === 'schedule' ? 'schedule' : this.currentEntityType + 's');
+                    this.closeDeleteModal();
+                    this.loadSectionData(this.currentEntityType === 'schedule' ? 'schedule' : this.currentEntityType + 's');
+                } catch (error) {
+                    console.error('Error deleting entity:', error);
+                    alert('Error deleting entity. Please try again.');
+                }
             }
 
             closeModal() {
@@ -3495,7 +3534,9 @@
                 if (window.currentSectionBeforeAction) {
                     restoreSection();
                 }
-            }            closeDeleteModal() {
+            }
+
+            closeDeleteModal() {
                 document.getElementById('deleteModal').style.display = 'none';
             }            // Application Accept/Decline Methods
             acceptApplication(applicationId) {

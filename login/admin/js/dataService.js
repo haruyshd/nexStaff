@@ -215,28 +215,59 @@ const DataService = {
         setInterval(() => {
             this.notifySubscribers();
         }, 2000); // Sync every 2 seconds
-    },
-
-    // Employee Management
+    },    // Employee Management
     async addEmployee(employee) {
         try {
-            // Check if Supabase is available
-            if (typeof SupabaseClient !== 'undefined' && typeof supabase !== 'undefined') {
-                console.log('Using Supabase to add employee:', employee);
+            // Check if AdminSupabaseClient is available (newer approach)
+            if (typeof AdminSupabaseClient !== 'undefined') {
+                console.log('Using AdminSupabaseClient to add employee:', employee);
                 
-                // Format employee data for Supabase
+                // Format employee data for AdminSupabaseClient
                 const employeeData = {
-                    full_name: employee.fullName || employee.full_name,
-                    role: employee.role,
+                    personalDetails: {
+                        fullName: employee.name || employee.fullName || employee.full_name,
+                        email: employee.email,
+                        contactNumber: employee.phone
+                    },
+                    jobDetails: {
+                        department: employee.department,
+                        jobTitle: employee.position,
+                        employmentStatus: employee.status || 'Active',
+                        joiningDate: employee.hireDate || new Date().toISOString().split('T')[0]
+                    },
+                    salary: {
+                        basic: parseFloat(employee.salary) || 0
+                    }
+                };
+                
+                const result = await AdminSupabaseClient.employees.create(employeeData);
+                if (result.success) {
+                    console.log('Employee added via AdminSupabaseClient:', result.data);
+                    this.notifySubscribers();
+                    return true;
+                } else {
+                    console.error('AdminSupabaseClient error adding employee:', result.error);
+                    throw new Error(result.error);
+                }
+            }
+            // Check if direct Supabase is available (fallback)
+            else if (typeof supabase !== 'undefined') {
+                console.log('Using direct Supabase to add employee:', employee);
+                
+                // Format employee data for direct Supabase
+                const employeeData = {
+                    full_name: employee.name || employee.fullName || employee.full_name,
+                    role: employee.position || employee.role,
                     email: employee.email,
                     phone: employee.phone || employee.contactNumber,
                     photo: employee.photo || employee.profilePicture,
-                    join_date: employee.joinDate || new Date().toISOString().split('T')[0],
-                    employment_status: 'Active',
+                    join_date: employee.hireDate || employee.joinDate || new Date().toISOString().split('T')[0],
+                    employment_status: employee.status || 'Active',
                     department_id: employee.departmentId || null,
                     position_id: employee.positionId || null,
                     job_details: JSON.stringify(employee.jobDetails || {}),
-                    emergency_contact: JSON.stringify(employee.emergencyContacts || {})
+                    emergency_contact: JSON.stringify(employee.emergencyContacts || {}),
+                    salary_info: JSON.stringify({ basic: parseFloat(employee.salary) || 0 })
                 };
                 
                 // Save to Supabase
@@ -257,9 +288,13 @@ const DataService = {
                 // Fallback to localStorage if Supabase is not available
                 console.log('Supabase not available, using localStorage for employee:', employee);
                 const employees = JSON.parse(localStorage.getItem('employees')) || [];
-                employee.id = employee.id || Date.now();
-                employee.createdAt = new Date().toISOString();
-                employees.push(employee);
+                const newEmployee = {
+                    ...employee,
+                    id: employee.id || Date.now(),
+                    createdAt: new Date().toISOString(),
+                    status: employee.status || 'Active'
+                };
+                employees.push(newEmployee);
                 localStorage.setItem('employees', JSON.stringify(employees));
                 this.notifySubscribers();
                 return true;
@@ -268,13 +303,42 @@ const DataService = {
             console.error('Error adding employee:', error);
             return false;
         }
-    },
-
-    async getEmployees() {
+    },    async getEmployees() {
         try {
-            // Check if Supabase is available
-            if (typeof SupabaseClient !== 'undefined' && typeof supabase !== 'undefined') {
-                console.log('Using Supabase to get employees');
+            // Check if AdminSupabaseClient is available (newer approach)
+            if (typeof AdminSupabaseClient !== 'undefined') {
+                console.log('Using AdminSupabaseClient to get employees');
+                const result = await AdminSupabaseClient.employees.getAll();
+                
+                if (result.success) {
+                    // Transform AdminSupabaseClient data format to match CRUDManager expectations
+                    return result.data.map(emp => ({
+                        id: emp.id,
+                        name: emp.full_name,
+                        fullName: emp.full_name,
+                        role: emp.role,
+                        position: emp.role,
+                        email: emp.email,
+                        phone: emp.phone,
+                        photo: emp.photo,
+                        hireDate: emp.join_date,
+                        joinDate: emp.join_date,
+                        status: emp.employment_status,
+                        department: emp.departments?.name || 'N/A',
+                        departmentId: emp.department_id,
+                        positionId: emp.position_id,
+                        salary: typeof emp.salary_info === 'string' ? JSON.parse(emp.salary_info)?.basic : emp.salary_info?.basic,
+                        jobDetails: typeof emp.job_details === 'string' ? JSON.parse(emp.job_details) : emp.job_details,
+                        emergencyContacts: typeof emp.emergency_contact === 'string' ? JSON.parse(emp.emergency_contact) : emp.emergency_contact
+                    }));
+                } else {
+                    console.error('AdminSupabaseClient error getting employees:', result.error);
+                    throw new Error(result.error);
+                }
+            }
+            // Check if direct Supabase is available (fallback)
+            else if (typeof supabase !== 'undefined') {
+                console.log('Using direct Supabase to get employees');
                 const { data, error } = await supabase
                     .from('employees')
                     .select('*');
@@ -284,104 +348,556 @@ const DataService = {
                     throw error;
                 }
                 
-                // Transform Supabase data format to match local format if needed
+                // Transform Supabase data format to match CRUDManager expectations
                 return data.map(emp => ({
                     id: emp.id,
+                    name: emp.full_name,
                     fullName: emp.full_name,
                     role: emp.role,
+                    position: emp.role,
                     email: emp.email,
                     phone: emp.phone,
                     photo: emp.photo,
+                    hireDate: emp.join_date,
                     joinDate: emp.join_date,
                     status: emp.employment_status,
+                    department: emp.department_id,
                     departmentId: emp.department_id,
                     positionId: emp.position_id,
+                    salary: typeof emp.salary_info === 'string' ? JSON.parse(emp.salary_info)?.basic : emp.salary_info?.basic,
                     jobDetails: typeof emp.job_details === 'string' ? JSON.parse(emp.job_details) : emp.job_details,
                     emergencyContacts: typeof emp.emergency_contact === 'string' ? JSON.parse(emp.emergency_contact) : emp.emergency_contact
                 }));
             } else {
-                // Fallback to localStorage if Supabase is not available
-                return JSON.parse(localStorage.getItem('employees')) || [];
+                // Fallback to localStorage
+                console.log('Supabase not available, using localStorage for employees');
+                const employees = JSON.parse(localStorage.getItem('employees')) || [];
+                return employees.map(emp => ({
+                    ...emp,
+                    name: emp.name || emp.fullName,
+                    position: emp.position || emp.role
+                }));
             }
         } catch (error) {
             console.error('Error getting employees:', error);
-            return [];
+            // Return empty array on error instead of throwing
+            return [];        }
+    },
+
+    // CRUD compatibility methods - these wrap the async methods for synchronous access
+    readEmployees() {
+        // Return cached employees or empty array
+        return this._cachedEmployees || [];
+    },
+
+    // Cache employees for synchronous access
+    async cacheEmployees() {
+        this._cachedEmployees = await this.getEmployees();
+        return this._cachedEmployees;
+    },
+
+    readCandidates() {
+        return this._cachedCandidates || [];
+    },
+
+    async cacheCandidates() {
+        this._cachedCandidates = await this.getCandidates();
+        return this._cachedCandidates;
+    },
+
+    readEmployers() {
+        return this._cachedEmployers || [];
+    },
+
+    async cacheEmployers() {
+        this._cachedEmployers = await this.getEmployers();
+        return this._cachedEmployers;
+    },
+
+    readJobs() {
+        return this._cachedJobs || [];
+    },
+
+    async cacheJobs() {
+        this._cachedJobs = await this.getJobs();
+        return this._cachedJobs;
+    },
+
+    readApplications() {
+        return this._cachedApplications || [];
+    },
+
+    async cacheApplications() {
+        this._cachedApplications = await this.getApplications();
+        return this._cachedApplications;
+    },
+
+    readSchedules() {
+        return this._cachedSchedules || [];
+    },
+
+    async cacheSchedules() {
+        this._cachedSchedules = await this.getSchedules();
+        return this._cachedSchedules;
+    },
+
+    // Update employee
+    async updateEmployee(employee) {
+        try {
+            // Check if AdminSupabaseClient is available (newer approach)
+            if (typeof AdminSupabaseClient !== 'undefined') {
+                console.log('Using AdminSupabaseClient to update employee:', employee);
+                
+                // Format employee data for AdminSupabaseClient
+                const employeeData = {
+                    personalDetails: {
+                        fullName: employee.name || employee.fullName || employee.full_name,
+                        email: employee.email,
+                        contactNumber: employee.phone
+                    },
+                    jobDetails: {
+                        department: employee.department,
+                        jobTitle: employee.position,
+                        employmentStatus: employee.status || 'Active',
+                        joiningDate: employee.hireDate || new Date().toISOString().split('T')[0]
+                    },
+                    salary: {
+                        basic: parseFloat(employee.salary) || 0
+                    }
+                };
+                
+                const result = await AdminSupabaseClient.employees.update(employee.id, employeeData);
+                if (result.success) {
+                    console.log('Employee updated via AdminSupabaseClient:', result.data);
+                    await this.cacheEmployees(); // Refresh cache
+                    this.notifySubscribers();
+                    return true;
+                } else {
+                    console.error('AdminSupabaseClient error updating employee:', result.error);
+                    throw new Error(result.error);
+                }
+            }
+            // Check if direct Supabase is available (fallback)
+            else if (typeof supabase !== 'undefined') {
+                console.log('Using direct Supabase to update employee:', employee);
+                
+                // Format employee data for direct Supabase
+                const employeeData = {
+                    full_name: employee.name || employee.fullName || employee.full_name,
+                    role: employee.position || employee.role,
+                    email: employee.email,
+                    phone: employee.phone || employee.contactNumber,
+                    photo: employee.photo || employee.profilePicture,
+                    employment_status: employee.status || 'Active',
+                    department_id: employee.departmentId || null,
+                    position_id: employee.positionId || null,
+                    salary_info: JSON.stringify({ basic: parseFloat(employee.salary) || 0 }),
+                    updated_at: new Date().toISOString()
+                };
+                
+                // Update in Supabase
+                const { data, error } = await supabase
+                    .from('employees')
+                    .update(employeeData)
+                    .eq('id', employee.id)
+                    .select();
+                
+                if (error) {
+                    console.error('Supabase error updating employee:', error);
+                    throw error;
+                }
+                
+                console.log('Employee updated in Supabase:', data);
+                await this.cacheEmployees(); // Refresh cache
+                this.notifySubscribers();
+                return true;
+            } else {
+                // Fallback to localStorage if Supabase is not available
+                console.log('Supabase not available, using localStorage for employee update:', employee);
+                const employees = JSON.parse(localStorage.getItem('employees')) || [];
+                const index = employees.findIndex(emp => emp.id == employee.id);
+                
+                if (index !== -1) {
+                    employees[index] = { ...employees[index], ...employee, updatedAt: new Date().toISOString() };
+                    localStorage.setItem('employees', JSON.stringify(employees));
+                    this._cachedEmployees = employees; // Update cache
+                    this.notifySubscribers();
+                    return true;
+                } else {
+                    throw new Error('Employee not found');
+                }
+            }
+        } catch (error) {
+            console.error('Error updating employee:', error);
+            return false;
+        }
+    },
+
+    // Delete employee
+    async deleteEmployee(employeeId) {
+        try {
+            // Check if AdminSupabaseClient is available (newer approach)
+            if (typeof AdminSupabaseClient !== 'undefined') {
+                console.log('Using AdminSupabaseClient to delete employee:', employeeId);
+                
+                const result = await AdminSupabaseClient.employees.delete(employeeId);
+                if (result.success) {
+                    console.log('Employee deleted via AdminSupabaseClient');
+                    await this.cacheEmployees(); // Refresh cache
+                    this.notifySubscribers();
+                    return true;
+                } else {
+                    console.error('AdminSupabaseClient error deleting employee:', result.error);
+                    throw new Error(result.error);
+                }
+            }
+            // Check if direct Supabase is available (fallback)
+            else if (typeof supabase !== 'undefined') {
+                console.log('Using direct Supabase to delete employee:', employeeId);
+                
+                const { error } = await supabase
+                    .from('employees')
+                    .delete()
+                    .eq('id', employeeId);
+                
+                if (error) {
+                    console.error('Supabase error deleting employee:', error);
+                    throw error;
+                }
+                
+                console.log('Employee deleted from Supabase');
+                await this.cacheEmployees(); // Refresh cache
+                this.notifySubscribers();
+                return true;
+            } else {
+                // Fallback to localStorage if Supabase is not available
+                console.log('Supabase not available, using localStorage for employee deletion:', employeeId);
+                const employees = JSON.parse(localStorage.getItem('employees')) || [];
+                const filteredEmployees = employees.filter(emp => emp.id != employeeId);
+                localStorage.setItem('employees', JSON.stringify(filteredEmployees));
+                this._cachedEmployees = filteredEmployees; // Update cache
+                this.notifySubscribers();
+                return true;
+            }
+        } catch (error) {
+            console.error('Error deleting employee:', error);
+            return false;
         }
     },
 
     // Candidate Management
-    addCandidate(candidate) {
+    async addCandidate(candidate) {
         try {
-            const candidates = JSON.parse(localStorage.getItem('candidates')) || [];
-            candidate.id = candidate.id || Date.now();
-            candidate.createdAt = new Date().toISOString();
-            candidates.push(candidate);
-            localStorage.setItem('candidates', JSON.stringify(candidates));
-            this.notifySubscribers();
-            return true;
+            // Check if Supabase is available
+            if (typeof AdminSupabaseClient !== 'undefined' || (typeof SupabaseClient !== 'undefined' && typeof supabase !== 'undefined')) {
+                console.log('Using Supabase to add candidate:', candidate);
+                
+                // Format candidate data for Supabase
+                const candidateData = {
+                    name: candidate.fullName || candidate.name,
+                    email: candidate.email,
+                    phone: candidate.phone || candidate.contactNumber,
+                    location: candidate.location || candidate.address,
+                    skills: JSON.stringify(candidate.skills || []),
+                    experience: candidate.experience || '',
+                    preferred_role: candidate.preferredRole || candidate.role,
+                    current_position: candidate.currentPosition || candidate.currentRole,
+                    education: candidate.education || '',
+                    status: 'Available',
+                    resume_url: candidate.resumeUrl || '',
+                    portfolio_url: candidate.portfolioUrl || '',
+                    linkedin_url: candidate.linkedinUrl || '',
+                    salary_expectation: candidate.salaryExpectation || '',
+                    availability: candidate.availability || 'Immediate'
+                };
+                
+                // Save to Supabase
+                const { data, error } = await supabase
+                    .from('candidates')
+                    .insert([candidateData])
+                    .select();
+                
+                if (error) {
+                    console.error('Supabase error adding candidate:', error);
+                    throw error;
+                }
+                
+                console.log('Candidate added to Supabase:', data);
+                this.notifySubscribers();
+                return true;
+            } else {
+                // Fallback to localStorage
+                console.log('Supabase not available, using localStorage for candidate:', candidate);
+                const candidates = JSON.parse(localStorage.getItem('candidates')) || [];
+                candidate.id = candidate.id || Date.now();
+                candidate.createdAt = new Date().toISOString();
+                candidates.push(candidate);
+                localStorage.setItem('candidates', JSON.stringify(candidates));
+                this.notifySubscribers();
+                return true;
+            }
         } catch (error) {
             console.error('Error adding candidate:', error);
             return false;
         }
     },
 
-    getCandidates() {
+    async getCandidates() {
         try {
-            return JSON.parse(localStorage.getItem('candidates')) || [];
+            // Check if Supabase is available
+            if (typeof AdminSupabaseClient !== 'undefined' || (typeof SupabaseClient !== 'undefined' && typeof supabase !== 'undefined')) {
+                console.log('Using Supabase to get candidates');
+                const { data, error } = await supabase
+                    .from('candidates')
+                    .select('*');
+                
+                if (error) {
+                    console.error('Supabase error getting candidates:', error);
+                    throw error;
+                }
+                
+                // Transform Supabase data format to match local format if needed
+                return data.map(candidate => ({
+                    id: candidate.id,
+                    name: candidate.name,
+                    fullName: candidate.name,
+                    email: candidate.email,
+                    phone: candidate.phone,
+                    location: candidate.location,
+                    skills: typeof candidate.skills === 'string' ? JSON.parse(candidate.skills) : candidate.skills,
+                    experience: candidate.experience,
+                    preferredRole: candidate.preferred_role,
+                    currentPosition: candidate.current_position,
+                    education: candidate.education,
+                    status: candidate.status,
+                    resumeUrl: candidate.resume_url,
+                    portfolioUrl: candidate.portfolio_url,
+                    linkedinUrl: candidate.linkedin_url,
+                    salaryExpectation: candidate.salary_expectation,
+                    availability: candidate.availability,
+                    registeredDate: candidate.registered_date,
+                    createdAt: candidate.created_at
+                }));
+            } else {
+                // Fallback to localStorage
+                return JSON.parse(localStorage.getItem('candidates')) || [];
+            }
         } catch (error) {
             console.error('Error getting candidates:', error);
             return [];
         }
-    },
-
-    // Employer Management
-    addEmployer(employer) {
+    },    // Employer Management
+    async addEmployer(employer) {
         try {
-            const employers = JSON.parse(localStorage.getItem('employers')) || [];
-            employer.id = employer.id || Date.now();
-            employer.createdAt = new Date().toISOString();
-            employers.push(employer);
-            localStorage.setItem('employers', JSON.stringify(employers));
-            this.notifySubscribers();
-            return true;
+            // Check if Supabase is available
+            if (typeof AdminSupabaseClient !== 'undefined' || (typeof SupabaseClient !== 'undefined' && typeof supabase !== 'undefined')) {
+                console.log('Using Supabase to add employer:', employer);
+                
+                // Format employer data for Supabase
+                const employerData = {
+                    company_name: employer.companyName || employer.company_name,
+                    industry: employer.industry || '',
+                    website: employer.website || '',
+                    email: employer.email,
+                    phone: employer.phone || employer.contactNumber,
+                    address: employer.address || '',
+                    city: employer.city || '',
+                    state: employer.state || '',
+                    zipcode: employer.zipcode || '',
+                    country: employer.country || '',
+                    logo_url: employer.logoUrl || employer.logo_url,
+                    description: employer.description || '',
+                    founded_year: employer.foundedYear || employer.founded_year,
+                    company_size: employer.companySize || employer.company_size,
+                    social_media: JSON.stringify(employer.socialMedia || {}),
+                    status: 'Active',
+                    verified: false,
+                    subscription_plan: 'Free'
+                };
+                
+                // Save to Supabase
+                const { data, error } = await supabase
+                    .from('employers')
+                    .insert([employerData])
+                    .select();
+                
+                if (error) {
+                    console.error('Supabase error adding employer:', error);
+                    throw error;
+                }
+                
+                console.log('Employer added to Supabase:', data);
+                this.notifySubscribers();
+                return true;
+            } else {
+                // Fallback to localStorage
+                console.log('Supabase not available, using localStorage for employer:', employer);
+                const employers = JSON.parse(localStorage.getItem('employers')) || [];
+                employer.id = employer.id || Date.now();
+                employer.createdAt = new Date().toISOString();
+                employers.push(employer);
+                localStorage.setItem('employers', JSON.stringify(employers));
+                this.notifySubscribers();
+                return true;
+            }
         } catch (error) {
             console.error('Error adding employer:', error);
             return false;
         }
     },
 
-    getEmployers() {
+    async getEmployers() {
         try {
-            return JSON.parse(localStorage.getItem('employers')) || [];
+            // Check if Supabase is available
+            if (typeof AdminSupabaseClient !== 'undefined' || (typeof SupabaseClient !== 'undefined' && typeof supabase !== 'undefined')) {
+                console.log('Using Supabase to get employers');
+                const { data, error } = await supabase
+                    .from('employers')
+                    .select('*');
+                
+                if (error) {
+                    console.error('Supabase error getting employers:', error);
+                    throw error;
+                }
+                
+                // Transform Supabase data format to match local format if needed
+                return data.map(employer => ({
+                    id: employer.id,
+                    companyName: employer.company_name,
+                    industry: employer.industry,
+                    website: employer.website,
+                    email: employer.email,
+                    phone: employer.phone,
+                    address: employer.address,
+                    city: employer.city,
+                    state: employer.state,
+                    zipcode: employer.zipcode,
+                    country: employer.country,
+                    logoUrl: employer.logo_url,
+                    description: employer.description,
+                    foundedYear: employer.founded_year,
+                    companySize: employer.company_size,
+                    socialMedia: typeof employer.social_media === 'string' ? JSON.parse(employer.social_media) : employer.social_media,
+                    status: employer.status,
+                    verified: employer.verified,
+                    subscriptionPlan: employer.subscription_plan,
+                    createdAt: employer.created_at
+                }));
+            } else {
+                // Fallback to localStorage
+                return JSON.parse(localStorage.getItem('employers')) || [];
+            }
         } catch (error) {
             console.error('Error getting employers:', error);
             return [];
         }
     },    // Job Management
-    addJob(job) {
+    async addJob(job) {
         try {
-            const jobs = JSON.parse(localStorage.getItem('nexstaff_jobs')) || [];
-            job.id = job.id || Date.now();
-            job.createdAt = new Date().toISOString();
-            jobs.push(job);
-            localStorage.setItem('nexstaff_jobs', JSON.stringify(jobs));
-            
-            // Dispatch event for real-time updates
-            document.dispatchEvent(new CustomEvent('jobAdded', {
-                detail: job
-            }));
-            
-            this.notifySubscribers();
-            return true;
+            // Check if Supabase is available
+            if (typeof AdminSupabaseClient !== 'undefined' || (typeof SupabaseClient !== 'undefined' && typeof supabase !== 'undefined')) {
+                console.log('Using Supabase to add job:', job);
+                
+                // Format job data for Supabase
+                const jobData = {
+                    title: job.title,
+                    company: job.company,
+                    employer_id: job.employerId || null,
+                    department: job.department || '',
+                    location: job.location || '',
+                    type: job.type || 'Full-time',
+                    category: job.category || '',
+                    salary: job.salary || '',
+                    description: job.description || '',
+                    requirements: JSON.stringify(job.requirements || []),
+                    benefits: JSON.stringify(job.benefits || []),
+                    posted_date: job.postedDate || new Date().toISOString().split('T')[0],
+                    status: job.status || 'Active',
+                    applications_count: 0,
+                    urgency: job.urgency || 'Normal'
+                };
+                
+                // Save to Supabase
+                const { data, error } = await supabase
+                    .from('jobs')
+                    .insert([jobData])
+                    .select();
+                
+                if (error) {
+                    console.error('Supabase error adding job:', error);
+                    throw error;
+                }
+                
+                console.log('Job added to Supabase:', data);
+                
+                // Dispatch event for real-time updates
+                document.dispatchEvent(new CustomEvent('jobAdded', {
+                    detail: data[0]
+                }));
+                
+                this.notifySubscribers();
+                return true;
+            } else {
+                // Fallback to localStorage
+                const jobs = JSON.parse(localStorage.getItem('nexstaff_jobs')) || [];
+                job.id = job.id || Date.now();
+                job.createdAt = new Date().toISOString();
+                jobs.push(job);
+                localStorage.setItem('nexstaff_jobs', JSON.stringify(jobs));
+                
+                // Dispatch event for real-time updates
+                document.dispatchEvent(new CustomEvent('jobAdded', {
+                    detail: job
+                }));
+                
+                this.notifySubscribers();
+                return true;
+            }
         } catch (error) {
             console.error('Error adding job:', error);
             return false;
         }
     },
 
-    getJobs() {
+    async getJobs() {
         try {
-            return JSON.parse(localStorage.getItem('nexstaff_jobs')) || [];
+            // Check if Supabase is available
+            if (typeof AdminSupabaseClient !== 'undefined' || (typeof SupabaseClient !== 'undefined' && typeof supabase !== 'undefined')) {
+                console.log('Using Supabase to get jobs');
+                const { data, error } = await supabase
+                    .from('jobs')
+                    .select('*');
+                
+                if (error) {
+                    console.error('Supabase error getting jobs:', error);
+                    throw error;
+                }
+                
+                // Transform Supabase data format to match local format if needed
+                return data.map(job => ({
+                    id: job.id,
+                    title: job.title,
+                    company: job.company,
+                    employerId: job.employer_id,
+                    department: job.department,
+                    location: job.location,
+                    type: job.type,
+                    category: job.category,
+                    salary: job.salary,
+                    description: job.description,
+                    requirements: typeof job.requirements === 'string' ? JSON.parse(job.requirements) : job.requirements,
+                    benefits: typeof job.benefits === 'string' ? JSON.parse(job.benefits) : job.benefits,
+                    postedDate: job.posted_date,
+                    status: job.status,
+                    applicationsCount: job.applications_count,
+                    urgency: job.urgency,
+                    createdAt: job.created_at,
+                    updatedAt: job.updated_at
+                }));
+            } else {
+                // Fallback to localStorage
+                return JSON.parse(localStorage.getItem('nexstaff_jobs')) || [];
+            }
         } catch (error) {
             console.error('Error getting jobs:', error);
             return [];
@@ -528,9 +1044,7 @@ const DataService = {
             console.error('Error updating application status:', error);
             return false;
         }
-    },
-
-    // --- CRUD for Employees ---
+    },    // --- CRUD for Employees ---
     createEmployee(employee) {
         const employees = this.getEmployees();
         employee.id = employee.id || Date.now();
@@ -538,22 +1052,6 @@ const DataService = {
         localStorage.setItem('employees', JSON.stringify(employees));
         this.notifySubscribers();
         return employee;
-    },
-    readEmployees() {
-        return this.getEmployees();
-    },
-    updateEmployee(updated) {
-        let employees = this.getEmployees();
-        employees = employees.map(emp => emp.id == updated.id ? {...emp, ...updated} : emp);
-        localStorage.setItem('employees', JSON.stringify(employees));
-        this.notifySubscribers();
-        return updated;
-    },
-    deleteEmployee(id) {
-        let employees = this.getEmployees();
-        employees = employees.filter(emp => emp.id != id);
-        localStorage.setItem('employees', JSON.stringify(employees));
-        this.notifySubscribers();
     },
 
     // --- CRUD for Candidates ---
@@ -566,7 +1064,12 @@ const DataService = {
         return candidate;
     },
     readCandidates() {
-        return this.getCandidates();
+        return this._cachedCandidates || [];
+    },
+
+    async cacheCandidates() {
+        this._cachedCandidates = await this.getCandidates();
+        return this._cachedCandidates;
     },
     updateCandidate(updated) {
         let candidates = this.getCandidates();
@@ -592,7 +1095,12 @@ const DataService = {
         return employer;
     },
     readEmployers() {
-        return this.getEmployers();
+        return this._cachedEmployers || [];
+    },
+
+    async cacheEmployers() {
+        this._cachedEmployers = await this.getEmployers();
+        return this._cachedEmployers;
     },
     updateEmployer(updated) {
         let employers = this.getEmployers();
@@ -618,7 +1126,12 @@ const DataService = {
         return job;
     },
     readJobs() {
-        return this.getJobs();
+        return this._cachedJobs || [];
+    },
+
+    async cacheJobs() {
+        this._cachedJobs = await this.getJobs();
+        return this._cachedJobs;
     },
     updateJob(updated) {
         let jobs = this.getJobs();
@@ -644,7 +1157,12 @@ const DataService = {
         return application;
     },
     readApplications() {
-        return this.getApplications();
+        return this._cachedApplications || [];
+    },
+
+    async cacheApplications() {
+        this._cachedApplications = await this.getApplications();
+        return this._cachedApplications;
     },
     updateApplication(updated) {
         let applications = this.getApplications();
@@ -670,7 +1188,12 @@ const DataService = {
         return schedule;
     },
     readSchedules() {
-        return this.getEvents();
+        return this._cachedSchedules || [];
+    },
+
+    async cacheSchedules() {
+        this._cachedSchedules = await this.getSchedules();
+        return this._cachedSchedules;
     },
     updateSchedule(updated) {
         let schedules = this.getEvents();
