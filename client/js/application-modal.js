@@ -27,18 +27,29 @@ function openApplicationModal(jobId, jobTitle, companyName) {
     document.getElementById('fileInfo').style.display = 'none';
     
     // Show modal
-    modal.style.display = 'flex';
-    setTimeout(() => modal.classList.add('active'), 10);
-    document.body.style.overflow = 'hidden';
+    if (modal) {
+        console.log('Opening application modal for job:', jobId, jobTitle);
+        modal.style.display = 'flex';
+        setTimeout(() => modal.classList.add('active'), 10);
+        document.body.style.overflow = 'hidden';
+    } else {
+        console.error('Application modal element not found');
+        alert('Application form is not available. Please try again later.');
+    }
 }
 
 function closeApplicationModal() {
     const modal = document.getElementById('applicationModal');
-    modal.classList.remove('active');
-    setTimeout(() => {
-        modal.style.display = 'none';
-        document.body.style.overflow = '';
-    }, 300);
+    if (modal) {
+        console.log('Closing application modal');
+        modal.classList.remove('active');
+        setTimeout(() => {
+            modal.style.display = 'none';
+            document.body.style.overflow = '';
+        }, 300);
+    } else {
+        console.error('Application modal element not found when attempting to close');
+    }
 }
 
 function initializeFileUpload() {
@@ -167,19 +178,115 @@ async function handleApplicationSubmit(event) {
         // Handle resume file
         const resumeFile = formData.get('resume');
         if (resumeFile && resumeFile.size > 0) {
-            const base64Resume = await fileToBase64(resumeFile);
-            applicationData.resumeUrl = base64Resume;
+            // If Supabase is available, upload file to Supabase storage
+            if (typeof supabase !== 'undefined') {
+                try {
+                    console.log('Uploading resume to Supabase storage');
+                    const fileName = `${Date.now()}_${resumeFile.name}`;
+                    const { data: uploadData, error: uploadError } = await supabase
+                        .storage
+                        .from('resumes')
+                        .upload(fileName, resumeFile);
+                        
+                    if (uploadError) {
+                        console.error('Error uploading resume to Supabase:', uploadError);
+                        // Fall back to base64
+                        const base64Resume = await fileToBase64(resumeFile);
+                        applicationData.resumeUrl = base64Resume;
+                    } else {
+                        // Get public URL
+                        const { data: urlData } = supabase
+                            .storage
+                            .from('resumes')
+                            .getPublicUrl(fileName);
+                            
+                        applicationData.resumeUrl = urlData.publicUrl;
+                        console.log('Resume uploaded to Supabase:', urlData.publicUrl);
+                    }
+                } catch (uploadError) {
+                    console.error('Exception uploading to Supabase:', uploadError);
+                    // Fall back to base64
+                    const base64Resume = await fileToBase64(resumeFile);
+                    applicationData.resumeUrl = base64Resume;
+                }
+            } else {
+                // Fall back to base64 if Supabase is not available
+                const base64Resume = await fileToBase64(resumeFile);
+                applicationData.resumeUrl = base64Resume;
+            }
+            
             applicationData.resumeName = resumeFile.name;
         }
         
         // Submit application
         let success = false;
+        
+        // If we have nexStaffData (data manager) available
         if (typeof nexStaffData !== 'undefined') {
-            const application = nexStaffData.submitJobApplication(applicationData);
+            console.log('Submitting application through nexStaffData manager');
+            // The data manager will handle Supabase integration
+            const application = await nexStaffData.submitJobApplication(applicationData);
             success = !!application;
             console.log('Application submitted through data manager:', application);
+        } else if (typeof supabase !== 'undefined') {
+            // Direct Supabase submission if data manager isn't available but Supabase is
+            console.log('Submitting application directly to Supabase');
+            try {
+                // Format data for Supabase
+                const supabaseApplication = {
+                    id: `APP${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+                    job_id: applicationData.jobId,
+                    job_title: applicationData.jobTitle,
+                    company_name: applicationData.companyName,
+                    candidate_name: applicationData.candidateName,
+                    full_name: applicationData.fullName,
+                    email: applicationData.email,
+                    phone: applicationData.phone,
+                    cover_letter: applicationData.coverLetter || '',
+                    resume_url: applicationData.resumeUrl || '',
+                    resume_name: applicationData.resumeName || '',
+                    expected_salary: applicationData.expectedSalary || '',
+                    availability: applicationData.availability || 'Immediate',
+                    portfolio_links: applicationData.portfolioLinks || [],
+                    reference_contact: applicationData.referenceContact || '',
+                    status: 'New',
+                    priority: 'Medium',
+                    submitted_at: new Date().toISOString(),
+                    last_updated: new Date().toISOString(),
+                    source: 'landing_page',
+                    notes: ''
+                };
+                
+                const { data, error } = await supabase
+                    .from('applications')
+                    .insert(supabaseApplication)
+                    .select();
+                    
+                if (error) {
+                    console.error('Error submitting application to Supabase:', error);
+                    throw error;
+                }
+                
+                success = true;
+                console.log('Application submitted directly to Supabase:', data);
+            } catch (error) {
+                console.error('Exception submitting to Supabase:', error);
+                // Fallback to localStorage
+                const applications = JSON.parse(localStorage.getItem('nexstaff_applications') || '[]');
+                const newApplication = {
+                    ...applicationData,
+                    id: `APP${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+                    status: 'New',
+                    submittedAt: new Date().toISOString(),
+                    source: 'landing_page'
+                };
+                applications.push(newApplication);
+                localStorage.setItem('nexstaff_applications', JSON.stringify(applications));
+                success = true;
+                console.log('Application submitted to localStorage after Supabase failure:', newApplication);
+            }
         } else {
-            // Fallback to localStorage
+            // Fallback to localStorage if neither data manager nor Supabase available
             const applications = JSON.parse(localStorage.getItem('nexstaff_applications') || '[]');
             const newApplication = {
                 ...applicationData,

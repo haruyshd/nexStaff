@@ -218,24 +218,91 @@ const DataService = {
     },
 
     // Employee Management
-    addEmployee(employee) {
+    async addEmployee(employee) {
         try {
-            const employees = JSON.parse(localStorage.getItem('employees')) || [];
-            employee.id = employee.id || Date.now();
-            employee.createdAt = new Date().toISOString();
-            employees.push(employee);
-            localStorage.setItem('employees', JSON.stringify(employees));
-            this.notifySubscribers();
-            return true;
+            // Check if Supabase is available
+            if (typeof SupabaseClient !== 'undefined' && typeof supabase !== 'undefined') {
+                console.log('Using Supabase to add employee:', employee);
+                
+                // Format employee data for Supabase
+                const employeeData = {
+                    full_name: employee.fullName || employee.full_name,
+                    role: employee.role,
+                    email: employee.email,
+                    phone: employee.phone || employee.contactNumber,
+                    photo: employee.photo || employee.profilePicture,
+                    join_date: employee.joinDate || new Date().toISOString().split('T')[0],
+                    employment_status: 'Active',
+                    department_id: employee.departmentId || null,
+                    position_id: employee.positionId || null,
+                    job_details: JSON.stringify(employee.jobDetails || {}),
+                    emergency_contact: JSON.stringify(employee.emergencyContacts || {})
+                };
+                
+                // Save to Supabase
+                const { data, error } = await supabase
+                    .from('employees')
+                    .insert([employeeData])
+                    .select();
+                
+                if (error) {
+                    console.error('Supabase error adding employee:', error);
+                    throw error;
+                }
+                
+                console.log('Employee added to Supabase:', data);
+                this.notifySubscribers();
+                return true;
+            } else {
+                // Fallback to localStorage if Supabase is not available
+                console.log('Supabase not available, using localStorage for employee:', employee);
+                const employees = JSON.parse(localStorage.getItem('employees')) || [];
+                employee.id = employee.id || Date.now();
+                employee.createdAt = new Date().toISOString();
+                employees.push(employee);
+                localStorage.setItem('employees', JSON.stringify(employees));
+                this.notifySubscribers();
+                return true;
+            }
         } catch (error) {
             console.error('Error adding employee:', error);
             return false;
         }
     },
 
-    getEmployees() {
+    async getEmployees() {
         try {
-            return JSON.parse(localStorage.getItem('employees')) || [];
+            // Check if Supabase is available
+            if (typeof SupabaseClient !== 'undefined' && typeof supabase !== 'undefined') {
+                console.log('Using Supabase to get employees');
+                const { data, error } = await supabase
+                    .from('employees')
+                    .select('*');
+                
+                if (error) {
+                    console.error('Supabase error getting employees:', error);
+                    throw error;
+                }
+                
+                // Transform Supabase data format to match local format if needed
+                return data.map(emp => ({
+                    id: emp.id,
+                    fullName: emp.full_name,
+                    role: emp.role,
+                    email: emp.email,
+                    phone: emp.phone,
+                    photo: emp.photo,
+                    joinDate: emp.join_date,
+                    status: emp.employment_status,
+                    departmentId: emp.department_id,
+                    positionId: emp.position_id,
+                    jobDetails: typeof emp.job_details === 'string' ? JSON.parse(emp.job_details) : emp.job_details,
+                    emergencyContacts: typeof emp.emergency_contact === 'string' ? JSON.parse(emp.emergency_contact) : emp.emergency_contact
+                }));
+            } else {
+                // Fallback to localStorage if Supabase is not available
+                return JSON.parse(localStorage.getItem('employees')) || [];
+            }
         } catch (error) {
             console.error('Error getting employees:', error);
             return [];
@@ -347,11 +414,59 @@ const DataService = {
     },
 
     // Application Management
-    addApplication(application) {
+    async addApplication(application) {
         try {
-            const applications = JSON.parse(localStorage.getItem('applications')) || [];
-            application.id = application.id || Date.now();
+            application.id = application.id || 'APP' + Date.now().toString();
             application.createdAt = new Date().toISOString();
+            
+            // Check if Supabase is available
+            if (typeof SupabaseClient !== 'undefined' && typeof supabase !== 'undefined') {
+                console.log('Using Supabase to add application:', application);
+                
+                // Format application data for Supabase
+                const applicationData = {
+                    id: application.id,
+                    job_id: application.jobId,
+                    job_title: application.jobTitle || '',
+                    company_name: application.companyName || '',
+                    candidate_name: application.candidateName || application.fullName,
+                    full_name: application.fullName,
+                    email: application.email,
+                    phone: application.phone || '',
+                    cover_letter: application.coverLetter || '',
+                    resume_url: application.resumeUrl || '',
+                    resume_name: application.resumeName || '',
+                    expected_salary: application.expectedSalary || '',
+                    availability: application.availability || 'Immediate',
+                    portfolio_links: application.portfolioLinks || [],
+                    reference_contact: application.referenceContact || '',
+                    status: application.status || 'New',
+                    priority: application.priority || 'Medium',
+                    submitted_at: application.createdAt,
+                    last_updated: application.createdAt,
+                    source: application.source || 'admin_dashboard',
+                    notes: application.notes || ''
+                };
+                
+                // Save to Supabase
+                const { data, error } = await supabase
+                    .from('applications')
+                    .insert(applicationData)
+                    .select();
+                    
+                if (error) {
+                    console.error('Supabase error adding application:', error);
+                    throw error;
+                }
+                
+                console.log('Application added to Supabase:', data);
+                this.notifySubscribers();
+                return true;
+            }
+            
+            // Fallback to localStorage if Supabase is not available
+            console.log('Supabase not available, using localStorage for application:', application);
+            const applications = JSON.parse(localStorage.getItem('applications')) || [];
             applications.push(application);
             localStorage.setItem('applications', JSON.stringify(applications));
             this.notifySubscribers();

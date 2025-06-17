@@ -112,11 +112,6 @@ const EmployeeManagementAPI = {
 
     // Initialize storage with default data
     init() {
-<<<<<<< HEAD
-=======
-        console.log('Initializing EmployeeManagementAPI');
-        this.setupInitialEmployees();
->>>>>>> 0f9fc2e (Echo again)
         // Initialize departments
         if (!localStorage.getItem(this.KEYS.DEPARTMENTS)) {
             const defaultDepartments = [
@@ -141,55 +136,6 @@ const EmployeeManagementAPI = {
             localStorage.setItem(this.KEYS.POSITIONS, JSON.stringify(defaultPositions));
         }
     },
-
-<<<<<<< HEAD
-=======
-    setupInitialEmployees() {
-        // Only initialize if no employees exist
-        if (this.getEmployees().length === 0) {
-            const initialEmployees = [
-                {
-                    id: '1',
-                    fullName: 'Jazz Lee',
-                    role: 'Admin',
-                    phone: '+1 404-233-7961',
-                    email: 'admin@nexstaff.com',
-                    joinDate: '2019-06-06',
-                    photo: '../login/admin/img/lee.png'
-                },
-                {
-                    id: '2',
-                    fullName: 'Yuji Lowe',
-                    role: 'Hardware',
-                    phone: '+1 404-233-7962',
-                    email: 'louis@nexstaff.com',
-                    joinDate: '2019-01-01',
-                    photo: '../login/admin/img/lowe.png'
-                },
-                {
-                    id: '3',
-                    fullName: 'Marc Cea',
-                    role: 'Software',
-                    phone: '+1 404-233-7963',
-                    email: 'calvin@nexstaff.com',
-                    joinDate: '2019-01-15',
-                    photo: '../login/admin/img/cea.png'
-                },
-                {
-                    id: '4',
-                    fullName: 'Jericho DelosReyes',
-                    role: 'Marketing',
-                    phone: '+1 404-233-7964',
-                    email: 'mabel@nexstaff.com',
-                    joinDate: '2019-04-03',
-                    photo: '../login/admin/img/delosreyes.png'
-                }
-            ];
-            localStorage.setItem('employees', JSON.stringify(initialEmployees));
-        }
-    },
-
->>>>>>> 0f9fc2e (Echo again)
     // Employee CRUD operations
     async getEmployees(filters = {}) {
         const employees = JSON.parse(localStorage.getItem(this.KEYS.EMPLOYEES)) || [];
@@ -596,16 +542,6 @@ const EmployeeManagementAPI = {
             emp.jobDetails.employmentStatus === 'Terminated'
         ).length;
         return (resigned / employees.length) * 100;
-<<<<<<< HEAD
-=======
-    },
-
-    // Employee Management API
-    init() {
-        console.log('Initializing EmployeeManagementAPI');
-        this.setupInitialEmployees();
-        this.setupEventListeners();
-        this.refreshEmployeeList();
     },
 
     setupEventListeners() {
@@ -705,9 +641,17 @@ const EmployeeManagementAPI = {
         }
     },
 
-    getEmployees() {
+    async getEmployees() {
         try {
-            return JSON.parse(localStorage.getItem('employees')) || [];
+            // Try to use DataService first (which uses Supabase if available)
+            if (typeof DataService !== 'undefined' && DataService.getEmployees) {
+                console.log('Using DataService to get employees');
+                return await DataService.getEmployees();
+            } else {
+                // Fallback to local storage
+                console.log('Using localStorage to get employees');
+                return JSON.parse(localStorage.getItem('employees')) || [];
+            }
         } catch (error) {
             console.error('Error getting employees:', error);
             return [];
@@ -718,19 +662,33 @@ const EmployeeManagementAPI = {
         return this.getEmployees().find(emp => emp.id === id);
     },
 
-    addEmployee(data) {
-        const employees = this.getEmployees();
-        const newEmployee = {
-            ...data,
-            id: Date.now().toString(),
-            joinDate: new Date().toISOString().split('T')[0],
-            photo: '../client/img/default-avatar.png'
-        };
-        
-        employees.push(newEmployee);
-        localStorage.setItem('employees', JSON.stringify(employees));
-        this.refreshEmployeeList();
-        this.showNotification('Employee added successfully!', 'success');
+    async addEmployee(data) {
+        try {
+            const newEmployee = {
+                ...data,
+                id: Date.now().toString(),
+                joinDate: new Date().toISOString().split('T')[0],
+                photo: data.photo || '../client/img/default-avatar.png'
+            };
+            
+            // Try to use DataService first (which uses Supabase if available)
+            if (typeof DataService !== 'undefined' && DataService.addEmployee) {
+                console.log('Using DataService to add employee');
+                await DataService.addEmployee(newEmployee);
+            } else {
+                // Fallback to local storage
+                console.log('Using localStorage to add employee');
+                const employees = this.getEmployees();
+                employees.push(newEmployee);
+                localStorage.setItem(this.KEYS.EMPLOYEES, JSON.stringify(employees));
+            }
+            
+            this.refreshEmployeeList();
+            this.showNotification('Employee added successfully!', 'success');
+        } catch (error) {
+            console.error('Error adding employee:', error);
+            this.showNotification('Failed to add employee. Please try again.', 'error');
+        }
     },
 
     updateEmployee(data) {
@@ -808,6 +766,5 @@ const EmployeeManagementAPI = {
 
         container.appendChild(notification);
         setTimeout(() => notification.remove(), 5000);
->>>>>>> 0f9fc2e (Echo again)
     }
 };

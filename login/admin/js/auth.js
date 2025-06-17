@@ -1,4 +1,4 @@
-// Authentication and user management
+// Authentication and user management using Supabase
 const AuthAPI = {
     // Storage keys
     TOKEN_KEY: 'nexstaff_auth_token',
@@ -14,9 +14,9 @@ const AuthAPI = {
     },
 
     // Initialize user session
-    init() {
-        console.log('Initializing AuthAPI...');
-        const session = this.checkAuth();
+    async init() {
+        console.log('Initializing AuthAPI with Supabase...');
+        const session = await this.checkAuth();
         if (!session) {
             console.log('No valid session found');
             return { isAuthenticated: false };
@@ -26,21 +26,50 @@ const AuthAPI = {
     },
 
     // Check if user is authenticated
-    checkAuth() {
+    async checkAuth() {
         try {
+            // First check Supabase session
+            const { data: sessionData, success } = await SupabaseClient.auth.getSession();
+            
+            if (success && sessionData.session) {
+                const { data: userData, success: userSuccess } = await SupabaseClient.auth.getUser();
+                
+                if (userSuccess && userData.user) {
+                    // Get additional user data from the profiles table
+                    const { data: profileData } = await supabase
+                        .from('profiles')
+                        .select('*')
+                        .eq('id', userData.user.id)
+                        .single();
+                    
+                    const role = profileData?.role || 'employee';
+                    
+                    // Store in localStorage for backward compatibility
+                    const user = {
+                        id: userData.user.id,
+                        email: userData.user.email,
+                        role: role,
+                        ...profileData
+                    };
+                    
+                    localStorage.setItem(this.USER_KEY, JSON.stringify(user));
+                    localStorage.setItem(this.TOKEN_KEY, sessionData.session.access_token);
+                    
+                    return {
+                        isAuthenticated: true,
+                        user,
+                        token: sessionData.session.access_token
+                    };
+                }
+            }
+            
+            // Fallback to localStorage check for backward compatibility
             const token = localStorage.getItem(this.TOKEN_KEY);
             const userStr = localStorage.getItem(this.USER_KEY);
             const user = userStr ? JSON.parse(userStr) : null;
             
             if (!token || !user || !user.role) {
                 console.log('No valid auth data found');
-                return null;
-            }
-            
-            // Check if token is expired
-            if (this.isTokenExpired(token)) {
-                console.log('Token expired');
-                this.clearAuth();
                 return null;
             }
             
@@ -54,7 +83,7 @@ const AuthAPI = {
             return null;
         }
     },    // Login user
-    login(credentials) {
+    async login(credentials) {
         try {
             console.log('🔐 AuthAPI.login called with:', { ...credentials, password: '[HIDDEN]' });
             
@@ -64,32 +93,57 @@ const AuthAPI = {
                 return { success: false, message: 'Email and password are required' };
             }
             
-            // Demo credentials for testing
+            // First try Supabase authentication
+            const { data, success, error } = await SupabaseClient.auth.signIn(credentials.email, credentials.password);
+            
+            if (success && data.session) {
+                console.log('✅ Supabase login successful');
+                
+                // Get user profile data
+                const { data: profileResult } = await supabase
+                    .from('profiles')
+                    .select('*')
+                    .eq('id', data.user.id)
+                    .single();
+                    
+                const profile = profileResult || {};
+                
+                const user = {
+                    id: data.user.id,
+                    email: data.user.email,
+                    role: profile.role || this.ROLES.EMPLOYEE,
+                    name: profile.full_name || data.user.email.split('@')[0],
+                    username: data.user.email.split('@')[0]
+                };
+                
+                console.log('💾 Saving auth data...');
+                this.setAuth(data.session.access_token, user, credentials.remember);
+                
+                console.log('✅ Login successful, user authenticated');
+                return { success: true, user };
+            }
+            
+            // Fallback to demo credentials for testing during transition
+            console.log('⚠️ Supabase login failed, falling back to demo credentials');
             const validCredentials = [
                 { email: 'admin@nexstaff.com', password: 'admin123', role: this.ROLES.ADMIN, name: 'Admin User' },
                 { email: 'hr@nexstaff.com', password: 'hr123', role: this.ROLES.HR, name: 'HR Manager' },
                 { email: 'manager@nexstaff.com', password: 'manager123', role: this.ROLES.MANAGER, name: 'Team Manager' }
             ];
             
-            console.log('🔍 Checking against valid credentials...');
-            
             const validUser = validCredentials.find(cred => {
-                const emailMatch = cred.email === credentials.email;
-                const passwordMatch = cred.password === credentials.password;
-                console.log(`📧 Email "${credentials.email}" matches "${cred.email}": ${emailMatch}`);
-                console.log(`🔑 Password matches for ${cred.email}: ${passwordMatch}`);
-                return emailMatch && passwordMatch;
+                return cred.email === credentials.email && cred.password === credentials.password;
             });
             
             if (validUser) {
-                console.log('✅ Valid user found:', validUser.name);
+                console.log('✅ Valid demo user found:', validUser.name);
                 
                 const user = {
                     id: Math.random().toString(36).substr(2, 9),
                     email: validUser.email,
                     role: validUser.role,
                     name: validUser.name,
-                    username: validUser.email.split('@')[0] // Extract username from email
+                    username: validUser.email.split('@')[0]
                 };
                 
                 const token = 'demo_token_' + Date.now();
@@ -103,7 +157,10 @@ const AuthAPI = {
             
             console.log('❌ Invalid credentials provided');
             console.log('💡 Valid emails: admin@nexstaff.com, hr@nexstaff.com, manager@nexstaff.com');
-            return { success: false, message: 'Invalid email or password. Try: admin@nexstaff.com/admin123' };
+            return { 
+                success: false, 
+                message: error?.message || 'Invalid email or password. Try: admin@nexstaff.com/admin123' 
+            };
         } catch (error) {
             console.error('💥 Login error:', error);
             return { success: false, message: 'Login failed: ' + error.message };
@@ -111,8 +168,13 @@ const AuthAPI = {
     },
 
     // Logout user
-    logout() {
+    async logout() {
         console.log('Logging out...');
+        
+        // Try to sign out from Supabase first
+        await SupabaseClient.auth.signOut();
+        
+        // Then clear local storage
         this.clearAuth();
         this.redirectToLogin();
     },

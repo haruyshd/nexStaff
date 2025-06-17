@@ -1,5 +1,5 @@
 // NexStaff Data Management System
-// Centralized data storage and synchronization between client and admin
+// Centralized data storage and synchronization using Supabase
 
 class NexStaffDataManager {
     constructor() {
@@ -12,15 +12,59 @@ class NexStaffDataManager {
         };
         
         this.subscribers = new Set();
+        this.supabaseEnabled = typeof supabase !== 'undefined';
         this.init();
-    }    init() {
-        // Initialize with sample data if not exists
-        this.initializeJobs();
-        this.initializeCandidates();
-        this.initializeEmployers();
-        this.initializeApplications();
-        this.initializeEmployees();
+    }
+    
+    async init() {
+        console.log('Initializing NexStaffDataManager with Supabase support:', this.supabaseEnabled);
+        
+        // Set up real-time subscriptions if Supabase is available
+        if (this.supabaseEnabled) {
+            this.setupSupabaseListeners();
+        }
+        
+        // Initialize with sample data if not exists and if Supabase is not available
+        if (!this.supabaseEnabled) {
+            this.initializeJobs();
+            this.initializeCandidates();
+            this.initializeEmployers();
+            this.initializeApplications();
+            this.initializeEmployees();
+        }
+        
         this.setupEventListeners();
+    }
+    
+    setupSupabaseListeners() {
+        console.log('Setting up Supabase realtime listeners');
+        
+        // Subscribe to jobs changes
+        const jobsChannel = supabase
+            .channel('public:jobs')
+            .on('postgres_changes', { event: '*', schema: 'public', table: 'jobs' }, payload => {
+                console.log('Jobs change received:', payload);
+                this.notifySubscribers('jobs', payload.eventType, payload.new);
+            })
+            .subscribe();
+            
+        // Subscribe to applications changes
+        const applicationsChannel = supabase
+            .channel('public:applications')
+            .on('postgres_changes', { event: '*', schema: 'public', table: 'applications' }, payload => {
+                console.log('Applications change received:', payload);
+                this.notifySubscribers('applications', payload.eventType, payload.new);
+            })
+            .subscribe();
+            
+        // Subscribe to candidates changes
+        const candidatesChannel = supabase
+            .channel('public:candidates')
+            .on('postgres_changes', { event: '*', schema: 'public', table: 'candidates' }, payload => {
+                console.log('Candidates change received:', payload);
+                this.notifySubscribers('candidates', payload.eventType, payload.new);
+            })
+            .subscribe();
     }
 
     // Event system for real-time updates
@@ -190,7 +234,7 @@ class NexStaffDataManager {
                     skills: ['JavaScript', 'React', 'Node.js', 'Python', 'AWS'],
                     experience: '5 years',
                     preferredRole: 'Senior Software Engineer',
-                    currentRole: 'Software Engineer',
+                    currentPosition: 'Software Engineer', // Changed from currentRole to match database schema
                     education: 'BS Computer Science - Stanford University',
                     status: 'Available',
                     resumeUrl: '/resumes/alice_johnson.pdf',
@@ -212,7 +256,7 @@ class NexStaffDataManager {
                     skills: ['Python', 'Django', 'PostgreSQL', 'Docker', 'AWS'],
                     experience: '4 years',
                     preferredRole: 'Backend Developer',
-                    currentRole: 'Full Stack Developer',
+                    currentPosition: 'Full Stack Developer', // Changed from currentRole to match database schema
                     education: 'MS Software Engineering - UT Austin',
                     status: 'Interviewing',
                     resumeUrl: '/resumes/bob_martinez.pdf',
@@ -234,7 +278,7 @@ class NexStaffDataManager {
                     skills: ['UI/UX Design', 'Figma', 'Adobe Creative Suite', 'Prototyping', 'User Research'],
                     experience: '4 years',
                     preferredRole: 'Senior UI/UX Designer',
-                    currentRole: 'UI/UX Designer',
+                    currentPosition: 'UI/UX Designer', // Changed from currentRole to match database schema
                     education: 'BFA Graphic Design - Parsons School of Design',
                     status: 'Available',
                     resumeUrl: '/resumes/carol_davis.pdf',
@@ -484,41 +528,162 @@ class NexStaffDataManager {
     }
 
     // CRUD Operations for Jobs
-    getJobs() {
+    async getJobs() {
+        if (this.supabaseEnabled) {
+            try {
+                const { data, error } = await supabase
+                    .from('jobs')
+                    .select('*');
+                
+                if (error) {
+                    console.error('Error fetching jobs from Supabase:', error);
+                    throw error;
+                }
+                
+                return data || [];
+            } catch (error) {
+                console.error('Failed to get jobs from Supabase, falling back to localStorage:', error);
+                // Fallback to localStorage
+                return JSON.parse(localStorage.getItem(this.storageKeys.jobs)) || [];
+            }
+        }
+        
+        // Use localStorage if Supabase is not available
         return JSON.parse(localStorage.getItem(this.storageKeys.jobs)) || [];
     }
 
-    getJob(id) {
-        const jobs = this.getJobs();
+    async getJob(id) {
+        if (this.supabaseEnabled) {
+            try {
+                const { data, error } = await supabase
+                    .from('jobs')
+                    .select('*')
+                    .eq('id', id)
+                    .single();
+                
+                if (error) {
+                    console.error(`Error fetching job ${id} from Supabase:`, error);
+                    throw error;
+                }
+                
+                return data || null;
+            } catch (error) {
+                console.error(`Failed to get job ${id} from Supabase, falling back to localStorage:`, error);
+                // Fallback to localStorage
+                const jobs = JSON.parse(localStorage.getItem(this.storageKeys.jobs)) || [];
+                return jobs.find(job => job.id === id);
+            }
+        }
+        
+        // Use localStorage if Supabase is not available
+        const jobs = JSON.parse(localStorage.getItem(this.storageKeys.jobs)) || [];
         return jobs.find(job => job.id === id);
     }
 
-    addJob(job) {
-        const jobs = this.getJobs();
-        job.id = job.id || 'JOB' + String(jobs.length + 1).padStart(3, '0');
+    async addJob(job) {
         job.postedDate = job.postedDate || new Date().toISOString().split('T')[0];
         job.status = job.status || 'Active';
         job.applicationsCount = job.applicationsCount || 0;
+        
+        if (this.supabaseEnabled) {
+            try {
+                // If job doesn't have an ID, we'll let Supabase generate one
+                const jobData = { ...job };
+                if (!jobData.id) {
+                    delete jobData.id; // Let Supabase generate the ID
+                }
+                
+                const { data, error } = await supabase
+                    .from('jobs')
+                    .insert([jobData])
+                    .select();
+                
+                if (error) {
+                    console.error('Error adding job to Supabase:', error);
+                    throw error;
+                }
+                
+                job = data[0];
+                this.notifySubscribers('jobs', 'added', job);
+                return job;
+            } catch (error) {
+                console.error('Failed to add job to Supabase, falling back to localStorage:', error);
+                // Fallback to localStorage
+            }
+        }
+        
+        // Use localStorage if Supabase is not available or if Supabase operation failed
+        const jobs = JSON.parse(localStorage.getItem(this.storageKeys.jobs)) || [];
+        job.id = job.id || 'JOB' + String(jobs.length + 1).padStart(3, '0');
         jobs.push(job);
         localStorage.setItem(this.storageKeys.jobs, JSON.stringify(jobs));
         return job;
     }
 
-    updateJob(id, updates) {
-        const jobs = this.getJobs();
+    async updateJob(id, updates) {
+        if (this.supabaseEnabled) {
+            try {
+                const { data, error } = await supabase
+                    .from('jobs')
+                    .update(updates)
+                    .eq('id', id)
+                    .select();
+                
+                if (error) {
+                    console.error(`Error updating job ${id} in Supabase:`, error);
+                    throw error;
+                }
+                
+                if (data && data[0]) {
+                    this.notifySubscribers('jobs', 'updated', data[0]);
+                    return data[0];
+                }
+                
+                return null;
+            } catch (error) {
+                console.error(`Failed to update job ${id} in Supabase, falling back to localStorage:`, error);
+                // Fallback to localStorage
+            }
+        }
+        
+        // Use localStorage if Supabase is not available or if Supabase operation failed
+        const jobs = JSON.parse(localStorage.getItem(this.storageKeys.jobs)) || [];
         const index = jobs.findIndex(job => job.id === id);
         if (index !== -1) {
             jobs[index] = { ...jobs[index], ...updates };
             localStorage.setItem(this.storageKeys.jobs, JSON.stringify(jobs));
+            this.notifySubscribers('jobs', 'updated', jobs[index]);
             return jobs[index];
         }
         return null;
     }
 
-    deleteJob(id) {
-        const jobs = this.getJobs();
+    async deleteJob(id) {
+        if (this.supabaseEnabled) {
+            try {
+                const { error } = await supabase
+                    .from('jobs')
+                    .delete()
+                    .eq('id', id);
+                
+                if (error) {
+                    console.error(`Error deleting job ${id} from Supabase:`, error);
+                    throw error;
+                }
+                
+                this.notifySubscribers('jobs', 'deleted', { id });
+                return true;
+            } catch (error) {
+                console.error(`Failed to delete job ${id} from Supabase, falling back to localStorage:`, error);
+                // Fallback to localStorage
+            }
+        }
+        
+        // Use localStorage if Supabase is not available or if Supabase operation failed
+        const jobs = JSON.parse(localStorage.getItem(this.storageKeys.jobs)) || [];
         const filteredJobs = jobs.filter(job => job.id !== id);
         localStorage.setItem(this.storageKeys.jobs, JSON.stringify(filteredJobs));
+        this.notifySubscribers('jobs', 'deleted', { id });
         return true;
     }
 
@@ -595,12 +760,73 @@ class NexStaffDataManager {
         return applications.find(application => application.id === id);
     }
 
-    addApplication(application) {
-        const applications = this.getApplications();
-        application.id = application.id || 'APP' + String(applications.length + 1).padStart(3, '0');
+    async addApplication(application) {
+        // Generate ID if not provided
+        application.id = application.id || 'APP' + Date.now().toString();
         application.appliedDate = application.appliedDate || new Date().toISOString().split('T')[0];
         application.status = application.status || 'Pending';
-        application.lastUpdated = new Date().toISOString().split('T')[0];
+        application.lastUpdated = new Date().toISOString();
+        
+        // Try to use Supabase if available
+        if (this.supabaseEnabled) {
+            try {
+                console.log('Adding application to Supabase:', application);
+                
+                // Format data for Supabase
+                const applicationData = {
+                    id: application.id,
+                    job_id: application.jobId,
+                    job_title: application.jobTitle,
+                    company_name: application.companyName,
+                    candidate_name: application.candidateName || application.fullName,
+                    full_name: application.fullName,
+                    email: application.email,
+                    phone: application.phone,
+                    cover_letter: application.coverLetter || '',
+                    resume_url: application.resumeUrl || '',
+                    resume_name: application.resumeName || '',
+                    expected_salary: application.expectedSalary || '',
+                    availability: application.availability || 'Immediate',
+                    portfolio_links: application.portfolioLinks || [],
+                    reference_contact: application.referenceContact || '',
+                    status: application.status,
+                    priority: application.priority || 'Medium',
+                    submitted_at: application.submittedAt || new Date().toISOString(),
+                    last_updated: application.lastUpdated,
+                    source: application.source || 'landing_page',
+                    notes: application.notes || ''
+                };
+                
+                // Save to Supabase
+                const { data, error } = await supabase
+                    .from('applications')
+                    .insert(applicationData)
+                    .select();
+                    
+                if (error) {
+                    console.error('Error adding application to Supabase:', error);
+                    throw error;
+                }
+                
+                console.log('Application added to Supabase:', data);
+                
+                if (data && data[0]) {
+                    // Update job application count
+                    this.updateJobApplicationCount(application.jobId);
+                    
+                    // Notify subscribers
+                    this.notifySubscribers('applications', 'added', data[0]);
+                    
+                    return data[0];
+                }
+            } catch (error) {
+                console.error('Failed to add application to Supabase, falling back to localStorage:', error);
+                // Continue with localStorage fallback
+            }
+        }
+        
+        // Fallback to localStorage
+        const applications = this.getApplications();
         applications.push(application);
         localStorage.setItem(this.storageKeys.applications, JSON.stringify(applications));
         
@@ -622,7 +848,7 @@ class NexStaffDataManager {
     }
 
     // Enhanced Application Management with Sync
-    submitJobApplication(applicationData) {
+    async submitJobApplication(applicationData) {
         try {
             const newApplication = {
                 id: `APP${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
@@ -648,10 +874,13 @@ class NexStaffDataManager {
                 notes: ''
             };
 
-            const application = this.addApplication(newApplication);
+            console.log('Submitting job application:', newApplication);
+            
+            // Use the async addApplication method to save to Supabase
+            const application = await this.addApplication(newApplication);
             
             // Create or update candidate profile
-            this.createOrUpdateCandidate(applicationData);
+            await this.createOrUpdateCandidate(applicationData);
             
             // Notify subscribers
             this.notifySubscribers('applications', 'create', application);
@@ -681,8 +910,121 @@ class NexStaffDataManager {
     }
 
     // Create or update candidate from application
-    createOrUpdateCandidate(applicationData) {
+    async createOrUpdateCandidate(applicationData) {
         try {
+            // Format candidates data
+            const candidateEmail = applicationData.email;
+            let candidateId = null;
+            
+            // Try Supabase first if available
+            if (this.supabaseEnabled) {
+                try {
+                    console.log('Checking for existing candidate in Supabase:', candidateEmail);
+                    
+                    // Check if candidate exists
+                    const { data: existingData, error: searchError } = await supabase
+                        .from('candidates')
+                        .select('*')
+                        .eq('email', candidateEmail)
+                        .limit(1);
+                        
+                    if (searchError) {
+                        console.error('Error checking for candidate in Supabase:', searchError);
+                        throw searchError;
+                    }
+                    
+                    if (existingData && existingData.length > 0) {
+                        // Update existing candidate
+                        const existingCandidate = existingData[0];
+                        console.log('Updating existing candidate in Supabase:', existingCandidate);
+                        
+                        // Get existing applied jobs
+                        const appliedJobs = existingCandidate.applied_jobs || [];
+                        
+                        // Check if this job is already in applied_jobs
+                        if (!appliedJobs.find(job => job.jobId === applicationData.jobId)) {
+                            appliedJobs.push({
+                                jobId: applicationData.jobId,
+                                jobTitle: applicationData.jobTitle,
+                                appliedAt: new Date().toISOString(),
+                                status: 'Applied'
+                            });
+                        }
+                        
+                        // Update the candidate
+                        const { data: updateData, error: updateError } = await supabase
+                            .from('candidates')
+                            .update({
+                                last_active: new Date().toISOString(),
+                                phone: applicationData.phone || existingCandidate.phone,
+                                applied_jobs: appliedJobs,
+                                updated_at: new Date().toISOString()
+                            })
+                            .eq('id', existingCandidate.id)
+                            .select();
+                            
+                        if (updateError) {
+                            console.error('Error updating candidate in Supabase:', updateError);
+                            throw updateError;
+                        }
+                        
+                        console.log('Candidate updated in Supabase:', updateData);
+                        candidateId = existingCandidate.id;
+                    } else {
+                        // Create new candidate
+                        console.log('Creating new candidate in Supabase:', applicationData.fullName);
+                        
+                        const newCandidateId = 'CAN' + Date.now().toString();
+                        const newCandidate = {
+                            id: newCandidateId,
+                            name: applicationData.candidateName || applicationData.fullName,
+                            email: applicationData.email,
+                            phone: applicationData.phone || '',
+                            skills: [], // Can be extracted from cover letter later
+                            experience: applicationData.experience || '',
+                            education: '',
+                            resume_url: applicationData.resumeUrl || '',
+                            portfolio_links: applicationData.portfolioLinks || [],
+                            applied_jobs: [{
+                                jobId: applicationData.jobId,
+                                jobTitle: applicationData.jobTitle,
+                                appliedAt: new Date().toISOString(),
+                                status: 'Applied'
+                            }],
+                            status: 'Available',
+                            registered_date: new Date().toISOString(),
+                            last_active: new Date().toISOString(),
+                            source: 'landing_page',
+                            created_at: new Date().toISOString(),
+                            updated_at: new Date().toISOString()
+                        };
+                        
+                        const { data: insertData, error: insertError } = await supabase
+                            .from('candidates')
+                            .insert(newCandidate)
+                            .select();
+                            
+                        if (insertError) {
+                            console.error('Error creating candidate in Supabase:', insertError);
+                            throw insertError;
+                        }
+                        
+                        console.log('New candidate created in Supabase:', insertData);
+                        candidateId = newCandidateId;
+                    }
+                    
+                    if (candidateId) {
+                        this.notifySubscribers('candidates', 'updated', { id: candidateId });
+                        return candidateId;
+                    }
+                } catch (error) {
+                    console.error('Supabase candidate operation failed, falling back to localStorage:', error);
+                    // Continue with localStorage fallback
+                }
+            }
+            
+            // Fallback to localStorage
+            console.log('Using localStorage for candidate management');
             const candidates = this.getCandidates();
             let existingCandidate = candidates.find(c => c.email === applicationData.email);
             
@@ -710,6 +1052,7 @@ class NexStaffDataManager {
             } else {
                 // Create new candidate
                 const newCandidate = {
+                    id: 'CAN' + Date.now().toString(),
                     name: applicationData.candidateName || applicationData.fullName,
                     email: applicationData.email,
                     phone: applicationData.phone,
